@@ -1,872 +1,388 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title>Old Age Home Management System</title>
-
-    <!-- Google Font -->
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
-        rel="stylesheet">
-
-    <!-- Font Awesome -->
-    <link rel="stylesheet"
-        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
-
-    <!-- CSS -->
-    <link rel="stylesheet" href="css/style.css">
-    <link rel="stylesheet" href="css/responsive.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SevaNest — Care · Respect · Together</title>
+  <!-- Google Font: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
 </head>
-
 <body>
 
-    <!-- ================= HEADER ================= -->
+<div class="app" id="app">
 
-    <header class="header">
+  <!-- ============ SIDEBAR ============ -->
+  <aside class="sidebar" id="sidebar">
+    <div class="brand">
+      <div class="logo">
+        <img src="logo.png" alt="SevaNest Logo" class="logo-img" />
+      </div>
+      <div>
+        <h1>SevaNest</h1>
+        <small>CARE · RESPECT · TOGETHER</small>
+      </div>
+    </div>
 
-        <div class="container">
+    <nav class="nav">
+      <a href="#" class="nav-item active" data-page="dashboard"><span>🏠</span>Dashboard</a>
+      <a href="#" class="nav-item" data-page="attendance"><span>✅</span>Resident Attendance</a>
+      <a href="#" class="nav-item" data-page="activities"><span>📅</span>Daily Activities</a>
+      <a href="#" class="nav-item" data-page="meals"><span>🍽</span>Meal Schedule</a>
+      <a href="#" class="nav-item" data-page="specialcare"><span>❤️</span>Special Care</a>
+      <a href="#" class="nav-item" data-page="emergency"><span>🚨</span>Emergency Report</a>
+    </nav>
 
-            <div class="logo">
+    <div class="sidebar-foot">
+      <div class="user-mini">
+        <div class="avatar">RS</div>
+        <div><b>Radhika Sharma</b><em>Senior Caretaker</em></div>
+      </div>
+      <a href="#" class="logout">⏻ Logout</a>
+    </div>
+  </aside>
 
-                <img src="images/logo.png" alt="Logo">
-
-                <div class="logo-text">
-                    <h2>SEVA NEST</h2>
-                    <span>Old Age Home Management System</span>
-                </div>
-
-            </div>
-
-            <nav class="navbar">
-
-                <ul>
-
-                    <li><a href="#">Home</a></li>
-
-                    <li><a href="#about">About</a></li>
-
-                    <li><a href="#mission">Mission</a></li>
-
-                    <li><a href="#services">Services</a></li>
-
-                    <li><a href="#donation">Donate</a></li>
-
-                    <li><a href="#volunteer">Volunteer</a></li>
-
-                    <li><a href="#visitor">Visitors</a></li>
-
-                    <li><a href="#contact">Contact</a></li>
-
-                </ul>
-
-            </nav>
-
-            <a href="pages/login.html" class="login-btn">
-
-                Login
-
-            </a>
-
+  <!-- ============ MAIN ============ -->
+  <main class="main">
+    <header class="topbar">
+      <button class="menu-btn" id="menuBtn">☰</button>
+      <div class="crumbs"><span>Caretaker</span> / <b id="crumbPage">Dashboard</b></div>
+      <div class="search">
+        <span>🔎</span>
+        <input placeholder="Search residents, activities, reports..." />
+      </div>
+      <div class="top-actions">
+        <button class="icon-btn">🔔<span class="pill amber">4</span></button>
+        <button class="icon-btn">✉️<span class="pill">2</span></button>
+        <div class="user">
+          <div class="avatar">RS</div>
+          <div><b>Radhika</b><em>Caretaker</em></div>
         </div>
-
+      </div>
     </header>
 
-    <!-- ================= HERO ================= -->
+    <div class="pages">
 
-    <section class="hero">
-
-        <div class="container hero-container">
-
-            <!-- Left Side -->
-
-            <div class="hero-content">
-
-                <span class="tag">
-
-                    ❤️ Compassion • Care • Respect
-
-                </span>
-
-                <h1>
-
-                    Caring Today,<br>
-
-                    Inspiring Tomorrow
-
-                </h1>
-
-                <p>
-
-                    Welcome to the Old Age Home Management System.
-                    We are committed to providing compassionate care,
-                    quality healthcare, dignity, and a safe environment
-                    for every senior citizen.
-
-                </p>
-
-                <div class="hero-buttons">
-
-                    <a href="#donation" class="btn-primary">
-
-                        Donate Now
-
-                    </a>
-
-                    <a href="#volunteer" class="btn-secondary">
-
-                        Become Volunteer
-
-                    </a>
-
-                    <a href="pages/login.html" class="btn-outline">
-
-                        Login
-
-                    </a>
-
-                </div>
-
-            </div>
-
-            <!-- Right Side -->
-
-            <div class="hero-image">
-
-                <img src="images/hero.jpg" alt="Old Age Home">
-
-            </div>
-
+      <!-- DASHBOARD -->
+      <section class="page active" id="page-dashboard">
+        <div class="page-head">
+          <div>
+            <h2 class="page-title">Good morning, Radhika 🌿</h2>
+            <p class="page-sub">Here's what's happening at SevaNest today.</p>
+          </div>
+          <div class="page-actions">
+            <button class="btn ghost">Export Report</button>
+            <button class="btn primary">+ Quick Action</button>
+          </div>
         </div>
 
-    </section>
-
-    <!-- ================= STATS ================= -->
-
-    <section class="stats">
-
-        <div class="container stat-grid">
-
-            <div class="stat-card">
-
-                <i class="fa-solid fa-user-group"></i>
-
-                <h2>250+</h2>
-
-                <p>Residents</p>
-
-            </div>
-
-            <div class="stat-card">
-
-                <i class="fa-solid fa-user-doctor"></i>
-
-                <h2>45+</h2>
-
-                <p>Medical Staff</p>
-
-            </div>
-
-            <div class="stat-card">
-
-                <i class="fa-solid fa-heart"></i>
-
-                <h2>2000+</h2>
-
-                <p>Happy Families</p>
-
-            </div>
-
-            <div class="stat-card">
-
-                <i class="fa-solid fa-utensils"></i>
-
-                <h2>10000+</h2>
-
-                <p>Meals Served</p>
-
-            </div>
-
+        <div class="grid stats">
+          <div class="stat-card gradient">
+            <div class="stat-ico">👥</div>
+            <div><span>Today's Attendance</span><h3>48 / 52</h3><small class="up">▲ 92% present</small></div>
+          </div>
+          <div class="stat-card"><div class="stat-ico green">✅</div><div><span>Residents Present</span><h3>48</h3><small class="up">▲ +3 vs yesterday</small></div></div>
+          <div class="stat-card"><div class="stat-ico red">⛔</div><div><span>Residents Absent</span><h3>04</h3><small class="down">▼ 2 on medical leave</small></div></div>
+          <div class="stat-card"><div class="stat-ico gold">🍽</div><div><span>Today's Meals</span><h3>4 Served</h3><small>Breakfast · Lunch · Snacks · Dinner</small></div></div>
+          <div class="stat-card"><div class="stat-ico pink">❤️</div><div><span>Special Care</span><h3>12</h3><small>Under close monitoring</small></div></div>
+          <div class="stat-card"><div class="stat-ico alert">🚨</div><div><span>Emergency Cases</span><h3>01</h3><small class="down">Active — Room 204</small></div></div>
         </div>
 
-    </section>
+        <div class="grid two-col">
+          <div class="card">
+            <div class="card-head">
+              <h3>Weekly Attendance Overview</h3>
+              <select class="select"><option>This Week</option><option>Last Week</option><option>This Month</option></select>
+            </div>
+            <div class="chart-placeholder">
+              <div class="bars">
+                <span style="height:60%"></span><span style="height:75%"></span>
+                <span style="height:85%"></span><span style="height:70%"></span>
+                <span style="height:90%"></span><span style="height:80%"></span>
+                <span style="height:65%"></span>
+              </div>
+              <div class="chart-legend"><em>Chart placeholder — connect via PHP/MySQL</em></div>
+            </div>
+          </div>
 
-    <!-- ================= ABOUT SECTION ================= -->
+          <div class="card">
+            <div class="card-head"><h3>Upcoming Activities</h3><a class="link">View all</a></div>
+            <ul class="timeline">
+              <li><span class="dot"></span><div><strong>Morning Yoga</strong><em>7:00 AM · Garden Hall</em></div></li>
+              <li><span class="dot gold"></span><div><strong>Health Checkup</strong><em>10:30 AM · Clinic Room</em></div></li>
+              <li><span class="dot pink"></span><div><strong>Music Therapy</strong><em>3:00 PM · Community Hall</em></div></li>
+              <li><span class="dot"></span><div><strong>Evening Prayer</strong><em>6:30 PM · Prayer Room</em></div></li>
+            </ul>
+          </div>
+        </div>
 
-<section class="about" id="about">
+        <div class="grid two-col">
+          <div class="card">
+            <div class="card-head"><h3>Quick Actions</h3></div>
+            <div class="quick-grid">
+              <button class="quick"><span>📝</span>Mark Attendance</button>
+              <button class="quick"><span>🍽</span>Add Meal</button>
+              <button class="quick"><span>💊</span>Medicine Log</button>
+              <button class="quick"><span>🚨</span>Report Emergency</button>
+              <button class="quick"><span>📅</span>New Activity</button>
+              <button class="quick"><span>❤️</span>Special Care</button>
+            </div>
+          </div>
 
-    <div class="container about-container">
+          <div class="card">
+            <div class="card-head"><h3>Recent Notifications</h3><a class="link">Mark all read</a></div>
+            <ul class="notif-list">
+              <li><span class="dot alert"></span><div><strong>Emergency reported</strong> in Room 204 — Fall detected. <em>2m ago</em></div></li>
+              <li><span class="dot gold"></span><div><strong>Medicine reminder</strong> for Mr. Verma at 2 PM. <em>15m ago</em></div></li>
+              <li><span class="dot"></span><div><strong>Family visit</strong> scheduled for Mrs. Iyer at 5 PM. <em>1h ago</em></div></li>
+              <li><span class="dot pink"></span><div><strong>Meal plan updated</strong> — Low salt diet for 4 residents. <em>3h ago</em></div></li>
+            </ul>
+          </div>
+        </div>
 
-        <!-- Left Image -->
+        <div class="card">
+          <div class="card-head"><h3>Recent Activity Timeline</h3></div>
+          <ul class="tl">
+            <li><b>08:12</b> Radhika marked attendance for Wing A (24 residents).</li>
+            <li><b>09:00</b> Breakfast served — nutrition summary logged.</li>
+            <li><b>10:45</b> Dr. Nair completed weekly checkup for Mr. Kapoor.</li>
+            <li><b>12:30</b> Lunch served with 3 special diet plates.</li>
+            <li><b>14:05</b> Emergency drill completed in Wing B.</li>
+          </ul>
+        </div>
+      </section>
 
-        <div class="about-image">
+      <!-- ATTENDANCE -->
+      <section class="page" id="page-attendance">
+        <div class="page-head">
+          <div>
+            <h2 class="page-title">Resident Attendance</h2>
+            <p class="page-sub">Track daily presence, check-in and check-out times.</p>
+          </div>
+          <div class="page-actions">
+            <button class="btn ghost">Export CSV</button>
+            <button class="btn primary" id="saveAttendance">Save Attendance</button>
+          </div>
+        </div>
 
-    <img src="images/about-main.jpg" alt="Senior Care" class="main-img">
+        <div class="toolbar">
+          <div class="search inline"><span>🔎</span><input placeholder="Search resident by name or room…" id="attSearch"></div>
+          <select class="select"><option>All Wings</option><option>Wing A</option><option>Wing B</option><option>Wing C</option></select>
+          <select class="select"><option>All Status</option><option>Present</option><option>Absent</option><option>Late</option></select>
+          <input type="date" class="select">
+        </div>
 
-    <img src="images/about-doctor.jpg" alt="Doctor Care" class="small-img top-img">
+        <div class="card no-pad">
+          <div class="table-wrap">
+            <table class="tbl" id="attendanceTable">
+              <thead>
+                <tr><th>Resident</th><th>Room</th><th>Status</th><th>Check-in</th><th>Check-out</th><th>Actions</th></tr>
+              </thead>
+              <tbody>
+                <tr data-id="1"><td><div class="res-cell"><div class="res-photo">AK</div><div><b>Mr. Arun Kapoor</b><em>Age 78</em></div></div></td><td>204</td><td><span class="badge green">Present</span></td><td>08:15</td><td>—</td><td><div class="chip-group"><button class="btn chip present on" data-set="present">Present</button><button class="btn chip absent" data-set="absent">Absent</button><button class="btn chip late" data-set="late">Late</button></div></td></tr>
+                <tr data-id="2"><td><div class="res-cell"><div class="res-photo">MI</div><div><b>Mrs. Meera Iyer</b><em>Age 72</em></div></div></td><td>118</td><td><span class="badge green">Present</span></td><td>08:15</td><td>—</td><td><div class="chip-group"><button class="btn chip present on" data-set="present">Present</button><button class="btn chip absent" data-set="absent">Absent</button><button class="btn chip late" data-set="late">Late</button></div></td></tr>
+                <tr data-id="3"><td><div class="res-cell"><div class="res-photo">VV</div><div><b>Mr. Vijay Verma</b><em>Age 81</em></div></div></td><td>301</td><td><span class="badge green">Present</span></td><td>08:15</td><td>—</td><td><div class="chip-group"><button class="btn chip present on" data-set="present">Present</button><button class="btn chip absent" data-set="absent">Absent</button><button class="btn chip late" data-set="late">Late</button></div></td></tr>
+                <tr data-id="4"><td><div class="res-cell"><div class="res-photo">LR</div><div><b>Mrs. Latha Rao</b><em>Age 75</em></div></div></td><td>302</td><td><span class="badge green">Present</span></td><td>08:15</td><td>—</td><td><div class="chip-group"><button class="btn chip present on" data-set="present">Present</button><button class="btn chip absent" data-set="absent">Absent</button><button class="btn chip late" data-set="late">Late</button></div></td></tr>
+                <tr data-id="5"><td><div class="res-cell"><div class="res-photo">SN</div><div><b>Mr. Suresh Nair</b><em>Age 69</em></div></div></td><td>210</td><td><span class="badge green">Present</span></td><td>08:15</td><td>—</td><td><div class="chip-group"><button class="btn chip present on" data-set="present">Present</button><button class="btn chip absent" data-set="absent">Absent</button><button class="btn chip late" data-set="late">Late</button></div></td></tr>
+                <tr data-id="6"><td><div class="res-cell"><div class="res-photo">KS</div><div><b>Mrs. Kamla Singh</b><em>Age 84</em></div></div></td><td>112</td><td><span class="badge green">Present</span></td><td>08:15</td><td>—</td><td><div class="chip-group"><button class="btn chip present on" data-set="present">Present</button><button class="btn chip absent" data-set="absent">Absent</button><button class="btn chip late" data-set="late">Late</button></div></td></tr>
+                <tr data-id="7"><td><div class="res-cell"><div class="res-photo">RJ</div><div><b>Mr. Ramesh Joshi</b><em>Age 77</em></div></div></td><td>225</td><td><span class="badge green">Present</span></td><td>08:15</td><td>—</td><td><div class="chip-group"><button class="btn chip present on" data-set="present">Present</button><button class="btn chip absent" data-set="absent">Absent</button><button class="btn chip late" data-set="late">Late</button></div></td></tr>
+                <tr data-id="8"><td><div class="res-cell"><div class="res-photo">AD</div><div><b>Mrs. Anita Desai</b><em>Age 80</em></div></div></td><td>130</td><td><span class="badge green">Present</span></td><td>08:15</td><td>—</td><td><div class="chip-group"><button class="btn chip present on" data-set="present">Present</button><button class="btn chip absent" data-set="absent">Absent</button><button class="btn chip late" data-set="late">Late</button></div></td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="pagination">
+            <span>Showing 1–8 of 52</span>
+            <div><button class="btn tiny">‹</button><button class="btn tiny active">1</button><button class="btn tiny">2</button><button class="btn tiny">3</button><button class="btn tiny">›</button></div>
+          </div>
+        </div>
+      </section>
 
-    <img src="images/about-group.jpg" alt="Happy Residents" class="small-img bottom-img">
-    
-    <img src="images/yoga.jpg" alt="Morning Yoga" class="yoga-img">
+      <!-- ACTIVITIES -->
+      <section class="page" id="page-activities">
+        <div class="page-head">
+          <div>
+            <h2 class="page-title">Daily Activities</h2>
+            <p class="page-sub">Plan and monitor engaging activities for residents.</p>
+          </div>
+          <div class="page-actions">
+            <button class="btn ghost">📅 Calendar</button>
+            <button class="btn primary">+ Add Activity</button>
+          </div>
+        </div>
 
-    <div class="about-badge">
-        <h3>250+</h3>
-        <p>Happy Residents</p>
+        <div class="activity-block">
+          <h3 class="sec-title">🌅 Morning Activities</h3>
+          <div class="grid three-col">
+            <div class="act-card"><h4>Morning Yoga</h4><div class="act-meta"><span>👤 Radhika</span><span>👥 24 residents</span><span><span class="badge amber">Ongoing</span></span></div><div class="act-notes">Garden hall — chair yoga variation.</div><div class="act-actions"><button class="btn tiny">Edit</button><button class="btn tiny">Delete</button></div></div>
+            <div class="act-card gold"><h4>Breakfast Service</h4><div class="act-meta"><span>👤 Anil</span><span>👥 48 residents</span><span><span class="badge green">Completed</span></span></div><div class="act-notes">Idli, oats & fruit juice served.</div><div class="act-actions"><button class="btn tiny">Edit</button><button class="btn tiny">Delete</button></div></div>
+            <div class="act-card pink"><h4>Physiotherapy</h4><div class="act-meta"><span>👤 Priya</span><span>👥 6 residents</span><span><span class="badge blue">Scheduled</span></span></div><div class="act-notes">Individual sessions in Wing A.</div><div class="act-actions"><button class="btn tiny">Edit</button><button class="btn tiny">Delete</button></div></div>
+          </div>
+        </div>
+
+        <div class="activity-block">
+          <h3 class="sec-title">☀️ Afternoon Activities</h3>
+          <div class="grid three-col">
+            <div class="act-card gold"><h4>Health Checkup</h4><div class="act-meta"><span>👤 Dr. Nair</span><span>👥 12 residents</span><span><span class="badge amber">Ongoing</span></span></div><div class="act-notes">Weekly vitals & BP monitoring.</div><div class="act-actions"><button class="btn tiny">Edit</button><button class="btn tiny">Delete</button></div></div>
+            <div class="act-card"><h4>Reading Circle</h4><div class="act-meta"><span>👤 Radhika</span><span>👥 15 residents</span><span><span class="badge blue">Scheduled</span></span></div><div class="act-notes">Regional literature session.</div><div class="act-actions"><button class="btn tiny">Edit</button><button class="btn tiny">Delete</button></div></div>
+            <div class="act-card pink"><h4>Music Therapy</h4><div class="act-meta"><span>👤 Priya</span><span>👥 18 residents</span><span><span class="badge blue">Scheduled</span></span></div><div class="act-notes">Classical instrumental therapy.</div><div class="act-actions"><button class="btn tiny">Edit</button><button class="btn tiny">Delete</button></div></div>
+          </div>
+        </div>
+
+        <div class="activity-block">
+          <h3 class="sec-title">🌙 Evening Activities</h3>
+          <div class="grid three-col">
+            <div class="act-card"><h4>Evening Walk</h4><div class="act-meta"><span>👤 Anil</span><span>👥 22 residents</span><span><span class="badge blue">Scheduled</span></span></div><div class="act-notes">Guided walk in the garden.</div><div class="act-actions"><button class="btn tiny">Edit</button><button class="btn tiny">Delete</button></div></div>
+            <div class="act-card gold"><h4>Prayer Session</h4><div class="act-meta"><span>👤 Radhika</span><span>👥 30 residents</span><span><span class="badge blue">Scheduled</span></span></div><div class="act-notes">Multi-faith prayer room.</div><div class="act-actions"><button class="btn tiny">Edit</button><button class="btn tiny">Delete</button></div></div>
+            <div class="act-card pink"><h4>Movie Night</h4><div class="act-meta"><span>👤 Priya</span><span>👥 20 residents</span><span><span class="badge blue">Scheduled</span></span></div><div class="act-notes">Community hall — vintage films.</div><div class="act-actions"><button class="btn tiny">Edit</button><button class="btn tiny">Delete</button></div></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><h3>Calendar</h3><em class="muted">Placeholder — connect to PHP calendar API</em></div>
+          <div class="calendar-placeholder"><div class="cal-grid" id="calGrid"></div></div>
+        </div>
+      </section>
+
+      <!-- MEALS -->
+      <section class="page" id="page-meals">
+        <div class="page-head">
+          <div>
+            <h2 class="page-title">Meal Schedule</h2>
+            <p class="page-sub">Balanced nutrition tailored to every resident's needs.</p>
+          </div>
+          <div class="page-actions">
+            <button class="btn ghost">Print Menu</button>
+            <button class="btn primary">+ Add Meal</button>
+          </div>
+        </div>
+
+        <div class="grid four-col nutri">
+          <div class="nutri-card"><span>🥗</span><strong>1,850</strong><em>Avg. Calories</em></div>
+          <div class="nutri-card"><span>💧</span><strong>2.4 L</strong><em>Hydration</em></div>
+          <div class="nutri-card"><span>🍚</span><strong>210 g</strong><em>Carbs</em></div>
+          <div class="nutri-card"><span>🥚</span><strong>72 g</strong><em>Protein</em></div>
+        </div>
+
+        <div class="grid two-col">
+          <div class="meal-card"><div class="meal-head"><div><h4>Breakfast</h4><em>07:30 AM · Anil Kumar</em></div><span class="meal-tag">Served</span></div><div class="meal-info"><div><strong>Time</strong>07:30 AM</div><div><strong>Assigned Staff</strong>Anil Kumar</div><div><strong>Resident Count</strong>48</div><div><strong>Status</strong>Served</div></div><div class="diet-tags"><span>Diabetic</span><span>Soft Diet</span><span>Vegetarian</span></div><div class="meal-foot"><span class="muted">Special diets tracked</span><div><button class="btn tiny">Edit</button> <button class="btn tiny">View</button></div></div></div>
+          <div class="meal-card"><div class="meal-head"><div><h4>Lunch</h4><em>12:30 PM · Priya Menon</em></div><span class="meal-tag">Served</span></div><div class="meal-info"><div><strong>Time</strong>12:30 PM</div><div><strong>Assigned Staff</strong>Priya Menon</div><div><strong>Resident Count</strong>50</div><div><strong>Status</strong>Served</div></div><div class="diet-tags"><span>Low Salt</span><span>Diabetic</span><span>Vegetarian</span></div><div class="meal-foot"><span class="muted">Special diets tracked</span><div><button class="btn tiny">Edit</button> <button class="btn tiny">View</button></div></div></div>
+          <div class="meal-card"><div class="meal-head"><div><h4>Snacks</h4><em>04:30 PM · Radhika S.</em></div><span class="meal-tag">Scheduled</span></div><div class="meal-info"><div><strong>Time</strong>04:30 PM</div><div><strong>Assigned Staff</strong>Radhika S.</div><div><strong>Resident Count</strong>47</div><div><strong>Status</strong>Scheduled</div></div><div class="diet-tags"><span>Soft Diet</span><span>Vegetarian</span></div><div class="meal-foot"><span class="muted">Special diets tracked</span><div><button class="btn tiny">Edit</button> <button class="btn tiny">View</button></div></div></div>
+          <div class="meal-card"><div class="meal-head"><div><h4>Dinner</h4><em>07:30 PM · Anil Kumar</em></div><span class="meal-tag">Scheduled</span></div><div class="meal-info"><div><strong>Time</strong>07:30 PM</div><div><strong>Assigned Staff</strong>Anil Kumar</div><div><strong>Resident Count</strong>50</div><div><strong>Status</strong>Scheduled</div></div><div class="diet-tags"><span>Low Salt</span><span>Soft Diet</span><span>Vegetarian</span></div><div class="meal-foot"><span class="muted">Special diets tracked</span><div><button class="btn tiny">Edit</button> <button class="btn tiny">View</button></div></div></div>
+        </div>
+      </section>
+
+      <!-- SPECIAL CARE -->
+      <section class="page" id="page-specialcare">
+        <div class="page-head">
+          <div>
+            <h2 class="page-title">Special Care</h2>
+            <p class="page-sub">Residents requiring close attention and medical priority.</p>
+          </div>
+          <div class="page-actions">
+            <button class="btn ghost">Doctor Notes</button>
+            <button class="btn primary">+ Add Case</button>
+          </div>
+        </div>
+
+        <div class="toolbar">
+          <div class="search inline"><span>🔎</span><input placeholder="Search by name or condition…"></div>
+          <select class="select"><option>All Priorities</option><option>High</option><option>Medium</option><option>Low</option></select>
+          <select class="select"><option>All Caretakers</option><option>Radhika</option><option>Anil</option><option>Priya</option></select>
+        </div>
+
+        <div class="card no-pad">
+          <div class="table-wrap">
+            <table class="tbl">
+              <thead><tr><th>Resident</th><th>Age</th><th>Room</th><th>Condition</th><th>Care Instructions</th><th>Caretaker</th><th>Medicine</th><th>Priority</th><th>Status</th></tr></thead>
+              <tbody>
+                <tr><td><div class="res-cell"><div class="res-photo">MA</div><div><b>Mr. Arun Kapoor</b><em>Room 204</em></div></div></td><td>78</td><td>204</td><td>Post-fall recovery</td><td>Assisted mobility, 2h checks</td><td>Radhika</td><td>8AM · 2PM · 8PM</td><td><span class="badge red">High</span></td><td><span class="badge amber">Active</span></td></tr>
+                <tr><td><div class="res-cell"><div class="res-photo">MM</div><div><b>Mrs. Meera Iyer</b><em>Room 118</em></div></div></td><td>72</td><td>118</td><td>Diabetes Type II</td><td>Sugar monitoring 3x/day</td><td>Priya</td><td>Before meals</td><td><span class="badge amber">Medium</span></td><td><span class="badge green">Stable</span></td></tr>
+                <tr><td><div class="res-cell"><div class="res-photo">MV</div><div><b>Mr. Vijay Verma</b><em>Room 301</em></div></div></td><td>81</td><td>301</td><td>Hypertension</td><td>Low-salt diet, BP twice</td><td>Anil</td><td>9AM · 9PM</td><td><span class="badge amber">Medium</span></td><td><span class="badge green">Stable</span></td></tr>
+                <tr><td><div class="res-cell"><div class="res-photo">ML</div><div><b>Mrs. Latha Rao</b><em>Room 302</em></div></div></td><td>75</td><td>302</td><td>Alzheimer's — mild</td><td>Memory support, escort</td><td>Radhika</td><td>Morning only</td><td><span class="badge red">High</span></td><td><span class="badge blue">Monitoring</span></td></tr>
+                <tr><td><div class="res-cell"><div class="res-photo">MS</div><div><b>Mr. Suresh Nair</b><em>Room 210</em></div></div></td><td>69</td><td>210</td><td>Cardiac follow-up</td><td>Weekly ECG check-in</td><td>Priya</td><td>8AM · 8PM</td><td><span class="badge green">Low</span></td><td><span class="badge green">Stable</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- EMERGENCY -->
+      <section class="page" id="page-emergency">
+        <div class="page-head">
+          <div>
+            <h2 class="page-title">Emergency Report</h2>
+            <p class="page-sub">Log, track and respond to critical incidents in real time.</p>
+          </div>
+          <div class="page-actions"><button class="btn danger">🚨 Report Emergency</button></div>
+        </div>
+
+        <div class="grid quick-emg">
+          <button class="emg-btn"><span>🚑</span>Medical</button>
+          <button class="emg-btn"><span>🔥</span>Fire</button>
+          <button class="emg-btn"><span>🩹</span>Injury</button>
+          <button class="emg-btn"><span>💊</span>Medication</button>
+          <button class="emg-btn"><span>🧠</span>Mental Health</button>
+          <button class="emg-btn"><span>⚠️</span>Other</button>
+        </div>
+
+        <div class="grid two-col">
+          <div class="card">
+            <div class="card-head"><h3>New Emergency Report</h3></div>
+            <form class="form" id="emergencyForm">
+              <div class="row">
+                <label>Emergency Type <select name="type"><option>Medical</option><option>Fire</option><option>Injury</option><option>Other</option></select></label>
+                <label>Resident <input name="resident" placeholder="Select resident"></label>
+              </div>
+              <div class="row">
+                <label>Location <input name="location" placeholder="Room / Area"></label>
+                <label>Reported Time <input type="datetime-local" name="time"></label>
+              </div>
+              <div class="row">
+                <label>Severity <select name="severity"><option>Low</option><option>Medium</option><option>High</option><option>Critical</option></select></label>
+                <label>Assigned Staff <input name="staff" placeholder="Caretaker / Doctor"></label>
+              </div>
+              <label>Description <textarea name="desc" rows="4" placeholder="Describe the situation…"></textarea></label>
+              <div class="form-actions">
+                <button class="btn ghost" type="reset">Reset</button>
+                <button class="btn primary" type="submit">Submit Report</button>
+              </div>
+            </form>
+          </div>
+
+          <div class="card">
+            <div class="card-head"><h3>Emergency Timeline</h3></div>
+            <ul class="timeline dense">
+              <li><span class="dot alert"></span><div><strong>Fall detected — Room 204</strong><em>Today · 14:05 · Critical</em></div></li>
+              <li><span class="dot gold"></span><div><strong>Medication delay — Room 118</strong><em>Today · 11:20 · Medium</em></div></li>
+              <li><span class="dot"></span><div><strong>Blood pressure spike</strong><em>Yesterday · 19:40 · High</em></div></li>
+              <li><span class="dot pink"></span><div><strong>Minor injury during walk</strong><em>Yesterday · 07:15 · Low</em></div></li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="card no-pad">
+          <div class="card-head pad"><h3>Incident History</h3><a class="link">View all</a></div>
+          <div class="table-wrap">
+            <table class="tbl">
+              <thead><tr><th>ID</th><th>Type</th><th>Resident</th><th>Location</th><th>Severity</th><th>Status</th><th>Time</th></tr></thead>
+              <tbody>
+                <tr><td>#EMG-1042</td><td>Medical</td><td>Mr. Kapoor</td><td>Room 204</td><td><span class="badge red">Critical</span></td><td><span class="badge amber">Active</span></td><td>14:05</td></tr>
+                <tr><td>#EMG-1041</td><td>Medication</td><td>Mrs. Iyer</td><td>Room 118</td><td><span class="badge amber">Medium</span></td><td><span class="badge green">Resolved</span></td><td>11:20</td></tr>
+                <tr><td>#EMG-1040</td><td>Injury</td><td>Mr. Verma</td><td>Garden</td><td><span class="badge">Low</span></td><td><span class="badge green">Resolved</span></td><td>Yesterday</td></tr>
+                <tr><td>#EMG-1039</td><td>Medical</td><td>Mrs. Rao</td><td>Room 302</td><td><span class="badge red">High</span></td><td><span class="badge green">Resolved</span></td><td>2 days ago</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
     </div>
-
+  </main>
 </div>
 
-        <!-- Right Content -->
-
-        <div class="about-content">
-
-            <span class="section-tag">
-                About Our Organization
-            </span>
-
-            <h2>
-                Providing Love, Care & Dignity for Every Senior Citizen
-            </h2>
-
-            <p>
-                The Old Age Home Management System (OAHMS) is a modern digital
-                platform designed to simplify the management of elderly residents,
-                healthcare records, visitors, donations, volunteers, and daily
-                activities. Our mission is to ensure every senior citizen receives
-                compassionate care, medical support, emotional well-being, and a
-                safe, family-like environment.
-            </p>
-
-            <div class="about-features">
-
-                <div class="feature-card">
-                    <i class="fa-solid fa-heart-circle-check"></i>
-                    <h4>Compassionate Care</h4>
-                    <p>Providing emotional support and a loving environment.</p>
-                </div>
-
-                <div class="feature-card">
-                    <i class="fa-solid fa-user-doctor"></i>
-                    <h4>Healthcare</h4>
-                    <p>Regular medical check-ups and health monitoring.</p>
-                </div>
-
-                <div class="feature-card">
-                    <i class="fa-solid fa-shield-heart"></i>
-                    <h4>Safe Living</h4>
-                    <p>Secure accommodation with professional caregivers.</p>
-                </div>
-
-                <div class="feature-card">
-                    <i class="fa-solid fa-users"></i>
-                    <h4>Family Connection</h4>
-                    <p>Helping families stay connected with their loved ones.</p>
-                </div>
-
-            </div>
-
-        </div>
-
-    </div>
-
-</section>
-
-<!-- ================= MISSION & VISION ================= -->
-
-<section class="mission" id="mission">
-
-    <div class="container">
-
-        <div class="section-title">
-
-            <span class="section-tag">Our Purpose</span>
-
-            <h2>Mission & Vision</h2>
-
-            <p>
-                We are dedicated to creating a safe, respectful, and joyful
-                environment where every senior citizen receives compassionate
-                care, quality healthcare, and emotional support.
-            </p>
-
-        </div>
-
-        <div class="mission-grid">
-
-            <!-- Mission Card -->
-
-            <div class="mission-card">
-
-                <div class="mission-icon">
-                    <i class="fa-solid fa-bullseye"></i>
-                </div>
-
-                <h3>Our Mission</h3>
-
-                <p>
-                    To improve the quality of life of senior citizens by
-                    providing healthcare, emotional support, nutritious meals,
-                    safe accommodation, and family-like care through a
-                    technology-enabled management system.
-                </p>
-
-            </div>
-
-            <!-- Vision Card -->
-
-            <div class="mission-card">
-
-                <div class="mission-icon">
-                    <i class="fa-solid fa-eye"></i>
-                </div>
-
-                <h3>Our Vision</h3>
-
-                <p>
-                    To become a trusted and innovative old age home that
-                    promotes dignity, independence, transparency, and happiness
-                    while strengthening the connection between residents,
-                    families, volunteers, and donors.
-                </p>
-
-            </div>
-
-        </div>
-
-    </div>
-
-</section>
-
-<!-- ================= RESIDENT CARE SERVICES ================= -->
-
-<section class="services" id="services">
-
-    <div class="container">
-
-        <div class="section-title">
-
-            <span class="section-tag">What We Provide</span>
-
-            <h2>Resident Care Services</h2>
-
-            <p>
-                We provide comprehensive healthcare, emotional support, nutrition,
-                and engaging activities to ensure every resident enjoys a happy,
-                healthy, and dignified life.
-            </p>
-
-        </div>
-
-        <div class="services-grid">
-
-            <!-- Card 1 -->
-            <div class="service-card">
-
-                <div class="service-icon">
-                    <i class="fa-solid fa-user-doctor"></i>
-                </div>
-
-                <h3>Medical Care</h3>
-
-                <p>
-                    Regular health checkups, medicine management,
-                    and emergency medical support.
-                </p>
-
-            </div>
-
-            <!-- Card 2 -->
-
-            <div class="service-card">
-
-                <div class="service-icon">
-                    <i class="fa-solid fa-bowl-food"></i>
-                </div>
-
-                <h3>Healthy Meals</h3>
-
-                <p>
-                    Nutritious breakfast, lunch, dinner,
-                    and customized diet plans.
-                </p>
-
-            </div>
-
-            <!-- Card 3 -->
-
-            <div class="service-card">
-
-                <div class="service-icon">
-                    <i class="fa-solid fa-heart-circle-check"></i>
-                </div>
-
-                <h3>Personal Care</h3>
-
-                <p>
-                    Daily assistance with hygiene,
-                    mobility, and personal wellness.
-                </p>
-
-            </div>
-
-            <!-- Card 4 -->
-
-            <div class="service-card">
-
-                <div class="service-icon">
-                    <i class="fa-solid fa-dumbbell"></i>
-                </div>
-
-                <h3>Wellness Activities</h3>
-
-                <p>
-                    Yoga, meditation,
-                    indoor games, and social programs.
-                </p>
-
-            </div>
-
-            <!-- Card 5 -->
-
-            <div class="service-card">
-
-                <div class="service-icon">
-                    <i class="fa-solid fa-user-group"></i>
-                </div>
-
-                <h3>Family Interaction</h3>
-
-                <p>
-                    Scheduled family visits,
-                    video calls, and communication support.
-                </p>
-
-            </div>
-
-            <!-- Card 6 -->
-
-            <div class="service-card">
-
-                <div class="service-icon">
-                    <i class="fa-solid fa-shield-heart"></i>
-                </div>
-
-                <h3>24×7 Safety</h3>
-
-                <p>
-                    Round-the-clock security,
-                    caregivers, and emergency response.
-                </p>
-
-            </div>
-
-        </div>
-
-    </div>
-
-</section>
-<!-- ================= DONATION ================= -->
-
-<section class="donation" id="donation">
-
-    <div class="container donation-container">
-
-        <div class="donation-content">
-
-            <span class="section-tag">Support Our Mission</span>
-
-            <h2>Make a Difference with Your Donation</h2>
-
-            <p>
-                Your contribution helps provide nutritious meals, quality healthcare,
-                comfortable accommodation, and emotional support to our senior citizens.
-                Every donation creates a positive impact.
-            </p>
-
-            <div class="donation-buttons">
-
-                <a href="#" class="btn-primary">Donate Now</a>
-
-                <a href="#" class="btn-outline">Become a Donor</a>
-
-            </div>
-
-        </div>
-
-        <div class="donation-cards">
-
-            <div class="donation-card">
-                <h3>₹500</h3>
-                <p>Provide healthy meals for one resident.</p>
-            </div>
-
-            <div class="donation-card">
-                <h3>₹1000</h3>
-                <p>Support medicine and healthcare needs.</p>
-            </div>
-
-            <div class="donation-card">
-                <h3>₹5000</h3>
-                <p>Help improve living facilities and care.</p>
-            </div>
-
-            <div class="donation-card">
-                <h3>₹10000+</h3>
-                <p>Become a Platinum Supporter for our residents.</p>
-            </div>
-
-        </div>
-
-    </div>
-
-</section>
-<!-- ================= VOLUNTEER ================= -->
-
-<section class="volunteer" id="volunteer">
-
-    <div class="container volunteer-container">
-
-        <!-- Left Content -->
-
-        <div class="volunteer-content">
-
-            <span class="section-tag">Become a Volunteer</span>
-
-            <h2>Share Your Time, Care & Kindness</h2>
-
-            <p>
-                Volunteers bring happiness, companionship, and support to our
-                elderly residents. Join us and help make their lives brighter
-                through meaningful interactions and community service.
-            </p>
-
-            <ul class="volunteer-list">
-                <li><i class="fa-solid fa-check"></i> Support Senior Citizens</li>
-                <li><i class="fa-solid fa-check"></i> Participate in Social Activities</li>
-                <li><i class="fa-solid fa-check"></i> Flexible Volunteer Schedule</li>
-                <li><i class="fa-solid fa-check"></i> Certificate of Appreciation</li>
-            </ul>
-
-        </div>
-
-        <!-- Right Form -->
-
-        <div class="volunteer-form">
-
-            <form>
-
-                <input type="text" placeholder="Full Name" required>
-
-                <input type="email" placeholder="Email Address" required>
-
-                <input type="tel" placeholder="Mobile Number" required>
-
-                <input type="text" placeholder="Occupation">
-
-                <textarea rows="5" placeholder="Why do you want to volunteer?"></textarea>
-
-                <button type="submit" class="btn-primary">
-                    Register Now
-                </button>
-
-            </form>
-
-        </div>
-
-    </div>
-
-</section>
-<!-- ================= VISITOR INFORMATION ================= -->
-
-<section class="visitor" id="visitor">
-
-    <div class="container">
-
-        <div class="section-title">
-
-            <span class="section-tag">Visitor Information</span>
-
-            <h2>Visit Your Loved Ones</h2>
-
-            <p>
-                We encourage family members and friends to visit our residents.
-                To ensure everyone's safety and comfort, please follow the visitor
-                guidelines and schedule your visit in advance.
-            </p>
-
-        </div>
-
-        <div class="visitor-grid">
-
-            <!-- Visiting Hours -->
-
-            <div class="visitor-card">
-
-                <i class="fa-solid fa-clock"></i>
-
-                <h3>Visiting Hours</h3>
-
-                <p>Monday - Sunday</p>
-
-                <h4>10:00 AM - 6:00 PM</h4>
-
-            </div>
-
-            <!-- Appointment -->
-
-            <div class="visitor-card">
-
-                <i class="fa-solid fa-calendar-check"></i>
-
-                <h3>Appointment</h3>
-
-                <p>
-                    Book your visit online or contact the administration before arriving.
-                </p>
-
-            </div>
-
-            <!-- ID -->
-
-            <div class="visitor-card">
-
-                <i class="fa-solid fa-id-card"></i>
-
-                <h3>ID Verification</h3>
-
-                <p>
-                    All visitors must carry a valid government-issued ID for security.
-                </p>
-
-            </div>
-
-            <!-- Rules -->
-
-            <div class="visitor-card">
-
-                <i class="fa-solid fa-circle-info"></i>
-
-                <h3>Visitor Guidelines</h3>
-
-                <ul>
-                    <li>✔ Maintain silence</li>
-                    <li>✔ Follow staff instructions</li>
-                    <li>✔ Respect residents' privacy</li>
-                    <li>✔ Keep the premises clean</li>
-                </ul>
-
-            </div>
-
-        </div>
-
-    </div>
-
-</section>
-<!-- ================= CONTACT ================= -->
-
-<section class="contact" id="contact">
-
-    <div class="container">
-
-        <div class="section-title">
-
-            <span class="section-tag">Get In Touch</span>
-
-            <h2>Contact Us</h2>
-
-            <p>
-                We'd love to hear from you. Whether you want to donate,
-                volunteer, visit our residents, or simply ask a question,
-                feel free to contact us.
-            </p>
-
-        </div>
-
-        <div class="contact-container">
-
-            <!-- Left Side -->
-
-            <div class="contact-info">
-
-                <div class="contact-box">
-
-                    <i class="fa-solid fa-location-dot"></i>
-
-                    <div>
-
-                        <h3>Address</h3>
-
-                        <p>Old Age Home, Pune, Maharashtra, India</p>
-
-                    </div>
-
-                </div>
-
-                <div class="contact-box">
-
-                    <i class="fa-solid fa-phone"></i>
-
-                    <div>
-
-                        <h3>Phone</h3>
-
-                        <p>+91 9876543210</p>
-
-                    </div>
-
-                </div>
-
-                <div class="contact-box">
-
-                    <i class="fa-solid fa-envelope"></i>
-
-                    <div>
-
-                        <h3>Email</h3>
-
-                        <p>info@oahms.com</p>
-
-                    </div>
-
-                </div>
-
-                <div class="contact-box">
-
-                    <i class="fa-solid fa-globe"></i>
-
-                    <div>
-
-                        <h3>Website</h3>
-
-                        <p>www.oahms.com</p>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-            <!-- Right Side -->
-
-            <div class="contact-form">
-
-                <form>
-
-                    <input type="text" placeholder="Full Name" required>
-
-                    <input type="email" placeholder="Email Address" required>
-
-                    <input type="text" placeholder="Subject">
-
-                    <textarea rows="6" placeholder="Write your message"></textarea>
-
-                    <button class="btn-primary" type="submit">
-
-                        Send Message
-
-                    </button>
-
-                </form>
-
-            </div>
-
-        </div>
-
-    </div>
-
-</section>
-<!-- ================= LOGIN CTA ================= -->
-
-<section class="login-cta">
-
-    <div class="container login-container">
-
-        <h2>Access Your Dashboard</h2>
-
-        <p>
-            Administrators, caretakers, doctors, donors, and family members can
-            securely log in to access their personalized dashboard.
-        </p>
-
-        <a href="pages/login.html" class="btn-primary">
-            Login Now
-        </a>
-
-    </div>
-
-</section>
-
-<!-- ================= FOOTER ================= -->
-
-<footer class="footer">
-
-    <div class="container footer-container">
-
-        <div class="footer-box">
-
-            <h3>🏡 About SEVA NEST</h3>
-
-            <p>
-                Providing love, dignity, healthcare, and happiness
-                to senior citizens through modern technology.
-            </p>
-
-        </div>
-
-        <div class="footer-box">
-
-            <h3>Quick Links</h3>
-
-            <ul>
-
-                <li><a href="#">Home</a></li>
-                <li><a href="#about">About</a></li>
-                <li><a href="#services">Services</a></li>
-                <li><a href="#donation">Donate</a></li>
-                <li><a href="#contact">Contact</a></li>
-
-            </ul>
-
-        </div>
-
-        <div class="footer-box">
-
-            <h3>Contact</h3>
-
-            <p>📍 Pune, Maharashtra</p>
-            <p>📞 +91 9876543210</p>
-            <p>📧 info@oahms.com</p>
-
-        </div>
-
-        <div class="footer-box">
-
-            <h3>Working Hours</h3>
-
-            <p>Monday - Sunday</p>
-            <p>10:00 AM - 6:00 PM</p>
-
-        </div>
-
-    </div>
-
-    <div class="footer-bottom">
-
-        <p>
-            © 2026 Old Age Home Management System | All Rights Reserved
-        </p>
-
-    </div>
-
-</footer>
-
-    <script src="js/script.js"></script>
-
-    <button id="topBtn">
-    <i class="fa-solid fa-arrow-up"></i>
-</button>
-
+<div class="backdrop" id="backdrop"></div>
+<script src="script.js"></script>
 </body>
-
 </html>
