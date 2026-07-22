@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Super Admin Dashboard</title>
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="superadmin_dash.css">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+
+    <!-- Google Fonts -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Poppins:wght@500;600;700&display=swap"
+        rel="stylesheet">
+
+</head>
+
+<body>
+
+    <!-- HEADER (Replace with teammate include later) -->
+    <header class="top-header">
+
+        <h2>Old Age Home Management System</h2>
+
+    </header>
+
+    <div class="dashboard-container">
+
+        <!-- Sidebar -->
+
+        <aside class="sidebar">
+
+            <div>
+
+                <div class="admin-profile">
+
+                    <div class="profile-image">
+
+                        <i class="fa-solid fa-user-shield"></i>
+
+                    </div>
+
+                    <h3>Super Admin</h3>
+
+                    <p>System Administrator</p>
+
+                </div>
+
+                <ul class="menu">
+
+                    <li class="active">
+
+                        <i class="fa-solid fa-house"></i>
+
+                        Dashboard
+
+                    </li>
+
+                    <li>
+
+                        <i class="fa-solid fa-users"></i>
+
+                        User Management
+
+                    </li>
+
+                    <li>
+
+                        <i class="fa-solid fa-user-lock"></i>
+
+                        Role Management
+
+                    </li>
+
+                    <li>
+
+                        <i class="fa-solid fa-file-lines"></i>
+
+                        Reports
+
+                    </li>
+
+                    <li>
+
+                        <i class="fa-solid fa-chart-column"></i>
+
+                        Statistics
+
+                    </li>
+
+                </ul>
+
+            </div>
+
+            <div class="bottom-menu">
+
+                <button>
+
+                    <i class="fa-solid fa-gear"></i>
+
+                    Settings
+
+                </button>
+
+            </div>
+
+        </aside>
+
+        <!-- Main Content -->
+
+        <main class="content">
+
+            <!-- Greeting -->
+
+            <section class="welcome">
+
+                <div>
+
+                    <h1>Welcome Back, Super Admin</h1>
+
+                    <p>
+                        Monitor your old age home with a complete overview of
+                        residents, staff, visitors and donations.
+                    </p>
+
+                </div>
+
+                <div class="today-date">
+
+                    <i class="fa-solid fa-calendar-days"></i>
+
+                    <span id="currentDate"></span>
+
+                </div>
+
+            </section>
+
+            <!-- Statistics -->
+
+            <section class="stats-grid">
+
+                <div class="stat-card">
+
+                    <i class="fa-solid fa-house-user"></i>
+
+                    <h2 id="residentCount">254</h2>
+
+                    <p>Total Residents</p>
+
+                </div>
+
+                <div class="stat-card">
+
+                    <i class="fa-solid fa-user-nurse"></i>
+
+                    <h2 id="staffCount">43</h2>
+
+                    <p>Total Staff</p>
+
+                </div>
+
+                <div class="stat-card">
+
+                    <i class="fa-solid fa-hand-holding-heart"></i>
+
+                    <h2 id="donationCount">₹4.2L</h2>
+
+                    <p>Total Donations</p>
+
+                </div>
+
+                <div class="stat-card">
+
+                    <i class="fa-solid fa-people-group"></i>
+
+                    <h2 id="visitorCount">185</h2>
+
+                    <p>Total Visitors</p>
+
+                </div>
+
+                <div class="stat-card">
+
+                    <i class="fa-solid fa-user-shield"></i>
+
+                    <h2 id="userCount">18</h2>
+
+                    <p>Total Users</p>
+
+                </div>
+
+            </section>
+
+            <!-- Quick Access -->
+
+            <section class="quick-access">
+
+                <h2>Quick Access</h2>
+
+                <div class="quick-grid">
+
+                    <div class="quick-card">
+
+                        <i class="fa-solid fa-users"></i>
+
+                        <h3>User Management</h3>
+
+                        <p>Create, edit and manage users.</p>
+
+                    </div>
+
+                    <div class="quick-card">
+
+                        <i class="fa-solid fa-user-lock"></i>
+
+                        <h3>Role Management</h3>
+
+                        <p>Assign permissions and access.</p>
+
+                    </div>
+
+                    <div class="quick-card">
+
+                        <i class="fa-solid fa-file-lines"></i>
+
+                        <h3>Reports</h3>
+
+                        <p>Generate monthly system reports.</p>
+
+                    </div>
+
+                    <div class="quick-card">
+
+                        <i class="fa-solid fa-chart-column"></i>
+
+                        <h3>Statistics</h3>
+
+                        <p>View complete analytics.</p>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+            <!-- Bottom Area -->
+
+            <section class="bottom-grid">
+
+                <!-- Recent Activities -->
+
+                <div class="activity-panel">
+
+                    <h2>Recent Activities</h2>
+
+                    <ul>
+
+                        <li>
+                            <i class="fa-solid fa-circle-check"></i>
+                            New Resident Registered
+                        </li>
+
+                        <li>
+                            <i class="fa-solid fa-circle-check"></i>
+                            Donation Received
+                        </li>
+
+                        <li>
+                            <i class="fa-solid fa-circle-check"></i>
+                            Staff Account Created
+                        </li>
+
+                        <li>
+                            <i class="fa-solid fa-circle-check"></i>
+                            Visitor Entry Recorded
+                        </li>
+
+                        <li>
+                            <i class="fa-solid fa-circle-check"></i>
+                            Monthly Report Generated
+                        </li>
+
+                    </ul>
+
+                </div>
+
+                <!-- System Overview -->
+
+                <div class="overview-panel">
+
+                    <h2>System Overview</h2>
+
+                    <div class="status">
+
+                        <span>Database</span>
+
+                        <strong>Online</strong>
+
+                    </div>
+
+                    <div class="status">
+
+                        <span>Server</span>
+
+                        <strong>Healthy</strong>
+
+                    </div>
+
+                    <div class="status">
+
+                        <span>Storage</span>
+
+                        <strong>68%</strong>
+
+                    </div>
+
+                    <div class="status">
+
+                        <span>Active Users</span>
+
+                        <strong>12</strong>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+        </main>
+
+    </div>
+
+    <!-- FOOTER (Replace with teammate include later) -->
+
+    <footer class="footer">
+
+        © 2026 Old Age Home Management System
+
+    </footer>
+
+    <script src="superadmin_dash.js"></script>
+
+</body>
+
+</html>
