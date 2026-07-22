@@ -1,0 +1,659 @@
+/* ==========================================================================
+   SevaNest – Family Member Health Updates Stylesheet
+   File     : assets/css/health-updates.css
+   Version  : 1.0
+   Author   : SevaNest Dev Team
+
+   Design tokens match dashboard.css exactly.
+   All component selectors use the "hu-" prefix.
+
+   TABLE OF CONTENTS
+   -----------------
+   1.  Design Tokens (mirrors :root from dashboard)
+   2.  Page Layout Shell
+   3.  Page Header Strip (breadcrumb)
+   4.  Vitals Card (Today's Health Updates)
+   5.  Medical Updates Card
+   6.  Doctor Advice Highlight Box
+   7.  Medication Tracker Card + Table
+   8.  Medical Reports Card + Table
+   9.  Status Pills (Taken / Pending / Upcoming)
+   10. Report Type Badges
+   11. Action Buttons (View / Download)
+   12. Search & Filter Bar
+   13. Pagination
+   14. Back to Dashboard Button
+   15. Animations
+   16. Responsive Overrides
+   ========================================================================== */
+
+
+/* ─── 1. Design Tokens ───────────────────────────────────────────────────── */
+:root {
+    --hu-bg          : #F6F4EC;
+    --hu-white       : #FFFFFF;
+    --hu-olive       : #556B2F;
+    --hu-sage        : #6B9080;
+    --hu-charcoal    : #2F3A3A;
+    --hu-grey        : #6B7280;
+    --hu-border      : #ECECEC;
+    --hu-success     : #5C9E6E;
+    --hu-success-bg  : rgba(92, 158, 110, 0.10);
+    --hu-warning     : #C76D20;
+    --hu-warning-bg  : #FFF4E6;
+    --hu-muted-bg    : #F0EFEB;
+    --hu-muted-text  : #8A929C;
+    --hu-card-radius : 20px;
+    --hu-card-pad    : 28px;
+    --hu-card-shadow : 0 6px 24px rgba(0, 0, 0, 0.07);
+    --hu-card-hover  : 0 12px 36px rgba(85, 107, 47, 0.11), 0 4px 12px rgba(0,0,0,0.06);
+    --hu-font        : 'Inter', sans-serif;
+    --hu-trans       : transform 220ms ease, box-shadow 220ms ease;
+}
+
+/* ─── 2. Page Layout Shell ───────────────────────────────────────────────── */
+body {
+    font-family: var(--hu-font);
+    background : var(--hu-bg);
+    color      : var(--hu-charcoal);
+    min-height : 100vh;
+}
+
+.hu-page-wrapper {
+    padding   : 32px 36px 56px;
+    max-width : 1380px;
+}
+
+/* ─── 3. Page Header Strip ───────────────────────────────────────────────── */
+.hu-header-strip {
+    background   : var(--hu-white);
+    border-radius: 16px;
+    padding      : 20px 28px;
+    box-shadow   : var(--hu-card-shadow);
+    display      : flex;
+    align-items  : center;
+    justify-content: space-between;
+    flex-wrap    : wrap;
+    gap          : 10px;
+    margin-bottom: 24px;
+}
+
+.hu-header-strip__title {
+    font-size  : 30px;
+    font-weight: 700;
+    color      : var(--hu-olive);
+    line-height: 1.2;
+    margin     : 0 0 4px;
+    font-family: var(--hu-font);
+}
+
+.hu-breadcrumb {
+    display    : flex;
+    align-items: center;
+    gap        : 6px;
+    font-size  : 0.78rem;
+    color      : var(--hu-grey);
+    font-family: var(--hu-font);
+    margin     : 0;
+}
+
+.hu-breadcrumb a {
+    color          : var(--hu-sage);
+    text-decoration: none;
+    font-weight    : 500;
+    transition     : color 180ms ease;
+}
+
+.hu-breadcrumb a:hover   { color: var(--hu-olive); }
+.hu-breadcrumb__sep      { color: var(--hu-border); }
+.hu-breadcrumb__current  { color: var(--hu-charcoal); font-weight: 500; }
+
+/* ─── 4. Vitals Card ─────────────────────────────────────────────────────── */
+.hu-card {
+    background   : var(--hu-white);
+    border-radius: var(--hu-card-radius);
+    padding      : var(--hu-card-pad);
+    box-shadow   : var(--hu-card-shadow);
+    border       : 1px solid transparent;
+    margin-bottom: 24px;
+    transition   : var(--hu-trans);
+    position     : relative;
+}
+
+.hu-card:hover {
+    box-shadow  : var(--hu-card-hover);
+    border-color: rgba(85, 107, 47, 0.09);
+}
+
+.hu-card__header {
+    display        : flex;
+    align-items    : center;
+    justify-content: space-between;
+    margin-bottom  : 22px;
+    flex-wrap      : wrap;
+    gap            : 10px;
+}
+
+.hu-card__title {
+    font-size  : 18px;
+    font-weight: 700;
+    color      : var(--hu-olive);
+    font-family: var(--hu-font);
+    display    : flex;
+    align-items: center;
+    gap        : 10px;
+    margin     : 0;
+}
+
+.hu-card__title i {
+    font-size: 1.1rem;
+    color    : var(--hu-sage);
+}
+
+.hu-last-updated {
+    font-size  : 0.75rem;
+    font-weight: 500;
+    color      : var(--hu-grey);
+    font-family: var(--hu-font);
+    display    : flex;
+    align-items: center;
+    gap        : 6px;
+}
+
+.hu-last-updated i {
+    color    : var(--hu-sage);
+    font-size: 0.82rem;
+}
+
+/* Vitals row list */
+.hu-vitals-list {
+    list-style: none;
+    padding   : 0;
+    margin    : 0;
+}
+
+.hu-vital-row {
+    display        : flex;
+    align-items    : center;
+    justify-content: space-between;
+    padding        : 14px 0;
+    gap            : 12px;
+    border-bottom  : 1px solid var(--hu-border);
+    transition     : background 180ms ease;
+}
+
+.hu-vital-row:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+.hu-vital-row:first-child {
+    padding-top: 0;
+}
+
+.hu-vital-left {
+    display    : flex;
+    align-items: center;
+    gap        : 12px;
+    flex       : 1;
+}
+
+.hu-vital-icon {
+    width          : 40px;
+    height         : 40px;
+    border-radius  : 10px;
+    background     : rgba(107, 144, 128, 0.09);
+    display        : flex;
+    align-items    : center;
+    justify-content: center;
+    font-size      : 1.15rem;
+    flex-shrink    : 0;
+}
+
+.hu-vital-label {
+    font-size  : 0.88rem;
+    font-weight: 500;
+    color      : var(--hu-charcoal);
+    font-family: var(--hu-font);
+}
+
+.hu-vital-value {
+    font-size  : 1rem;
+    font-weight: 700;
+    color      : var(--hu-olive);
+    font-family: var(--hu-font);
+    text-align : right;
+    white-space: nowrap;
+}
+
+/* ─── 5. Medical Updates Card ────────────────────────────────────────────── */
+.hu-field-grid {
+    display              : grid;
+    grid-template-columns: 1fr 1fr;
+    gap                  : 18px 28px;
+}
+
+.hu-field-group {
+    display       : flex;
+    flex-direction: column;
+    gap           : 5px;
+}
+
+.hu-field-group--full {
+    grid-column: 1 / -1;
+}
+
+.hu-field-label {
+    display    : flex;
+    align-items: center;
+    gap        : 7px;
+    font-size  : 0.72rem;
+    font-weight: 600;
+    color      : var(--hu-grey);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-family: var(--hu-font);
+}
+
+.hu-field-label i {
+    color    : var(--hu-sage);
+    font-size: 0.85rem;
+}
+
+.hu-field-value {
+    font-size    : 0.95rem;
+    font-weight  : 500;
+    color        : var(--hu-charcoal);
+    font-family  : var(--hu-font);
+    padding      : 10px 14px;
+    background   : rgba(107, 144, 128, 0.05);
+    border-radius: 10px;
+    border       : 1px solid var(--hu-border);
+    min-height   : 42px;
+    display      : flex;
+    align-items  : center;
+    line-height  : 1.4;
+    transition   : background 200ms ease;
+}
+
+.hu-field-value:hover {
+    background: rgba(107, 144, 128, 0.09);
+}
+
+/* ─── 6. Doctor Advice Highlight Box ─────────────────────────────────────── */
+.hu-advice-box {
+    background   : rgba(85, 107, 47, 0.07);
+    border-left  : 4px solid var(--hu-olive);
+    border-radius: 0 12px 12px 0;
+    padding      : 14px 18px;
+    margin-top   : 6px;
+}
+
+.hu-advice-box__label {
+    font-size  : 0.72rem;
+    font-weight: 700;
+    color      : var(--hu-olive);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-family: var(--hu-font);
+    display    : flex;
+    align-items: center;
+    gap        : 6px;
+    margin-bottom: 6px;
+}
+
+.hu-advice-box__text {
+    font-size  : 0.93rem;
+    font-weight: 400;
+    color      : var(--hu-charcoal);
+    font-family: var(--hu-font);
+    line-height: 1.55;
+}
+
+/* ─── 7. Medication Tracker ──────────────────────────────────────────────── */
+.hu-toolbar {
+    display        : flex;
+    align-items    : center;
+    justify-content: space-between;
+    flex-wrap      : wrap;
+    gap            : 12px;
+    margin-bottom  : 18px;
+}
+
+.hu-search-wrap {
+    position: relative;
+    flex    : 1;
+    min-width: 180px;
+    max-width: 320px;
+}
+
+.hu-search-wrap i {
+    position : absolute;
+    left     : 13px;
+    top      : 50%;
+    transform: translateY(-50%);
+    color    : var(--hu-grey);
+    font-size: 0.9rem;
+    pointer-events: none;
+}
+
+.hu-search-input {
+    width        : 100%;
+    padding      : 9px 14px 9px 36px;
+    border-radius: 50px;
+    border       : 1px solid var(--hu-border);
+    background   : rgba(107, 144, 128, 0.05);
+    font-size    : 0.85rem;
+    font-family  : var(--hu-font);
+    color        : var(--hu-charcoal);
+    outline      : none;
+    transition   : border-color 200ms ease, background 200ms ease;
+}
+
+.hu-search-input::placeholder { color: var(--hu-grey); }
+
+.hu-search-input:focus {
+    border-color: var(--hu-sage);
+    background  : #fff;
+}
+
+.hu-filter-select {
+    padding      : 9px 14px;
+    border-radius: 50px;
+    border       : 1px solid var(--hu-border);
+    background   : rgba(107, 144, 128, 0.05);
+    font-size    : 0.84rem;
+    font-family  : var(--hu-font);
+    color        : var(--hu-charcoal);
+    cursor       : pointer;
+    outline      : none;
+    transition   : border-color 200ms ease;
+}
+
+.hu-filter-select:focus { border-color: var(--hu-sage); }
+
+/* Table shared styles */
+.hu-table-wrap {
+    overflow-x: auto;
+    border-radius: 12px;
+    border     : 1px solid var(--hu-border);
+}
+
+.hu-table {
+    width          : 100%;
+    border-collapse: collapse;
+    font-family    : var(--hu-font);
+}
+
+.hu-table thead tr {
+    background: rgba(107, 144, 128, 0.07);
+}
+
+.hu-table th {
+    font-size     : 0.72rem;
+    font-weight   : 700;
+    color         : var(--hu-grey);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding       : 13px 16px;
+    text-align    : left;
+    white-space   : nowrap;
+    border-bottom : 1px solid var(--hu-border);
+}
+
+.hu-table td {
+    font-size  : 0.9rem;
+    font-weight: 500;
+    color      : var(--hu-charcoal);
+    padding    : 14px 16px;
+    border-bottom: 1px solid rgba(236, 236, 236, 0.60);
+    vertical-align: middle;
+}
+
+.hu-table tbody tr:last-child td { border-bottom: none; }
+
+.hu-table tbody tr {
+    transition: background 180ms ease;
+}
+
+.hu-table tbody tr:hover {
+    background: rgba(107, 144, 128, 0.04);
+}
+
+/* ─── 9. Status Pills ────────────────────────────────────────────────────── */
+.hu-pill {
+    display      : inline-flex;
+    align-items  : center;
+    gap          : 5px;
+    padding      : 4px 12px;
+    border-radius: 50px;
+    font-size    : 0.72rem;
+    font-weight  : 700;
+    font-family  : var(--hu-font);
+    white-space  : nowrap;
+}
+
+.hu-pill i { font-size: 0.62rem; }
+
+.hu-pill--taken {
+    background: rgba(92, 158, 110, 0.13);
+    color     : #3a7a51;
+}
+
+.hu-pill--pending {
+    background: rgba(199, 109, 32, 0.12);
+    color     : var(--hu-warning);
+}
+
+.hu-pill--upcoming {
+    background: rgba(107, 112, 128, 0.11);
+    color     : var(--hu-grey);
+}
+
+/* ─── 10. Report Type Badges ─────────────────────────────────────────────── */
+.hu-badge {
+    display      : inline-flex;
+    align-items  : center;
+    padding      : 3px 10px;
+    border-radius: 6px;
+    font-size    : 0.71rem;
+    font-weight  : 600;
+    font-family  : var(--hu-font);
+    white-space  : nowrap;
+}
+
+.hu-badge--blood   { background: rgba(200, 80, 80, 0.10);  color: #a84040; }
+.hu-badge--xray    { background: rgba(60, 100, 160, 0.10); color: #3060a0; }
+.hu-badge--mri     { background: rgba(100, 60, 160, 0.10); color: #5030a0; }
+.hu-badge--ct      { background: rgba(200, 140, 40, 0.12); color: #8a5c14; }
+.hu-badge--ecg     { background: rgba(85, 107, 47, 0.10);  color: var(--hu-olive); }
+.hu-badge--rx      { background: rgba(107, 144, 128, 0.12);color: #3d6b5a; }
+
+/* ─── 11. Action Buttons ─────────────────────────────────────────────────── */
+.hu-action-btns {
+    display: flex;
+    gap    : 6px;
+    flex-wrap: wrap;
+}
+
+.hu-btn-action {
+    display      : inline-flex;
+    align-items  : center;
+    gap          : 5px;
+    padding      : 6px 13px;
+    border-radius: 50px;
+    font-size    : 0.75rem;
+    font-weight  : 600;
+    font-family  : var(--hu-font);
+    border       : 1.5px solid;
+    cursor       : pointer;
+    text-decoration: none;
+    transition   : background 180ms ease, color 180ms ease, transform 180ms ease;
+    white-space  : nowrap;
+}
+
+.hu-btn-action--view {
+    background  : transparent;
+    color       : var(--hu-sage);
+    border-color: var(--hu-sage);
+}
+
+.hu-btn-action--view:hover {
+    background: var(--hu-sage);
+    color     : #fff;
+    transform : translateY(-1px);
+}
+
+.hu-btn-action--download {
+    background  : transparent;
+    color       : var(--hu-olive);
+    border-color: var(--hu-olive);
+}
+
+.hu-btn-action--download:hover {
+    background: var(--hu-olive);
+    color     : #fff;
+    transform : translateY(-1px);
+}
+
+/* ─── 12. Edit Button ────────────────────────────────────────────────────── */
+.hu-btn-edit {
+    display      : inline-flex;
+    align-items  : center;
+    gap          : 7px;
+    padding      : 9px 20px;
+    border-radius: 50px;
+    font-size    : 0.82rem;
+    font-weight  : 600;
+    font-family  : var(--hu-font);
+    background   : var(--hu-olive);
+    color        : #fff;
+    border       : none;
+    cursor       : pointer;
+    text-decoration: none;
+    transition   : background 200ms ease, transform 200ms ease, box-shadow 200ms ease;
+    box-shadow   : 0 3px 10px rgba(85, 107, 47, 0.25);
+    white-space  : nowrap;
+}
+
+.hu-btn-edit:hover {
+    background: #445a22;
+    transform : translateY(-2px);
+    box-shadow: 0 6px 18px rgba(85, 107, 47, 0.35);
+    color     : #fff;
+}
+
+/* ─── 13. Pagination ─────────────────────────────────────────────────────── */
+.hu-pagination {
+    display        : flex;
+    align-items    : center;
+    justify-content: space-between;
+    flex-wrap      : wrap;
+    gap            : 10px;
+    padding-top    : 18px;
+    border-top     : 1px solid var(--hu-border);
+}
+
+.hu-pagination__info {
+    font-size  : 0.8rem;
+    color      : var(--hu-grey);
+    font-family: var(--hu-font);
+}
+
+.hu-pagination__btns {
+    display: flex;
+    gap    : 4px;
+}
+
+.hu-page-btn {
+    width          : 34px;
+    height         : 34px;
+    border-radius  : 8px;
+    border         : 1px solid var(--hu-border);
+    background     : var(--hu-white);
+    font-size      : 0.82rem;
+    font-family    : var(--hu-font);
+    font-weight    : 500;
+    color          : var(--hu-charcoal);
+    cursor         : pointer;
+    display        : flex;
+    align-items    : center;
+    justify-content: center;
+    transition     : background 180ms ease, color 180ms ease, border-color 180ms ease;
+}
+
+.hu-page-btn:hover,
+.hu-page-btn.active {
+    background  : var(--hu-olive);
+    color       : #fff;
+    border-color: var(--hu-olive);
+}
+
+.hu-page-btn:disabled {
+    opacity: 0.4;
+    cursor : not-allowed;
+}
+
+/* ─── 14. Back to Dashboard Button ───────────────────────────────────────── */
+.hu-btn-back {
+    display      : inline-flex;
+    align-items  : center;
+    gap          : 8px;
+    padding      : 11px 26px;
+    border-radius: 50px;
+    font-size    : 0.88rem;
+    font-weight  : 600;
+    font-family  : var(--hu-font);
+    background   : var(--hu-white);
+    color        : var(--hu-olive);
+    border       : 2px solid var(--hu-olive);
+    cursor       : pointer;
+    text-decoration: none;
+    transition   : background 200ms ease, color 200ms ease, transform 200ms ease;
+    box-shadow   : 0 3px 10px rgba(0,0,0,0.06);
+}
+
+.hu-btn-back:hover {
+    background: var(--hu-olive);
+    color     : #fff;
+    transform : translateY(-2px);
+}
+
+.hu-bottom-bar {
+    display        : flex;
+    justify-content: flex-start;
+    padding-top    : 8px;
+}
+
+/* ─── 15. Animations ─────────────────────────────────────────────────────── */
+@keyframes hu-fade-up {
+    from { opacity: 0; transform: translateY(18px); }
+    to   { opacity: 1; transform: translateY(0);    }
+}
+
+.hu-animate     { animation: hu-fade-up 0.45s ease both; }
+.hu-animate-d1  { animation-delay: 0.05s; }
+.hu-animate-d2  { animation-delay: 0.13s; }
+.hu-animate-d3  { animation-delay: 0.21s; }
+.hu-animate-d4  { animation-delay: 0.30s; }
+.hu-animate-d5  { animation-delay: 0.38s; }
+.hu-animate-d6  { animation-delay: 0.46s; }
+
+/* ─── 16. Responsive Overrides ───────────────────────────────────────────── */
+@media (max-width: 991.98px) {
+    .hu-page-wrapper       { padding: 24px 20px 40px; }
+    .hu-header-strip__title{ font-size: 24px; }
+    .hu-field-grid         { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 575.98px) {
+    .hu-page-wrapper  { padding: 16px 14px 32px; }
+    .hu-header-strip  { padding: 16px 18px; }
+    .hu-card          { padding: 20px 18px; }
+    .hu-toolbar       { flex-direction: column; align-items: stretch; }
+    .hu-search-wrap   { max-width: 100%; }
+}
+
+@media (min-width: 1400px) {
+    .hu-page-wrapper { padding: 36px 48px 56px; }
+}

@@ -1,0 +1,595 @@
+/* ==========================================================================
+   SevaNest – Sidebar Component Stylesheet
+   Version  : 1 0
+   Author   : SevaNest Dev Team
+   Desc     : Premium, responsive, role-aware sidebar for the Old-Age Home
+              Management System. Supports expanded / collapsed / mobile states.
+   ==========================================================================
+
+   TABLE OF CONTENTS
+   -----------------
+   1. Google Font Import
+   2. CSS Custom Properties (Design Tokens)
+   3. Base Resets
+   4. Sidebar Shell
+   5. Logo Area
+   6. Navigation Wrapper
+   7. Section Headings
+   8. Nav Items (links, icons, labels)
+   9. Active State
+   10. Hover State
+   11. Tooltips (collapsed mode)
+   12. Sidebar Footer
+   13. Hamburger Toggle Button
+   14. Main Content Offset
+   15. Mobile Overlay
+   16. Collapsed State (desktop)
+   17. Mobile / Responsive
+   18. Scrollbar Styling
+   19. Focus / Accessibility
+   20. Smooth Transitions
+   ========================================================================== */
+
+
+/* ─── 1. Google Font Import ─────────────────────────────────────────────── */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+
+/* ─── 2. CSS Custom Properties ──────────────────────────────────────────── */
+:root {
+    /* Brand Palette */
+    --sn-sage          : #6B9080;   /* Sidebar background            */
+    --sn-sage-dark     : #5a7a6c;   /* Slightly darker sage           */
+    --sn-cream         : #F6F4EC;   /* Sidebar text / bg highlight   */
+    --sn-gold          : #D4A373;   /* Active nav item               */
+    --sn-gold-hover    : #c49260;   /* Slightly deeper gold on active */
+    --sn-olive         : #7DA27D;   /* Hover background              */
+    --sn-charcoal      : #2F3A3A;   /* Active text & icons           */
+    --sn-dashboard-bg  : #F6F4EC;   /* Main content background       */
+
+    /* Typography */
+    --sn-font          : 'Inter', sans-serif;
+    --sn-text-sm       : 0.75rem;    /* 12px */
+    --sn-text-base     : 0.9375rem;  /* 15px */
+    --sn-text-nav      : 0.9375rem;  /* 15px – menu items */
+    --sn-fw-normal     : 400;
+    --sn-fw-medium     : 500;
+    --sn-fw-semi       : 600;
+    --sn-fw-bold       : 700;
+
+    /* Spacing */
+    --sn-sidebar-w     : 280px;
+    --sn-collapsed-w   : 80px;
+    --sn-logo-pad      : 26px;
+    --sn-nav-pad-x     : 14px;
+    --sn-nav-pad-y     : 11px;
+    --sn-item-radius   : 12px;
+    --sn-icon-size     : 20px;
+    --sn-item-mx       : 10px;
+
+    /* Transitions */
+    --sn-transition    : 300ms ease-in-out;
+    --sn-hover-trans   : 200ms ease;
+    --sn-active-trans  : 250ms ease;
+
+    /* Shadows */
+    --sn-shadow        : 2px 0 20px rgba(47, 58, 58, 0.10);
+    --sn-tooltip-shadow: 0 4px 16px rgba(47, 58, 58, 0.18);
+}
+
+
+/* ─── 3. Base Resets ────────────────────────────────────────────────────── */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+    margin    : 0;
+    padding   : 0;
+}
+
+body {
+    font-family: var(--sn-font);
+    background : var(--sn-dashboard-bg);
+    color      : var(--sn-charcoal);
+}
+
+
+/* ─── 4. Sidebar Shell ──────────────────────────────────────────────────── */
+#sn-sidebar {
+    position        : fixed;
+    top             : 0;
+    left            : 0;
+    width           : var(--sn-sidebar-w);
+    height          : 100vh;
+    background-color: var(--sn-sage);
+    display         : flex;
+    flex-direction  : column;
+    overflow        : hidden;
+    box-shadow      : var(--sn-shadow);
+    transition      : width var(--sn-transition);
+    z-index         : 1040;
+    will-change     : width;
+}
+
+
+/* ─── 5. Logo Area ──────────────────────────────────────────────────────── */
+.sn-logo-wrap {
+    flex-shrink    : 0;
+    padding        : var(--sn-logo-pad);
+    display        : flex;
+    align-items    : center;
+    justify-content: center;
+    border-bottom  : 1px solid rgba(246, 244, 236, 0.15);
+    min-height     : 100px;
+    transition     : padding var(--sn-transition),
+                     min-height var(--sn-transition);
+}
+
+.sn-logo-container {
+    background    : var(--sn-cream);
+    border-radius : 14px;
+    padding       : 12px 16px;
+    display       : flex;
+    align-items   : center;
+    justify-content: center;
+    width         : 100%;
+    max-width     : 210px;
+    transition    : max-width var(--sn-transition),
+                    padding var(--sn-transition),
+                    border-radius var(--sn-transition);
+    overflow      : hidden;
+}
+
+.sn-logo-container img {
+    width      : 100%;
+    max-width  : 170px;
+    height     : auto;
+    object-fit : contain;
+    display    : block;
+    transition : max-width var(--sn-transition);
+    flex-shrink: 0;
+}
+
+
+/* ─── 6. Navigation Wrapper ─────────────────────────────────────────────── */
+.sn-nav-wrap {
+    flex       : 1 1 auto;
+    overflow-y : auto;
+    overflow-x : hidden;
+    padding    : 10px 0 6px;
+}
+
+.sn-nav-list {
+    list-style : none;
+    padding    : 0;
+    margin     : 0;
+}
+
+
+/* ─── 7. Section Headings ───────────────────────────────────────────────── */
+.sn-nav-heading {
+    font-size    : 0.6875rem;   /* 11px */
+    font-weight  : var(--sn-fw-semi);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color        : rgba(246, 244, 236, 0.55);
+    padding      : 20px 24px 6px;
+    white-space  : nowrap;
+    overflow     : hidden;
+    transition   : opacity var(--sn-transition),
+                   max-height var(--sn-transition),
+                   padding var(--sn-transition);
+}
+
+
+/* ─── 8. Nav Items ──────────────────────────────────────────────────────── */
+.sn-nav-item {
+    position   : relative;
+    margin     : 3px var(--sn-item-mx);
+}
+
+.sn-nav-link {
+    display        : flex;
+    align-items    : center;
+    gap            : 13px;
+    padding        : var(--sn-nav-pad-y) var(--sn-nav-pad-x);
+    border-radius  : var(--sn-item-radius);
+    color          : var(--sn-cream);
+    text-decoration: none;
+    font-size      : var(--sn-text-nav);
+    font-weight    : var(--sn-fw-medium);
+    white-space    : nowrap;
+    overflow       : hidden;
+    min-height     : 44px;          /* accessibility: min tap target */
+    transition     : background-color var(--sn-hover-trans),
+                     color var(--sn-hover-trans);
+    position       : relative;
+}
+
+.sn-nav-link .sn-icon {
+    font-size  : var(--sn-icon-size);
+    flex-shrink: 0;
+    width      : 22px;
+    text-align : center;
+    line-height: 1;
+    transition : color var(--sn-hover-trans);
+}
+
+.sn-nav-link .sn-label {
+    flex      : 1;
+    line-height: 1.2;
+    opacity   : 1;
+    transition: opacity var(--sn-transition),
+                max-width var(--sn-transition);
+    white-space: nowrap;
+    overflow   : hidden;
+    text-overflow: ellipsis;
+}
+
+/* Badge (notification count) */
+.sn-badge {
+    background : var(--sn-gold);
+    color      : var(--sn-charcoal);
+    font-size  : 0.6rem;
+    font-weight: var(--sn-fw-semi);
+    border-radius: 20px;
+    padding    : 2px 7px;
+    min-width  : 18px;
+    text-align : center;
+    line-height: 1.4;
+    flex-shrink: 0;
+    transition : opacity var(--sn-transition);
+}
+
+
+/* ─── 9. Active State ───────────────────────────────────────────────────── */
+.sn-nav-link.active,
+.sn-nav-link[aria-current="page"] {
+    background-color: var(--sn-gold);
+    color           : var(--sn-charcoal);
+    font-weight     : var(--sn-fw-semi);
+    box-shadow      : 0 2px 10px rgba(212, 163, 115, 0.30);
+    transition      : background-color var(--sn-active-trans),
+                      color var(--sn-active-trans),
+                      box-shadow var(--sn-active-trans);
+}
+
+.sn-nav-link.active .sn-icon,
+.sn-nav-link[aria-current="page"] .sn-icon {
+    color: var(--sn-charcoal);
+}
+
+.sn-nav-link.active .sn-badge,
+.sn-nav-link[aria-current="page"] .sn-badge {
+    background: var(--sn-charcoal);
+    color     : var(--sn-cream);
+}
+
+
+/* ─── 10. Hover State ───────────────────────────────────────────────────── */
+.sn-nav-link:not(.active):hover {
+    background-color: var(--sn-olive);
+    color           : var(--sn-cream);
+}
+
+.sn-nav-link:not(.active):hover .sn-icon {
+    color: var(--sn-cream);
+}
+
+
+/* ─── 11. Tooltips (collapsed mode) ────────────────────────────────────── */
+.sn-nav-item .sn-tooltip {
+    position      : absolute;
+    left          : calc(var(--sn-collapsed-w) - 6px);
+    top           : 50%;
+    transform     : translateY(-50%);
+    background    : var(--sn-charcoal);
+    color         : var(--sn-cream);
+    font-size     : var(--sn-text-sm);
+    font-weight   : var(--sn-fw-medium);
+    font-family   : var(--sn-font);
+    padding       : 6px 12px;
+    border-radius : 8px;
+    white-space   : nowrap;
+    pointer-events: none;
+    opacity       : 0;
+    visibility    : hidden;
+    box-shadow    : var(--sn-tooltip-shadow);
+    z-index       : 9999;
+    transition    : opacity 150ms ease, visibility 150ms ease;
+}
+
+.sn-nav-item .sn-tooltip::before {
+    content      : '';
+    position     : absolute;
+    right        : 100%;
+    top          : 50%;
+    transform    : translateY(-50%);
+    border       : 5px solid transparent;
+    border-right-color: var(--sn-charcoal);
+}
+
+
+/* ─── 12. Sidebar Footer ────────────────────────────────────────────────── */
+.sn-footer {
+    flex-shrink  : 0;
+    border-top   : 1px solid rgba(246, 244, 236, 0.15);
+    padding      : 10px var(--sn-item-mx) 16px;
+    overflow     : hidden;
+}
+
+.sn-footer-divider {
+    border       : none;
+    border-top   : 1px solid rgba(246, 244, 236, 0.12);
+    margin       : 6px 4px;
+}
+
+.sn-version {
+    font-size    : 0.6875rem;
+    color        : rgba(246, 244, 236, 0.40);
+    text-align   : center;
+    padding      : 6px 0 2px;
+    white-space  : nowrap;
+    overflow     : hidden;
+    opacity      : 1;
+    transition   : opacity var(--sn-transition);
+}
+
+/* Logout nav link (in footer) */
+.sn-footer .sn-nav-item {
+    margin: 3px 0;
+}
+
+.sn-logout-link {
+    color: rgba(246, 244, 236, 0.80) !important;
+}
+
+.sn-logout-link:not(.active):hover {
+    background-color: rgba(220, 80, 80, 0.18) !important;
+    color           : #ff8a8a !important;
+}
+
+.sn-logout-link:not(.active):hover .sn-icon {
+    color: #ff8a8a !important;
+}
+
+
+/* ─── 13. Hamburger Toggle Button ───────────────────────────────────────── */
+#sn-toggle-btn {
+    display        : inline-flex;
+    align-items    : center;
+    justify-content: center;
+    width          : 40px;
+    height         : 40px;
+    background     : transparent;
+    border         : none;
+    border-radius  : 8px;
+    color          : var(--sn-charcoal);
+    font-size      : 1.3rem;
+    cursor         : pointer;
+    transition     : background-color 200ms ease, color 200ms ease;
+    flex-shrink    : 0;
+}
+
+#sn-toggle-btn:hover {
+    background-color: rgba(107, 144, 128, 0.12);
+    color           : var(--sn-sage);
+}
+
+#sn-toggle-btn:focus-visible {
+    outline       : 2px solid var(--sn-sage);
+    outline-offset: 2px;
+}
+
+/* Top header bar (contains toggle + page title area) */
+.sn-topbar{
+    position: fixed;
+    top: 0;
+    left: var(--sn-sidebar-w);
+    right: 0;
+    height: 64px;
+
+    display:flex;
+    align-items:center;
+    gap:14px;
+    padding:0 24px;
+
+    background:var(--sn-cream);
+    border-bottom:1px solid rgba(47,58,58,.08);
+    z-index:1000;
+}
+.sn-topbar-title {
+    font-size  : 1.1rem;
+    font-weight: var(--sn-fw-bold);
+    color      : var(--sn-charcoal);
+    line-height: 1.2;
+}
+.sn-profile{
+    margin-left: auto;
+}
+.sn-profile a{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.7rem;
+    color: var(--sn-charcoal);
+    text-decoration: none;
+}
+
+
+/* ─── 14. Main Content Offset ───────────────────────────────────────────── */
+#sn-main-content{
+    margin-left:var(--sn-sidebar-w);
+    margin-top:64px;
+}
+
+
+/* ─── 15. Mobile Overlay ────────────────────────────────────────────────── */
+#sn-overlay {
+    display         : none;
+    position        : fixed;
+    inset           : 0;
+    background      : rgba(47, 58, 58, 0.45);
+    backdrop-filter : blur(2px);
+    z-index         : 1039;
+    opacity         : 0;
+    transition      : opacity var(--sn-transition);
+}
+
+#sn-overlay.sn-overlay-visible {
+    opacity: 1;
+}
+
+
+/* ─── 16. Collapsed State (desktop) ─────────────────────────────────────── */
+body.sn-collapsed #sn-sidebar {
+    width: var(--sn-collapsed-w);
+}
+
+body.sn-collapsed #sn-main-content {
+    margin-left: var(--sn-collapsed-w);
+}
+
+body.sn-collapsed .sn-topbar{
+    left:var(--sn-collapsed-w);
+}
+
+/* Shrink logo area */
+body.sn-collapsed .sn-logo-wrap {
+    padding   : 14px 10px;
+    min-height: 72px;
+}
+
+body.sn-collapsed .sn-logo-container {
+    max-width    : 52px;
+    padding      : 8px;
+    border-radius: 50%;
+}
+
+body.sn-collapsed .sn-logo-container img {
+    max-width: 36px;
+}
+
+/* Hide labels, headings, badges, version */
+body.sn-collapsed .sn-label,
+body.sn-collapsed .sn-nav-heading,
+body.sn-collapsed .sn-badge,
+body.sn-collapsed .sn-version {
+    opacity   : 0;
+    max-width : 0;
+    max-height: 0;
+    padding   : 0;
+    overflow  : hidden;
+    pointer-events: none;
+}
+
+body.sn-collapsed .sn-nav-heading {
+    padding: 0;
+}
+
+/* Center icons when collapsed */
+body.sn-collapsed .sn-nav-link {
+    justify-content: center;
+    gap            : 0;
+    padding        : var(--sn-nav-pad-y) 0;
+}
+
+body.sn-collapsed .sn-footer-divider {
+    margin: 4px 0;
+}
+
+/* Show tooltips on hover in collapsed mode */
+body.sn-collapsed .sn-nav-item:hover .sn-tooltip {
+    opacity   : 1;
+    visibility: visible;
+}
+
+
+/* ─── 17. Mobile / Responsive ───────────────────────────────────────────── */
+@media (max-width: 991.98px) {
+
+    /* Sidebar is off-screen by default on mobile */
+    #sn-sidebar {
+        transform : translateX(-100%);
+        width     : var(--sn-sidebar-w);
+        transition: transform var(--sn-transition);
+    }
+
+    #sn-sidebar.sn-mobile-open {
+        transform: translateX(0);
+    }
+
+    /* Main content takes full width */
+    #sn-main-content {
+        margin-left: 0 !important;
+    }
+
+    .sn-topbar {
+        margin-left: 0 !important;
+    }
+
+    /* Overlay shows on mobile open */
+    #sn-overlay {
+        display: block;
+    }
+
+    /* Disable desktop collapse class effect on mobile */
+    body.sn-collapsed #sn-sidebar {
+        width    : var(--sn-sidebar-w);
+        transform: translateX(-100%);
+    }
+
+    body.sn-collapsed #sn-sidebar.sn-mobile-open {
+        transform: translateX(0);
+    }
+}
+
+@media (min-width: 992px) {
+    /* Ensure overlay is never visible on desktop */
+    #sn-overlay {
+        display: none !important;
+    }
+}
+
+
+/* ─── 18. Scrollbar Styling ─────────────────────────────────────────────── */
+.sn-nav-wrap::-webkit-scrollbar {
+    width: 4px;
+}
+
+.sn-nav-wrap::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.sn-nav-wrap::-webkit-scrollbar-thumb {
+    background   : rgba(246, 244, 236, 0.25);
+    border-radius: 10px;
+}
+
+.sn-nav-wrap::-webkit-scrollbar-thumb:hover {
+    background: rgba(246, 244, 236, 0.40);
+}
+
+
+/* ─── 19. Focus / Accessibility ─────────────────────────────────────────── */
+.sn-nav-link:focus-visible {
+    outline       : 2px solid var(--sn-gold);
+    outline-offset: 2px;
+}
+
+.sn-nav-link:focus:not(:focus-visible) {
+    outline: none;
+}
+
+
+/* ─── 20. Smooth Transitions – General ──────────────────────────────────── */
+.sn-nav-link,
+.sn-logo-container,
+.sn-logo-container img,
+.sn-logo-wrap,
+#sn-sidebar,
+#sn-main-content,
+.sn-topbar {
+    -webkit-backface-visibility: hidden;
+    backface-visibility         : hidden;
+}
