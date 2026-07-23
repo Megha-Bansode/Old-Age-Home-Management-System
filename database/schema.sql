@@ -1,46 +1,0 @@
-﻿-- Old Age Home Management System Database Schema
-CREATE DATABASE IF NOT EXISTS oahms_db;
-USE oahms_db;
-
--- Users Table
-CREATE TABLE IF NOT EXISTS users (
-  id INT AUTO_INCREMENT PRIMARY KEY,
-  irst_name VARCHAR(50) NOT NULL,
-  last_name VARCHAR(50) NOT NULL,
-  email VARCHAR(100) NOT NULL UNIQUE,
-  password VARCHAR(255) NOT NULL,
-  ole_id INT NOT NULL,
-  status TINYINT(1) DEFAULT 1,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
--- Roles Table
-CREATE TABLE IF NOT EXISTS oles (
-  id INT AUTO_INCREMENT PRIMARY KEY,
-  
-ame VARCHAR(50) NOT NULL UNIQUE,
-  description TEXT,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
--- Residents Table
-CREATE TABLE IF NOT EXISTS esidents (
-  id INT AUTO_INCREMENT PRIMARY KEY,
-  irst_name VARCHAR(50) NOT NULL,
-  last_name VARCHAR(50) NOT NULL,
-  ge INT NOT NULL,
-  oom_no VARCHAR(10) NOT NULL,
-  medical_status TEXT,
-  dmission_date DATE NOT NULL,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
--- Donations Table
-CREATE TABLE IF NOT EXISTS donations (
-  id INT AUTO_INCREMENT PRIMARY KEY,
-  donor_name VARCHAR(100) NOT NULL,
-  mount DECIMAL(10,2) NOT NULL,
-  method VARCHAR(50) NOT NULL,
-  status VARCHAR(20) DEFAULT 'Completed',
-  donation_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
