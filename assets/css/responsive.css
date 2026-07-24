@@ -1,0 +1,216 @@
+/**
+ * SevaNest Old Age Home Management System
+ * Design System - Responsive Breakpoints & Utilities
+ */
+
+/* ==========================================================================
+   1440px Breakpoint (Large Desktop adjustment)
+   ========================================================================== */
+@media (max-width: 1440px) {
+    /* Limit container maximum width for extra-wide screens */
+    .container {
+        max-width: 1320px;
+    }
+}
+
+/* ==========================================================================
+   1200px Breakpoint (Laptop / Desktop transition)
+   ========================================================================== */
+@media (max-width: 1200px) {
+    :root {
+        --sidebar-width: 240px;
+    }
+
+    .container {
+        max-width: 1140px;
+    }
+
+    /* Grid adaptation for desktop to laptop */
+    .grid-cols-4 {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+}
+
+/* ==========================================================================
+   992px Breakpoint (Tablet Landscape / Large Screen)
+   ========================================================================== */
+@media (max-width: 992px) {
+    :root {
+        --sidebar-width: 0px;
+        --sidebar-collapsed-width: 0px;
+    }
+
+    .container {
+        max-width: 960px;
+        padding-right: var(--spacing-4);
+        padding-left: var(--spacing-4);
+    }
+
+    /* Sidebar shifts to absolute overlay menu for tablets */
+    .sidebar-wrapper {
+        width: 260px;
+        transform: translateX(-100%);
+        box-shadow: var(--shadow-heavy);
+    }
+
+    .sidebar-wrapper.mobile-active {
+        transform: translateX(0);
+    }
+
+    /* Remove margin for fixed sidebar */
+    .main-content {
+        margin-left: 0 !important;
+        padding: var(--spacing-4);
+        padding-top: calc(var(--header-height) + var(--spacing-4));
+    }
+
+    .header-wrapper {
+        left: 0 !important;
+    }
+
+    /* Grid adjustments */
+    .grid-cols-3 {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .dashboard-row {
+        grid-template-columns: 1fr;
+    }
+
+    /* Hide element utility */
+    .hide-lg {
+        display: none !important;
+    }
+}
+
+/* ==========================================================================
+   768px Breakpoint (Tablet Portrait)
+   ========================================================================== */
+@media (max-width: 768px) {
+    .container {
+        max-width: 720px;
+    }
+
+    /* Typography scaling down */
+    h1 { font-size: var(--font-size-xxl); }
+    h2 { font-size: var(--font-size-xl); }
+    h3 { font-size: var(--font-size-lg); }
+
+    /* Grid adjustments */
+    .grid-cols-4,
+    .grid-cols-6 {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    /* Flex wrapper behavior change */
+    .flex-col-md {
+        flex-direction: column !important;
+    }
+
+    .w-100-md {
+        width: 100% !important;
+    }
+
+    /* Hide element utility */
+    .hide-md {
+        display: none !important;
+    }
+
+    /* Shrink table padding */
+    .table th, .table td {
+        padding: var(--spacing-2);
+    }
+}
+
+/* ==========================================================================
+   576px Breakpoint (Mobile Landscape / Large Phones)
+   ========================================================================== */
+@media (max-width: 576px) {
+    html {
+        font-size: 14px; /* Global rem scaling */
+    }
+
+    .container {
+        max-width: 100%;
+        padding-right: var(--spacing-3);
+        padding-left: var(--spacing-3);
+    }
+
+    /* Stack all columns into single column */
+    .grid-cols-4,
+    .grid-cols-3,
+    .grid-cols-2 {
+        grid-template-columns: 1fr;
+    }
+
+    .grid-cols-12 {
+        grid-template-columns: 1fr;
+    }
+
+    /* Scale padding down */
+    .card {
+        padding: var(--spacing-4);
+    }
+
+    .modal-content {
+        max-width: 95%;
+        margin: var(--spacing-2);
+    }
+
+    .modal-footer {
+        flex-direction: column-reverse;
+        gap: var(--spacing-2);
+    }
+
+    .modal-footer .btn {
+        width: 100%;
+    }
+
+    /* Hide elements not required on small screens */
+    .table-responsive .hide-on-mobile {
+        display: none;
+    }
+
+    .hide-sm {
+        display: none !important;
+    }
+
+    /* Flex column adjustment */
+    .flex-col-sm {
+        flex-direction: column !important;
+    }
+
+    .w-100-sm {
+        width: 100% !important;
+    }
+}
+
+/* ==========================================================================
+   375px Breakpoint (Mobile Portrait / Small Phones)
+   ========================================================================== */
+@media (max-width: 375px) {
+    /* Scaling elements further down */
+    .avatar-lg {
+        width: 60px;
+        height: 60px;
+    }
+
+    .profile-card-name {
+        font-size: var(--font-size-md);
+    }
+
+    /* Form adjustment */
+    .form-control, .form-select, .btn {
+        padding: 0.5rem 0.75rem;
+    }
+
+    /* Hide utility for extra small screens */
+    .hide-xs {
+        display: none !important;
+    }
+
+    /* Stats card font decrease */
+    .stats-card-value {
+        font-size: var(--font-size-xl);
+    }
+}
