@@ -1,0 +1,521 @@
+/* ==========================================================================
+   SevaNest – Family Member Notifications Stylesheet
+   File     : assets/css/notifications.css
+   Version  : 1.0
+   Author   : SevaNest Dev Team
+   
+   Design tokens match dashboard.css & health-updates.css exactly.
+   All custom component selectors use the "nt-" prefix.
+   ========================================================================== */
+
+/* ─── 1. Design Tokens & Variables ───────────────────────────────────────── */
+:root {
+    --nt-bg             : var(--color-secondary);   /* Application background */
+    --nt-white          : var(--color-white);   /* Card & bubble background */
+    --nt-sage           : var(--color-primary);   /* Primary theme green */
+    --nt-sage-hover     : var(--color-primary-hover);   /* Deep sage for buttons on hover */
+    --nt-olive          : var(--color-primary-dark);   /* Heading text color */
+    --nt-charcoal       : var(--color-text);   /* Primary text color */
+    --nt-grey           : var(--color-text-muted);   /* Secondary / muted text */
+    --nt-gold           : var(--color-accent);   /* Accent Gold / Unread Badge */
+    --nt-gold-hover     : var(--color-accent-dark);   /* Gold hover state */
+    --nt-border         : var(--color-border);   /* Soft borders */
+    
+    /* Animation & Transitions */
+    --nt-transition     : transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), 
+                          box-shadow 0.25s cubic-bezier(0.4, 0, 0.2, 1), 
+                          border-color 0.25s cubic-bezier(0.4, 0, 0.2, 1), 
+                          background-color 0.2s ease;
+    
+    /* Custom Category Theme Colors */
+    --nt-color-health   : #6B9080;
+    --nt-bg-health       : rgba(107, 144, 128, 0.12);
+    
+    --nt-color-visit    : #D4A373;
+    --nt-bg-visit       : rgba(212, 163, 115, 0.12);
+    
+    --nt-color-medication: #5C9E6E;
+    --nt-bg-medication  : rgba(92, 158, 110, 0.12);
+    
+    --nt-color-doctor    : #3A86C8;
+    --nt-bg-doctor      : rgba(58, 134, 200, 0.12);
+    
+    --nt-color-report    : #8338EC;
+    --nt-bg-report      : rgba(131, 56, 236, 0.12);
+    
+    --nt-color-billing   : #F77F00;
+    --nt-bg-billing     : rgba(247, 127, 0, 0.12);
+    
+    --nt-color-emergency : #D96C6C;
+    --nt-bg-emergency   : rgba(217, 108, 108, 0.12);
+}
+
+/* ─── 2. Layout Shell & Main Container ──────────────────────────────────── */
+body {
+    font-family: 'Inter', sans-serif;
+    background : var(--nt-bg);
+    color      : var(--nt-charcoal);
+    min-height : 100vh;
+}
+
+.nt-page-wrapper {
+    padding   : 32px 36px 56px;
+    max-width : 1380px;
+    margin    : 0 auto;
+}
+
+/* ─── 3. Page Header Strip ──────────────────────────────────────────────── */
+.nt-header-strip {
+    background   : var(--nt-white);
+    border-radius: 16px;
+    padding      : 20px 28px;
+    box-shadow   : 0 8px 24px rgba(0, 0, 0, 0.04);
+    display      : flex;
+    align-items  : center;
+    justify-content: space-between;
+    flex-wrap    : wrap;
+    gap          : 12px;
+    margin-bottom: 24px;
+    border       : 1px solid rgba(236, 236, 236, 0.5);
+}
+
+.nt-header-strip__title {
+    font-size  : 30px;
+    font-weight: 700;
+    color      : var(--nt-olive);
+    line-height: 1.2;
+    margin     : 0 0 4px;
+}
+
+.nt-breadcrumb {
+    display    : flex;
+    align-items: center;
+    gap        : 6px;
+    font-size  : 0.78rem;
+    color      : var(--nt-grey);
+    margin     : 0;
+    padding    : 0;
+    list-style : none;
+}
+
+.nt-breadcrumb a {
+    color          : var(--nt-grey);
+    text-decoration: none;
+    transition     : color 0.15s ease;
+}
+
+.nt-breadcrumb a:hover {
+    color: var(--nt-sage);
+}
+
+.nt-breadcrumb__sep {
+    font-size: 0.7rem;
+    color    : #C1C6CC;
+}
+
+.nt-breadcrumb__current {
+    font-weight: 500;
+    color      : var(--nt-charcoal);
+}
+
+.nt-header-strip__date {
+    font-size  : 0.9rem;
+    font-weight: 500;
+    color      : var(--nt-charcoal);
+    display    : flex;
+    align-items: center;
+    gap        : 8px;
+}
+
+.nt-header-strip__date i {
+    color    : var(--nt-sage);
+    font-size: 1rem;
+}
+
+/* ─── 4. Top Filter Bar ─────────────────────────────────────────────────── */
+.nt-filter-bar {
+    display      : flex;
+    align-items  : center;
+    gap          : 12px;
+    margin-bottom: 28px;
+    background   : transparent;
+}
+
+.nt-filter-btn {
+    font-size      : 0.88rem;
+    font-weight    : 600;
+    padding        : 10px 24px;
+    border-radius  : 30px;
+    border         : 1px solid var(--nt-border);
+    background-color: var(--nt-white);
+    color          : var(--nt-grey);
+    cursor         : pointer;
+    transition     : var(--nt-transition);
+    display        : inline-flex;
+    align-items    : center;
+    gap            : 8px;
+    box-shadow     : 0 4px 10px rgba(0,0,0,0.02);
+}
+
+.nt-filter-btn:hover {
+    background-color: #FAF9F6;
+    color          : var(--nt-charcoal);
+    border-color   : var(--nt-sage);
+}
+
+.nt-filter-btn.active {
+    background-color: var(--nt-sage);
+    color          : var(--nt-white);
+    border-color   : var(--nt-sage);
+    box-shadow     : 0 4px 12px rgba(107, 144, 128, 0.25);
+}
+
+.nt-filter-count {
+    font-size    : 0.72rem;
+    font-weight  : 700;
+    padding      : 2px 7px;
+    border-radius: 20px;
+    background   : rgba(47, 58, 58, 0.08);
+    color        : var(--nt-grey);
+    transition   : var(--nt-transition);
+}
+
+.nt-filter-btn.active .nt-filter-count {
+    background: rgba(255, 255, 255, 0.2);
+    color     : var(--nt-white);
+}
+
+/* ─── 5. Notification Feed ─────────────────────────────────────────────── */
+.nt-feed-container {
+    max-height: calc(100vh - 270px);
+    overflow-y: auto;
+    padding-right: 6px;
+    scrollbar-gutter: stable;
+}
+
+.nt-feed-list {
+    display       : flex;
+    flex-direction: column;
+    gap           : 20px; /* Generous spacing */
+    padding       : 0 2px 10px 2px;
+    list-style    : none;
+    margin        : 0;
+}
+
+/* Messaging Bubble Design */
+.nt-bubble {
+    background-color: var(--nt-white);
+    border-radius   : 18px;
+    padding         : 20px 24px;
+    box-shadow      : 0 8px 24px rgba(0,0,0,0.08); /* Soft Shadow */
+    border          : 1px solid rgba(236, 236, 236, 0.4);
+    display         : flex;
+    align-items     : flex-start;
+    gap             : 20px;
+    position        : relative;
+    transition      : var(--nt-transition);
+    cursor          : pointer;
+    text-decoration : none;
+    color           : inherit;
+}
+
+/* Card Lift & Soft Shadow Transition */
+.nt-bubble:hover {
+    transform  : translateY(-3px);
+    box-shadow : 0 12px 32px rgba(47, 58, 58, 0.12);
+    border-color: rgba(107, 144, 128, 0.25);
+}
+
+/* Left Indicator Strip for Unread status */
+.nt-bubble::before {
+    content      : '';
+    position     : absolute;
+    left         : 0;
+    top          : 18px;
+    bottom       : 18px;
+    width        : 4px;
+    border-radius: 0 4px 4px 0;
+    background   : transparent;
+    transition   : background-color 0.2s ease;
+}
+
+.nt-bubble--unread::before {
+    background: var(--nt-gold);
+}
+
+.nt-bubble--unread {
+    background-color: #FAFDFB; /* Extremely subtle warm shade for unread cards */
+    border-color    : rgba(107, 144, 128, 0.15);
+}
+
+/* Category Icons Custom Colors styling */
+.nt-icon-bg {
+    width          : 48px;
+    height         : 48px;
+    border-radius  : 50%;
+    display        : flex;
+    align-items    : center;
+    justify-content: center;
+    font-size      : 1.25rem;
+    flex-shrink    : 0;
+    transition     : transform 0.2s ease;
+}
+
+.nt-bubble:hover .nt-icon-bg {
+    transform: scale(1.08);
+}
+
+/* Categorized color maps */
+.nt-category--health .nt-icon-bg {
+    background-color: var(--nt-bg-health);
+    color           : var(--nt-color-health);
+}
+.nt-category--visit .nt-icon-bg {
+    background-color: var(--nt-bg-visit);
+    color           : var(--nt-color-visit);
+}
+.nt-category--medication .nt-icon-bg {
+    background-color: var(--nt-bg-medication);
+    color           : var(--nt-color-medication);
+}
+.nt-category--doctor .nt-icon-bg {
+    background-color: var(--nt-bg-doctor);
+    color           : var(--nt-color-doctor);
+}
+.nt-category--report .nt-icon-bg {
+    background-color: var(--nt-bg-report);
+    color           : var(--nt-color-report);
+}
+.nt-category--billing .nt-icon-bg {
+    background-color: var(--nt-bg-billing);
+    color           : var(--nt-color-billing);
+}
+.nt-category--emergency .nt-icon-bg {
+    background-color: var(--nt-bg-emergency);
+    color           : var(--nt-color-emergency);
+}
+
+/* Bubble Content Area */
+.nt-content {
+    flex-grow: 1;
+    display  : flex;
+    flex-direction: column;
+    gap      : 6px;
+}
+
+.nt-title-row {
+    display        : flex;
+    align-items    : center;
+    justify-content: space-between;
+    gap            : 16px;
+    flex-wrap      : wrap;
+}
+
+.nt-title {
+    font-size  : 1.05rem;
+    font-weight: 700;
+    color      : var(--nt-charcoal);
+    margin     : 0;
+}
+
+.nt-message {
+    font-size  : 0.92rem;
+    line-height: 1.5;
+    color      : var(--nt-charcoal);
+    margin     : 0;
+}
+
+.nt-footer-row {
+    display        : flex;
+    align-items    : center;
+    justify-content: space-between;
+    gap            : 16px;
+    margin-top     : 4px;
+}
+
+.nt-time {
+    font-size  : 0.8rem;
+    font-weight: 500;
+    color      : var(--nt-grey);
+    display    : flex;
+    align-items: center;
+    gap        : 6px;
+}
+
+.nt-time i {
+    font-size: 0.85rem;
+}
+
+/* "New" Badge for Unread Notifications */
+.nt-badge {
+    background-color: var(--nt-gold);
+    color           : var(--nt-white);
+    font-size       : 0.68rem;
+    font-weight     : 700;
+    padding         : 4px 10px;
+    border-radius   : 20px;
+    letter-spacing  : 0.05em;
+    text-transform  : uppercase;
+    box-shadow      : 0 4px 10px rgba(212, 163, 115, 0.35);
+    display         : inline-flex;
+    align-items     : center;
+    justify-content : center;
+}
+
+/* ─── 6. Empty State ────────────────────────────────────────────────────── */
+.nt-empty-state {
+    background   : var(--nt-white);
+    border-radius: 18px;
+    padding      : 60px 40px;
+    text-align   : center;
+    box-shadow   : 0 8px 24px rgba(0, 0, 0, 0.04);
+    border       : 1px solid rgba(236, 236, 236, 0.5);
+    display      : flex;
+    flex-direction: column;
+    align-items  : center;
+    justify-content: center;
+    gap          : 18px;
+    max-width    : 650px;
+    margin       : 40px auto 0;
+}
+
+.nt-empty-icon {
+    width          : 80px;
+    height         : 80px;
+    border-radius  : 50%;
+    background-color: rgba(107, 144, 128, 0.08);
+    color          : var(--nt-sage);
+    display        : flex;
+    align-items    : center;
+    justify-content: center;
+    font-size      : 2.2rem;
+    margin-bottom  : 6px;
+}
+
+.nt-empty-title {
+    font-size  : 1.35rem;
+    font-weight: 700;
+    color      : var(--nt-charcoal);
+    margin     : 0;
+}
+
+.nt-empty-desc {
+    font-size  : 0.95rem;
+    color      : var(--nt-grey);
+    margin     : 0;
+    max-width  : 380px;
+    line-height: 1.5;
+}
+
+/* ─── 7. Animations ─────────────────────────────────────────────────────── */
+.nt-animate {
+    animation      : ntFadeIn 0.45s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.nt-animate-delay-1 {
+    animation-delay: 0.1s;
+}
+
+.nt-animate-delay-2 {
+    animation-delay: 0.18s;
+}
+
+@keyframes ntFadeIn {
+    from {
+        opacity  : 0;
+        transform: translateY(12px);
+    }
+    to {
+        opacity  : 1;
+        transform: translateY(0);
+    }
+}
+
+/* Custom Scrollbar */
+.nt-feed-container::-webkit-scrollbar {
+    width: 6px;
+}
+
+.nt-feed-container::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.nt-feed-container::-webkit-scrollbar-thumb {
+    background   : rgba(47, 58, 58, 0.15);
+    border-radius: 10px;
+}
+
+.nt-feed-container::-webkit-scrollbar-thumb:hover {
+    background: rgba(47, 58, 58, 0.3);
+}
+
+/* ─── 8. Responsive Overrides ───────────────────────────────────────────── */
+@media (max-width: 991.98px) {
+    .nt-page-wrapper {
+        padding: 24px 20px 48px;
+    }
+    .nt-feed-container {
+        max-height: calc(100vh - 250px);
+    }
+}
+
+@media (max-width: 767.98px) {
+    .nt-header-strip {
+        padding: 16px 20px;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+    .nt-header-strip__date {
+        margin-top: 4px;
+        font-size: 0.85rem;
+    }
+    .nt-bubble {
+        padding: 16px 18px;
+        gap: 14px;
+        border-radius: 16px;
+    }
+    .nt-icon-bg {
+        width : 42px;
+        height: 42px;
+        font-size: 1.1rem;
+    }
+    .nt-title {
+        font-size: 0.98rem;
+    }
+    .nt-message {
+        font-size: 0.88rem;
+    }
+}
+
+@media (max-width: 575.98px) {
+    .nt-page-wrapper {
+        padding: 20px 12px 40px;
+    }
+    .nt-filter-bar {
+        gap: 8px;
+        margin-bottom: 20px;
+    }
+    .nt-filter-btn {
+        padding: 8px 16px;
+        font-size: 0.82rem;
+    }
+    .nt-bubble {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    }
+    .nt-icon-bg {
+        width: 36px;
+        height: 36px;
+        font-size: 1rem;
+    }
+    .nt-title-row {
+        flex-direction: row;
+        width: 100%;
+    }
+    .nt-footer-row {
+        width: 100%;
+        margin-top: 6px;
+    }
+}

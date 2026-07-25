@@ -1,0 +1,1022 @@
+/* ==========================================================================
+   SevaNest – Family Member Visit Schedule Stylesheet
+   File     : assets/css/visitors.css
+   Version  : 1.0
+   Author   : SevaNest Dev Team
+
+   TABLE OF CONTENTS
+   -----------------
+   1.  Design Tokens (prefixed with --vs-)
+   2.  Page Layout Shell
+   3.  Page Header Strip (breadcrumb + Title)
+   4.  Generic Cards (White, rounded, soft shadow)
+   5.  Section 1: Monthly Calendar (CSS Grid, Navigation, Legend)
+   6.  Section 2: Upcoming Visit (Labels, Details, Actions)
+   7.  Section 2: Visit Status Tracker (Horizontal progress, stages, Cancelled state)
+   8.  Section 3: Visiting Guidelines (Info layout, Bootstrap Icons list)
+   9.  Section 3: Request New Visit Form (Inputs, dropdowns, buttons)
+   10. Section 4: Visit History Table (Badges, Pagination UI)
+   11. Animations (fade-in, slide-up, ripple effects)
+   12. Responsive Overrides (Mobile, Tablet, Desktop)
+   ========================================================================== */
+
+/* ─── 1. Design Tokens ───────────────────────────────────────────────────── */
+:root {
+    /* Theme Palette */
+    --vs-bg            : var(--color-secondary);   /* Warm Sand Background */
+    --vs-white         : var(--color-white);   /* Cards background */
+    --vs-primary       : var(--color-primary);   /* Sage Green */
+    --vs-primary-hover : var(--color-primary-hover);   /* Deep Sage */
+    --vs-accent        : var(--color-accent);   /* Gold Accent */
+    --vs-accent-hover  : var(--color-accent-dark);   /* Deep Gold */
+    --vs-heading       : var(--color-text);   /* Slate Charcoal Headings */
+    --vs-charcoal      : var(--color-text);   /* Slate Body Text */
+    --vs-grey          : var(--color-text-muted);   /* Muted / Secondary Text */
+    --vs-border        : var(--color-border);   /* Soft Borders */
+    --vs-success       : var(--color-success);   /* Success green */
+    --vs-warning       : var(--color-warning);   /* Warning Amber */
+    --vs-danger        : var(--color-danger);   /* Danger red */
+
+    /* Card Details */
+    --vs-card-radius   : 20px;
+    --vs-card-padding  : 20px;
+    --vs-card-shadow   : 0 8px 24px rgba(0, 0, 0, 0.08);
+    --vs-card-hover-shadow: 0 12px 32px rgba(107, 144, 128, 0.15), 0 8px 24px rgba(0, 0, 0, 0.08);
+
+    /* Typography */
+    --vs-font          : 'Inter', sans-serif;
+
+    /* Transitions */
+    --vs-trans-card    : transform 220ms ease, box-shadow 220ms ease, border-color 220ms ease;
+    --vs-trans-btn     : background-color 200ms ease, color 200ms ease, transform 150ms ease, box-shadow 200ms ease;
+}
+
+/* ─── 2. Page Layout Shell ───────────────────────────────────────────────── */
+body {
+    font-family: var(--vs-font);
+    background : var(--vs-bg);
+    color      : var(--vs-charcoal);
+    min-height : 100vh;
+}
+
+.vs-page-wrapper {
+    padding   : 32px 36px 48px;
+    max-width : 1380px;
+    margin    : 0 auto;
+}
+
+.vs-section {
+    margin-bottom: 28px;
+}
+
+/* Two Column Grid */
+.vs-two-col {
+    display              : grid;
+    grid-template-columns: 1fr 1fr;
+    gap                  : 24px;
+    margin-bottom        : 28px;
+}
+
+/* ─── 3. Page Header Strip ───────────────────────────────────────────────── */
+.vs-header-strip {
+    background   : var(--vs-white);
+    border-radius: 16px;
+    padding      : 20px 28px;
+    box-shadow   : var(--vs-card-shadow);
+    display      : flex;
+    align-items  : center;
+    justify-content: space-between;
+    flex-wrap    : wrap;
+    gap          : 12px;
+    margin-bottom: 28px;
+}
+
+.vs-header-strip__title {
+    font-size  : 30px;
+    font-weight: 700;
+    color      : var(--vs-heading);
+    line-height: 1.2;
+    margin     : 0;
+    font-family: var(--vs-font);
+}
+
+.vs-breadcrumb {
+    display    : flex;
+    align-items: center;
+    gap        : 6px;
+    font-size  : 0.8rem;
+    color      : var(--vs-grey);
+    font-family: var(--vs-font);
+    margin     : 0;
+}
+
+.vs-breadcrumb a {
+    color          : var(--vs-primary);
+    text-decoration: none;
+    font-weight    : 500;
+    transition     : color 180ms ease;
+}
+
+.vs-breadcrumb a:hover   { color: var(--vs-primary-hover); }
+.vs-breadcrumb__sep      { color: var(--vs-border); }
+.vs-breadcrumb__current  { color: var(--vs-charcoal); font-weight: 500; }
+
+/* ─── 4. Generic Cards ───────────────────────────────────────────────────── */
+.vs-card {
+    background   : var(--vs-white);
+    border-radius: var(--vs-card-radius);
+    padding      : var(--vs-card-padding);
+    box-shadow   : var(--vs-card-shadow);
+    border       : 1px solid transparent;
+    transition   : var(--vs-trans-card);
+    height       : 100%;
+}
+
+.vs-card:hover {
+    transform   : translateY(-3px);
+    box-shadow  : var(--vs-card-hover-shadow);
+    border-color: rgba(107, 144, 128, 0.12);
+}
+
+.vs-card__title {
+    font-size  : 20px;
+    font-weight: 700;
+    color      : var(--vs-heading);
+    margin-bottom: 16px;
+    display    : flex;
+    align-items: center;
+    gap        : 10px;
+}
+
+.vs-card__title i {
+    color    : var(--vs-primary);
+    font-size: 1.25rem;
+}
+
+/* ─── 5. Section 1: Monthly Calendar ─────────────────────────────────────── */
+.vs-calendar-header {
+    display        : flex;
+    align-items    : center;
+    justify-content: space-between;
+    margin-bottom  : 12px;
+    flex-wrap      : wrap;
+    gap            : 15px;
+}
+
+.vs-calendar-month-year {
+    font-size  : 22px;
+    font-weight: 700;
+    color      : var(--vs-heading);
+    margin     : 0;
+}
+
+.vs-calendar-nav {
+    display: flex;
+    gap    : 8px;
+}
+
+.vs-calendar-btn {
+    width          : 40px;
+    height         : 40px;
+    border-radius  : 50%;
+    border         : 1px solid var(--vs-border);
+    background     : var(--vs-white);
+    color          : var(--vs-primary);
+    font-size      : 1.1rem;
+    cursor         : pointer;
+    display        : flex;
+    align-items    : center;
+    justify-content: center;
+    transition     : var(--vs-trans-btn);
+    box-shadow     : 0 2px 6px rgba(0,0,0,0.03);
+}
+
+.vs-calendar-btn:hover {
+    background: var(--vs-primary);
+    color     : var(--vs-white);
+    transform : scale(1.05);
+}
+
+.vs-calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 8px;
+}
+
+.vs-calendar-day-header {
+    text-align    : center;
+    font-weight   : 600;
+    font-size     : 0.78rem;
+    color         : var(--vs-grey);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding-bottom: 10px;
+    border-bottom : 1px solid var(--vs-border);
+}
+
+.vs-calendar-cell {
+    min-height     : 75px;
+    border-radius  : 12px;
+    border         : 1px solid rgba(236,236,236,0.60);
+    padding        : 8px;
+    background     : var(--vs-white);
+    display        : flex;
+    flex-direction : column;
+    justify-content: space-between;
+    align-items    : flex-start;
+    cursor         : pointer;
+    position       : relative;
+    transition     : all 200ms ease;
+}
+
+.vs-calendar-cell:hover {
+    background  : rgba(107, 144, 128, 0.05);
+    border-color: var(--vs-primary);
+    transform   : translateY(-2px);
+}
+
+.vs-calendar-cell--outside {
+    background: rgba(240, 240, 240, 0.3);
+    color     : var(--vs-grey);
+    cursor    : default;
+}
+
+.vs-calendar-cell--outside:hover {
+    background  : rgba(240, 240, 240, 0.3);
+    border-color: rgba(236,236,236,0.60);
+    transform   : none;
+}
+
+.vs-calendar-cell--current-day {
+    background  : rgba(212, 163, 115, 0.08);
+    border      : 2px solid var(--vs-accent);
+}
+
+.vs-calendar-cell--current-day .vs-calendar-cell-num {
+    font-weight: 700;
+    color      : var(--vs-accent);
+}
+
+.vs-calendar-cell-num {
+    font-size  : 0.95rem;
+    font-weight: 600;
+    color      : var(--vs-charcoal);
+}
+
+.vs-calendar-indicator-wrap {
+    display   : flex;
+    gap       : 4px;
+    align-self: flex-end;
+    margin-top: 4px;
+}
+
+.vs-calendar-dot {
+    width        : 8px;
+    height       : 8px;
+    border-radius: 50%;
+}
+
+.vs-calendar-dot--scheduled { background-color: var(--vs-success); }
+.vs-calendar-dot--requested { background-color: var(--vs-accent); }
+.vs-calendar-dot--completed { background-color: var(--vs-grey); }
+
+.vs-calendar-legend {
+    display        : flex;
+    flex-wrap      : wrap;
+    gap            : 24px;
+    margin-top     : 12px;
+    padding-top    : 12px;
+    border-top     : 1px solid var(--vs-border);
+    justify-content: flex-start;
+}
+
+.vs-calendar-legend-item {
+    display    : flex;
+    align-items: center;
+    gap        : 8px;
+    font-size  : 0.85rem;
+    color      : var(--vs-grey);
+}
+
+.vs-calendar-legend-item .vs-calendar-dot {
+    flex-shrink: 0;
+}
+
+/* ─── 6. Section 2: Upcoming Visit ───────────────────────────────────────── */
+.vs-info-list {
+    display       : flex;
+    flex-direction: column;
+    gap           : 10px;
+    margin-bottom : 18px;
+}
+
+.vs-info-item {
+    display      : flex;
+    align-items  : center;
+    gap          : 14px;
+    padding      : 10px 14px;
+    border-radius: 12px;
+    background   : rgba(107, 144, 128, 0.05);
+    border       : 1px solid rgba(107, 144, 128, 0.10);
+    transition   : background 200ms ease;
+}
+
+.vs-info-item:hover {
+    background: rgba(107, 144, 128, 0.09);
+}
+
+.vs-info-icon {
+    width          : 44px;
+    height         : 44px;
+    border-radius  : 10px;
+    background     : rgba(107, 144, 128, 0.12);
+    display        : flex;
+    align-items    : center;
+    justify-content: center;
+    font-size      : 1.2rem;
+    color          : var(--vs-primary);
+    flex-shrink    : 0;
+}
+
+.vs-info-content {
+    flex: 1;
+}
+
+.vs-info-label {
+    font-size     : 0.72rem;
+    font-weight   : 600;
+    color         : var(--vs-grey);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom : 2px;
+}
+
+.vs-info-value {
+    font-size  : 0.95rem;
+    font-weight: 600;
+    color      : var(--vs-charcoal);
+}
+
+.vs-btn-group {
+    display: flex;
+    gap    : 14px;
+}
+
+/* Primary actions buttons */
+.vs-btn {
+    flex           : 1;
+    display        : inline-flex;
+    align-items    : center;
+    justify-content: center;
+    gap            : 8px;
+    padding        : 12px 20px;
+    border-radius  : 50px;
+    font-size      : 0.88rem;
+    font-weight    : 600;
+    cursor         : pointer;
+    transition     : var(--vs-trans-btn);
+    border         : 1px solid transparent;
+    font-family    : var(--vs-font);
+    white-space    : nowrap;
+    text-decoration: none;
+    position       : relative;
+    overflow       : hidden;
+}
+
+.vs-btn--reschedule {
+    background: var(--vs-accent);
+    color     : var(--vs-white);
+    box-shadow: 0 4px 12px rgba(212, 163, 115, 0.25);
+}
+
+.vs-btn--reschedule:hover {
+    background: var(--vs-accent-hover);
+    transform : translateY(-2px);
+    box-shadow: 0 6px 18px rgba(212, 163, 115, 0.35);
+    color     : var(--vs-white);
+}
+
+.vs-btn--cancel {
+    background: transparent;
+    color     : var(--vs-danger);
+    border    : 1.5px solid var(--vs-danger);
+}
+
+.vs-btn--cancel:hover {
+    background: var(--vs-danger);
+    color     : var(--vs-white);
+    transform : translateY(-2px);
+    box-shadow: 0 4px 12px rgba(217, 108, 108, 0.25);
+}
+
+/* Button ripple visual placeholder */
+.vs-btn::after {
+    content   : "";
+    position  : absolute;
+    top       : 50%;
+    left      : 50%;
+    width     : 0;
+    height    : 0;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    transform : translate(-50%, -50%);
+    opacity   : 0;
+    transition: width 0.3s ease, height 0.3s ease, opacity 0.4s ease;
+}
+
+.vs-btn:hover::after {
+    width  : 200px;
+    height : 200px;
+    opacity: 1;
+}
+
+/* ─── 7. Section 2: Visit Status Tracker ────────────────────────────────── */
+.vs-tracker-outer {
+    margin-top: 10px;
+}
+
+.vs-tracker-wrapper {
+    position     : relative;
+    display      : flex;
+    justify-content: space-between;
+    align-items  : center;
+    margin       : 32px 0;
+    padding      : 0 10px;
+}
+
+/* Horizontal Line Backdrop */
+.vs-tracker-line-bg {
+    position  : absolute;
+    left      : 0;
+    right     : 0;
+    top       : 16px;
+    height    : 4px;
+    background: var(--vs-border);
+    z-index   : 1;
+    border-radius: 4px;
+}
+
+.vs-tracker-line-fill {
+    position  : absolute;
+    left      : 0;
+    top       : 16px;
+    height    : 4px;
+    background: var(--vs-primary);
+    z-index   : 2;
+    border-radius: 4px;
+    transition: width 0.4s ease;
+    width     : 0%; /* Dynamic based on active stage */
+}
+
+/* Tracker Step */
+.vs-tracker-step {
+    position      : relative;
+    display       : flex;
+    flex-direction: column;
+    align-items   : center;
+    z-index       : 3;
+    cursor        : default;
+}
+
+.vs-tracker-circle {
+    width          : 36px;
+    height         : 36px;
+    border-radius  : 50%;
+    background     : var(--vs-white);
+    border         : 3px solid var(--vs-border);
+    color          : var(--vs-grey);
+    display        : flex;
+    align-items    : center;
+    justify-content: center;
+    font-size      : 1rem;
+    transition     : all 250ms ease;
+}
+
+.vs-tracker-label {
+    margin-top : 12px;
+    font-size  : 0.82rem;
+    font-weight: 600;
+    color      : var(--vs-grey);
+    white-space: nowrap;
+    transition : color 250ms ease;
+}
+
+/* Step States */
+.vs-tracker-step--completed .vs-tracker-circle {
+    background  : var(--vs-primary);
+    border-color: var(--vs-primary);
+    color       : var(--vs-white);
+}
+
+.vs-tracker-step--completed .vs-tracker-label {
+    color: var(--vs-primary);
+}
+
+.vs-tracker-step--active .vs-tracker-circle {
+    background  : var(--vs-white);
+    border-color: var(--vs-primary);
+    color       : var(--vs-primary);
+    box-shadow  : 0 0 0 4px rgba(107, 144, 128, 0.18);
+}
+
+.vs-tracker-step--active .vs-tracker-label {
+    color      : var(--vs-primary);
+    font-weight: 700;
+}
+
+/* Tracker text info display */
+.vs-tracker-status-display {
+    text-align: center;
+    margin-top: 24px;
+    padding   : 14px;
+    border-radius: 12px;
+    background: rgba(107, 144, 128, 0.05);
+    border    : 1px dashed rgba(107, 144, 128, 0.2);
+}
+
+.vs-tracker-status-title {
+    font-size  : 0.85rem;
+    color      : var(--vs-grey);
+    font-weight: 500;
+    margin     : 0 0 4px;
+}
+
+.vs-tracker-status-val {
+    font-size  : 1.15rem;
+    font-weight: 700;
+    color      : var(--vs-primary);
+}
+
+/* Cancelled layout classes */
+.vs-tracker--cancelled .vs-tracker-line-fill {
+    background: var(--vs-danger) !important;
+}
+
+.vs-tracker--cancelled .vs-tracker-circle {
+    border-color: var(--vs-danger) !important;
+    color       : var(--vs-danger) !important;
+}
+
+.vs-tracker--cancelled .vs-tracker-step--completed .vs-tracker-circle {
+    background  : var(--vs-danger) !important;
+    border-color: var(--vs-danger) !important;
+    color       : var(--vs-white) !important;
+}
+
+.vs-tracker--cancelled .vs-tracker-label {
+    color: var(--vs-danger) !important;
+}
+
+.vs-tracker-status-display.vs-tracker-status--cancelled {
+    background: rgba(217, 108, 108, 0.05);
+    border    : 1px dashed rgba(217, 108, 108, 0.2);
+}
+
+.vs-tracker-status-display.vs-tracker-status--cancelled .vs-tracker-status-val {
+    color: var(--vs-danger);
+}
+
+/* ─── 8. Section 3: Visiting Guidelines ──────────────────────────────────── */
+.vs-guidelines-box {
+    background: rgba(212, 163, 115, 0.06);
+    border-left: 5px solid var(--vs-accent);
+    border-radius: 0 16px 16px 0;
+    padding: 18px;
+}
+
+.vs-guide-list {
+    list-style: none;
+    padding   : 0;
+    margin    : 0;
+    display   : flex;
+    flex-direction: column;
+    gap       : 10px;
+}
+
+.vs-guide-item {
+    display    : flex;
+    align-items: flex-start;
+    gap        : 14px;
+}
+
+.vs-guide-item i {
+    font-size  : 1.2rem;
+    color      : var(--vs-accent);
+    flex-shrink: 0;
+    margin-top : 2px;
+}
+
+.vs-guide-text {
+    font-size  : 0.92rem;
+    color      : var(--vs-charcoal);
+    line-height: 1.5;
+}
+
+.vs-guide-text strong {
+    color      : var(--vs-heading);
+    font-weight: 600;
+}
+
+/* ─── 9. Section 3: Request New Visit Form ───────────────────────────────── */
+.vs-form {
+    display       : flex;
+    flex-direction: column;
+    gap           : 18px;
+}
+
+.vs-form-group {
+    display       : flex;
+    flex-direction: column;
+    gap           : 6px;
+}
+
+.vs-form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
+.vs-label {
+    font-size  : 0.85rem;
+    font-weight: 600;
+    color      : var(--vs-heading);
+}
+
+.vs-input,
+.vs-select,
+.vs-textarea {
+    width        : 100%;
+    padding      : 11px 16px;
+    border-radius: 10px;
+    border       : 1.5px solid var(--vs-border);
+    background   : rgba(107, 144, 128, 0.03);
+    font-size    : 0.9rem;
+    font-family  : var(--vs-font);
+    color        : var(--vs-charcoal);
+    outline      : none;
+    transition   : border-color 200ms ease, background-color 200ms ease, box-shadow 200ms ease;
+}
+
+.vs-input:focus,
+.vs-select:focus,
+.vs-textarea:focus {
+    border-color: var(--vs-primary);
+    background-color: var(--vs-white);
+    box-shadow  : 0 0 0 3px rgba(107, 144, 128, 0.12);
+}
+
+.vs-textarea {
+    resize    : vertical;
+    min-height: 90px;
+}
+
+.vs-btn--submit {
+    background: var(--vs-primary);
+    color     : var(--vs-white);
+    border    : none;
+    font-size : 0.92rem;
+    padding   : 13px 20px;
+    box-shadow: 0 4px 12px rgba(107, 144, 128, 0.25);
+    margin-top: 6px;
+}
+
+.vs-btn--submit:hover {
+    background: var(--vs-primary-hover);
+    transform : translateY(-2px);
+    box-shadow: 0 6px 18px rgba(107, 144, 128, 0.35);
+    color     : var(--vs-white);
+}
+
+/* ─── 10. Section 4: Visit History Table ─────────────────────────────────── */
+.vs-table-toolbar {
+    display        : flex;
+    align-items    : center;
+    justify-content: space-between;
+    flex-wrap      : wrap;
+    gap            : 16px;
+    margin-bottom  : 18px;
+}
+
+.vs-table-search {
+    position : relative;
+    flex     : 1;
+    min-width: 220px;
+    max-width: 320px;
+}
+
+.vs-table-search i {
+    position : absolute;
+    left     : 14px;
+    top      : 50%;
+    transform: translateY(-50%);
+    color    : var(--vs-grey);
+    font-size: 0.95rem;
+    pointer-events: none;
+}
+
+.vs-table-search-input {
+    width        : 100%;
+    padding      : 10px 16px 10px 38px;
+    border-radius: 50px;
+    border       : 1.5px solid var(--vs-border);
+    background   : rgba(107, 144, 128, 0.03);
+    font-size    : 0.85rem;
+    font-family  : var(--vs-font);
+    color        : var(--vs-charcoal);
+    outline      : none;
+    transition   : border-color 200ms ease, background-color 200ms ease;
+}
+
+.vs-table-search-input:focus {
+    border-color: var(--vs-primary);
+    background-color: var(--vs-white);
+}
+
+.vs-table-filter {
+    padding      : 10px 16px;
+    border-radius: 50px;
+    border       : 1.5px solid var(--vs-border);
+    background   : rgba(107, 144, 128, 0.03);
+    font-size    : 0.85rem;
+    font-family  : var(--vs-font);
+    color        : var(--vs-charcoal);
+    outline      : none;
+    cursor       : pointer;
+    transition   : border-color 200ms ease;
+}
+
+.vs-table-filter:focus {
+    border-color: var(--vs-primary);
+}
+
+.vs-table-container {
+    overflow-x: auto;
+    border-radius: 12px;
+    border     : 1px solid var(--vs-border);
+    background : var(--vs-white);
+}
+
+.vs-table {
+    width          : 100%;
+    border-collapse: collapse;
+    font-family    : var(--vs-font);
+}
+
+.vs-table thead tr {
+    background: rgba(107, 144, 128, 0.06);
+}
+
+.vs-table th {
+    font-size     : 0.75rem;
+    font-weight   : 700;
+    color         : var(--vs-grey);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding       : 14px 18px;
+    text-align    : left;
+    white-space   : nowrap;
+    border-bottom : 1px solid var(--vs-border);
+}
+
+.vs-table td {
+    font-size     : 0.9rem;
+    font-weight   : 500;
+    color         : var(--vs-charcoal);
+    padding       : 16px 18px;
+    border-bottom : 1px solid rgba(236, 236, 236, 0.60);
+    vertical-align: middle;
+}
+
+.vs-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.vs-table tbody tr {
+    transition: background-color 150ms ease;
+}
+
+.vs-table tbody tr:hover {
+    background-color: rgba(107, 144, 128, 0.03);
+}
+
+/* Status Badges */
+.vs-badge {
+    display      : inline-flex;
+    align-items  : center;
+    gap          : 5px;
+    padding      : 5px 12px;
+    border-radius: 50px;
+    font-size    : 0.72rem;
+    font-weight  : 700;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+}
+
+.vs-badge i {
+    font-size: 0.65rem;
+}
+
+.vs-badge--completed {
+    background: rgba(92, 158, 110, 0.12);
+    color     : #3a7a51;
+}
+
+.vs-badge--scheduled {
+    background: rgba(107, 144, 128, 0.12);
+    color     : #3b5f52;
+}
+
+.vs-badge--approved {
+    background: rgba(60, 140, 180, 0.12);
+    color     : #2c6580;
+}
+
+.vs-badge--requested {
+    background: rgba(212, 163, 115, 0.15);
+    color     : #9e6d3d;
+}
+
+.vs-badge--cancelled {
+    background: rgba(217, 108, 108, 0.12);
+    color     : #a64242;
+}
+
+/* Pagination Row */
+.vs-pagination {
+    display        : flex;
+    align-items    : center;
+    justify-content: space-between;
+    flex-wrap      : wrap;
+    gap            : 12px;
+    padding-top    : 18px;
+    margin-top     : 18px;
+    border-top     : 1px solid var(--vs-border);
+}
+
+.vs-pagination-info {
+    font-size: 0.82rem;
+    color    : var(--vs-grey);
+}
+
+.vs-pagination-btns {
+    display: flex;
+    gap    : 5px;
+}
+
+.vs-page-btn {
+    width          : 36px;
+    height         : 36px;
+    border-radius  : 8px;
+    border         : 1px solid var(--vs-border);
+    background     : var(--vs-white);
+    font-size      : 0.85rem;
+    font-weight    : 600;
+    color          : var(--vs-charcoal);
+    cursor         : pointer;
+    display        : flex;
+    align-items    : center;
+    justify-content: center;
+    transition     : var(--vs-trans-btn);
+}
+
+.vs-page-btn:hover:not(:disabled),
+.vs-page-btn.active {
+    background  : var(--vs-primary);
+    color       : var(--vs-white);
+    border-color: var(--vs-primary);
+}
+
+.vs-page-btn:disabled {
+    opacity: 0.4;
+    cursor : not-allowed;
+}
+
+/* ─── 11. Animations ─────────────────────────────────────────────────────── */
+@keyframes vs-fade-in-up {
+    from {
+        opacity  : 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity  : 1;
+        transform: translateY(0);
+    }
+}
+
+.vs-animate {
+    animation: vs-fade-in-up 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.vs-animate-delay-1 { animation-delay: 0.08s; }
+.vs-animate-delay-2 { animation-delay: 0.16s; }
+.vs-animate-delay-3 { animation-delay: 0.24s; }
+.vs-animate-delay-4 { animation-delay: 0.32s; }
+.vs-animate-delay-5 { animation-delay: 0.40s; }
+.vs-animate-delay-6 { animation-delay: 0.48s; }
+
+/* ─── 12. Responsive Overrides ───────────────────────────────────────────── */
+
+/* Desktop & Medium Screens (max 991px) */
+@media (max-width: 991.98px) {
+    .vs-page-wrapper {
+        padding: 24px 20px 40px;
+    }
+
+    .vs-two-col {
+        grid-template-columns: 1fr;
+        gap: 24px;
+    }
+
+    .vs-header-strip__title {
+        font-size: 26px;
+    }
+
+    .vs-calendar-cell {
+        min-height: 80px;
+        padding: 6px;
+    }
+
+    .vs-calendar-cell-num {
+        font-size: 0.85rem;
+    }
+}
+
+/* Mobile Screens (max 575px) */
+@media (max-width: 575.98px) {
+    .vs-page-wrapper {
+        padding: 16px 14px 32px;
+    } 
+
+    .vs-header-strip {
+        padding: 16px 20px;
+    }
+
+    .vs-header-strip__title {
+        font-size: 22px;
+    }
+
+    .vs-card {
+        padding: 20px 16px;
+    }
+
+    .vs-calendar-grid {
+        gap: 4px;
+    }
+
+    .vs-calendar-cell {
+        min-height: 60px;
+        border-radius: 8px;
+        padding: 4px;
+    }
+
+    .vs-calendar-cell-num {
+        font-size: 0.8rem;
+    }
+
+    .vs-calendar-legend {
+        gap: 12px;
+    }
+
+    .vs-btn-group {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .vs-form-row {
+        grid-template-columns: 1fr;
+        gap: 14px;
+    }
+
+    .vs-table-toolbar {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .vs-table-search {
+        max-width: 100%;
+    }
+
+    .vs-table-filter {
+        width: 100%;
+    }
+
+    .vs-tracker-wrapper {
+        margin: 20px 0;
+    }
+
+    .vs-tracker-label {
+        font-size: 0.72rem;
+        margin-top: 8px;
+    }
+
+    .vs-tracker-circle {
+        width: 30px;
+        height: 30px;
+        font-size: 0.85rem;
+    }
+}
+ 
+/* Calendar card only */
+.vs-section:first-of-type .vs-card {
+    padding: 20px;
+}

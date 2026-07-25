@@ -6,9 +6,40 @@
  * Reuses the design system CSS and JavaScript libraries.
  */
 
-// Placeholder PHP authentication logic block
+require_once __DIR__ . '/../../includes/functions.php';
+require_once __DIR__ . '/../../includes/session.php';
+require_once __DIR__ . '/../../config/database.php';
+
+// PHP authentication logic block
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Process login or password reset requests here in the future
+    header('Content-Type: application/json');
+    $role     = clean_str($_POST['role'] ?? '');
+    $email    = clean_str($_POST['email'] ?? '');
+    $password = (string)($_POST['password'] ?? '');
+
+    // Dummy authentication logic (can be easily replaced with database validation later)
+    if (!empty($role) && !empty($email) && strlen($password) >= 8) {
+        $_SESSION['user_id']   = 999; // Dummy user ID
+        $_SESSION['user_name'] = ($role === 'Family Member') ? 'Kirti' : 'Staff User';
+        $_SESSION['user_role'] = $role;
+        $_SESSION['role']      = ($role === 'Family Member') ? 'family_member' : 'admin';
+
+        $roleRoutes = [
+            'Super Admin'        => '../../modules/super_admin/index.php',
+            'Old Age Home Admin' => '../../modules/admin/index.php',
+            'Caretaker'          => '../../modules/caretaker/index.php',
+            'Doctor'             => '../../modules/doctor/index.php',
+            'Donor'              => '../../modules/donor/index.php',
+            'Family Member'      => '../../modules/family/dashboard.php'
+        ];
+
+        $redirect = $roleRoutes[$role] ?? '../../index.php';
+        echo json_encode(['success' => true, 'redirect' => $redirect]);
+        exit;
+    } else {
+        echo json_encode(['success' => false, 'message' => 'Invalid credentials or password must be at least 8 characters.']);
+        exit;
+    }
 }
 
 // Config variables for header template

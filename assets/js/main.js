@@ -126,21 +126,48 @@
         return;
       }
 
-      // Simulate an authentication call — ready for backend integration.
+      // Perform AJAX authentication call to login.php
       setLoading(loginSubmit, true, 'Sign in');
-      setTimeout(() => {
+      
+      const formData = new FormData();
+      formData.append('role', selectedRole.value);
+      formData.append('email', emailVal);
+      formData.append('password', pwVal);
+
+      fetch('login.php', {
+        method: 'POST',
+        body: formData
+      })
+      .then(response => response.json())
+      .then(data => {
         setLoading(loginSubmit, false, 'Sign in');
-        const dashboardName = selectedRole.getAttribute('data-dash');
-        const successText = $('login-success-text');
-        const successBanner = $('login-banner-success');
-        
-        if (successText) {
-          successText.textContent = `Signed in as ${selectedRole.value}. Redirecting to the ${dashboardName}…`;
+        if (data.success) {
+          const dashboardName = selectedRole.getAttribute('data-dash');
+          const successText = $('login-success-text');
+          const successBanner = $('login-banner-success');
+          
+          if (successText) {
+            successText.textContent = `Signed in as ${selectedRole.value}. Redirecting to the ${dashboardName}…`;
+          }
+          if (successBanner) successBanner.classList.add('show');
+          
+          setTimeout(() => {
+            window.location.href = data.redirect;
+          }, 800);
+        } else {
+          const errText = $('login-error-text');
+          const errBanner = $('login-banner-error');
+          if (errText) errText.textContent = data.message || 'Authentication failed.';
+          if (errBanner) errBanner.classList.add('show');
         }
-        if (successBanner) successBanner.classList.add('show');
-        
-        // In a real app: window.location.href = roleRoutes[selectedRole.value];
-      }, 900);
+      })
+      .catch(error => {
+        setLoading(loginSubmit, false, 'Sign in');
+        const errText = $('login-error-text');
+        const errBanner = $('login-banner-error');
+        if (errText) errText.textContent = 'Server communication error. Please try again.';
+        if (errBanner) errBanner.classList.add('show');
+      });
     });
   }
 
