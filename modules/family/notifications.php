@@ -26,7 +26,7 @@ $currentPage = 'notifications.php';
 // This array represents database rows. To connect with a MySQL database,
 // replace this static array with database fetch results:
 // E.g., $stmt = $pdo->prepare("SELECT * FROM notifications ORDER BY id DESC");
-$notifications = [
+$familynotifications = [
     [
         'id'      => 1,
         'type'    => 'health', // health | visit | medication | doctor | report | billing | emergency
@@ -135,7 +135,8 @@ include '../../includes/sidebar.php';
         <section class="nt-feed-container nt-animate nt-animate-delay-2" aria-label="Notification feed list">
             
             <ul class="nt-feed-list" id="nt-feed-container" role="list">
-                <?php foreach ($notifications as $notif): ?>
+                <?php foreach ($familynotifications as $notif): ?>
+         
                     <?php 
                         $statusClass = ($notif['status'] === 'unread') ? 'nt-bubble--unread' : 'nt-bubble--read';
                         $categoryClass = 'nt-category--' . htmlspecialchars($notif['type']);

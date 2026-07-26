@@ -344,22 +344,50 @@ $sn_base = rtrim(dirname($_SERVER['PHP_SELF'] ?? ''), '/');
 <!-- ═══════════════════════════════════════════════
      SIDEBAR
      ═══════════════════════════════════════════════ -->
+<!-- <aside id="sn-sidebar"
+       role="navigation"
+       aria-label="Main sidebar navigation">
+       
+       <button id="sn-toggle-btn" type="button" aria-label="Toggle Sidebar">
+    <i class="bi bi-list"></i>
+</button> -->
+
+    <!-- ── Logo ──────────────────────────────────────────────────────── -->
+<!-- <div class="sn-logo-wrap">
+    <div class="sn-brand">
+
+        <img
+            src="<?php echo htmlspecialchars($sn_asset_root); ?>/images/logo/logo.jpeg"
+            alt="SevaNest Logo"
+            class="sn-logo">
+
+        <span class="sn-brand-name">SevaNest</span>
+
+    </div>
+</div> -->
 <aside id="sn-sidebar"
        role="navigation"
        aria-label="Main sidebar navigation">
 
-    <!-- ── Logo ──────────────────────────────────────────────────────── -->
+    <!-- ── Sidebar Header ───────────────────────────────────────────── -->
     <div class="sn-logo-wrap">
-    <div class="sn-logo-container">
-       
-    <img
-            src="/SevaNest/Old-Age-Home-Management-System/assets/images/logo.jpeg"
-            alt="SevaNest – Care, Respect, Together"
-            width="170"
-            loading="eager"
-            decoding="async">
+
+        <button id="sn-toggle-btn" type="button" aria-label="Toggle Sidebar">
+            <i class="bi bi-list"></i>
+        </button>
+
+        <div class="sn-brand">
+
+            <img
+                src="<?php echo htmlspecialchars($sn_asset_root); ?>/images/logo/logo.jpeg"
+                alt="SevaNest Logo"
+                class="sn-logo">
+
+            <span class="sn-brand-name">SevaNest</span>
+
+        </div>
+
     </div>
-</div>
 
     <!-- ── Navigation ────────────────────────────────────────────────── -->
     <nav class="sn-nav-wrap" aria-label="Sidebar navigation menu">

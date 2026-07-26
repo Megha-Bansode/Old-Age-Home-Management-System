@@ -97,7 +97,7 @@ body {
 /* ─── 4. Sidebar Shell ──────────────────────────────────────────────────── */
 #sn-sidebar {
     position        : fixed;
-    top             : 0;
+    top          : 0;
     left            : 0;
     width           : var(--sn-sidebar-w);
     height          : 100vh;
@@ -111,9 +111,8 @@ body {
     will-change     : width;
 }
 
-
 /* ─── 5. Logo Area ──────────────────────────────────────────────────────── */
-.sn-logo-wrap {
+/* .sn-logo-wrap {
     flex-shrink    : 0;
     padding        : var(--sn-logo-pad);
     display        : flex;
@@ -148,6 +147,54 @@ body {
     display    : block;
     transition : max-width var(--sn-transition);
     flex-shrink: 0;
+} */
+ /* .sn-logo-wrap{
+    padding:20px;
+    border-bottom:1px solid rgba(255,255,255,.15);
+} */
+ /* .sn-logo-wrap{
+    padding-top: 0;
+    padding-right: 20px;
+    padding-bottom: 18px;
+    padding-left: 20px;
+    display: flex;
+    align-items: center;
+    border-bottom: 1px solid rgba(255,255,255,.15);
+} */
+ .sn-logo-wrap {
+    flex-shrink: 0;
+    height: 82px;
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    border-bottom: 1px solid rgba(255,255,255,.15);
+}
+ 
+/* .sn-brand{
+    display:flex;
+    align-items:center;
+    gap:12px;
+} */
+ .sn-brand{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    /* transform:translateY(-10px); */
+    flex: 1;
+}
+
+.sn-logo{
+    width:50px;
+    height:50px;
+    border-radius:50%;
+    object-fit:cover;
+}
+
+.sn-brand-name{
+    font-size:1.4rem;
+    font-weight:700;
+    color:#F6F4EC;
+    font-weight:700;
 }
 
 
@@ -156,7 +203,8 @@ body {
     flex       : 1 1 auto;
     overflow-y : auto;
     overflow-x : hidden;
-    padding    : 10px 0 6px;
+    /* padding    : 10px 0 6px; */
+    padding: 4px 0 6px;
 }
 
 .sn-nav-list {
@@ -355,7 +403,7 @@ body {
 
 
 /* ─── 13. Hamburger Toggle Button ───────────────────────────────────────── */
-#sn-toggle-btn {
+/* #sn-toggle-btn {
     display        : inline-flex;
     align-items    : center;
     justify-content: center;
@@ -369,6 +417,64 @@ body {
     cursor         : pointer;
     transition     : background-color 200ms ease, color 200ms ease;
     flex-shrink    : 0;
+} */
+ /* ─── Hamburger Toggle Button ───────────────────────────────────────── */
+
+/* #sn-toggle-btn {
+    display         : flex;
+    align-items     : center;
+    justify-content : center;
+
+    width           : 42px;
+    height          : 42px;
+
+    margin          : 12px  12px 12px auto;
+   
+    background      : rgba(246, 244, 236, 0.15);
+    border          : none;
+    border-radius   : 10px;
+
+    color           : var(--sn-cream);
+    font-size       : 1.6rem;
+
+    cursor          : pointer;
+
+    transition      : background-color 200ms ease,
+                      transform 200ms ease;
+} */
+ #sn-toggle-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 42px;
+    height: 42px;
+
+    /* margin: 0 12px 0 0; */
+    margin: 0 22px 0 0;
+
+    background: rgba(246, 244, 236, 0.15);
+    border: none;
+    border-radius: 10px;
+
+    color: var(--sn-cream);
+    font-size: 1.6rem;
+
+    cursor: pointer;
+    flex-shrink: 0;
+
+    transition:
+        background-color 200ms ease,
+        transform 200ms ease;
+}
+
+#sn-toggle-btn:hover {
+    background: rgba(246, 244, 236, 0.25);
+    transform: scale(1.05);
+}
+
+#sn-toggle-btn i {
+    line-height: 1;
 }
 
 #sn-toggle-btn:hover {
@@ -418,9 +524,14 @@ body {
 
 
 /* ─── 14. Main Content Offset ───────────────────────────────────────────── */
-#sn-main-content{
+/* #sn-main-content{
     margin-left:var(--sn-sidebar-w);
     margin-top:64px;
+} */
+ #sn-main-content{
+    margin-left:280px;
+    margin-top:64px;
+    padding:24px;
 }
 
 
@@ -445,7 +556,7 @@ body {
 body.sn-collapsed #sn-sidebar {
     width: var(--sn-collapsed-w);
 }
-
+ 
 body.sn-collapsed #sn-main-content {
     margin-left: var(--sn-collapsed-w);
 }
@@ -537,6 +648,7 @@ body.sn-collapsed .sn-nav-item:hover .sn-tooltip {
     body.sn-collapsed #sn-sidebar {
         width    : var(--sn-sidebar-w);
         transform: translateX(-100%);
+
     }
 
     body.sn-collapsed #sn-sidebar.sn-mobile-open {

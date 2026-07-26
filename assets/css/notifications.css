@@ -519,3 +519,16 @@ body {
         margin-top: 6px;
     }
 }
+#sn-main-content {
+    padding-top: 28px !important;
+    margin-top: 0 !important;
+}
+
+.nt-page-wrapper {
+    padding-top: 0 !important;
+    margin-top: 0 !important;
+}
+
+.nt-header-strip {
+    margin-top: 0 !important;
+}

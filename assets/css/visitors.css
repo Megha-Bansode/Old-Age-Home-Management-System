@@ -1020,3 +1020,16 @@ body {
 .vs-section:first-of-type .vs-card {
     padding: 20px;
 }
+#sn-main-content {
+    padding-top: 28px !important;
+    margin-top: 0 !important;
+}
+
+.vs-page-wrapper {
+    padding-top: 0 !important;
+    margin-top: 0 !important;
+}
+
+.vs-header-strip {
+    margin-top: 0 !important;
+}

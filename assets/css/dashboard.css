@@ -1,0 +1,374 @@
+/* ==========================================================
+   SevaNest Family Dashboard CSS
+   ========================================================== */
+
+
+:root {
+    --sn-sage: #6B9080;
+    --sn-light-sage: #A4C3B2;
+    --sn-cream: #F6F4EC;
+    --sn-gold: #D4A373;
+    --sn-dark: #2F3E36;
+    --sn-white: #ffffff;
+}
+
+
+/* Main wrapper */
+
+.dn-page-wrapper {
+    /* margin-left: 280px; */
+    padding: 30px;
+    background: var(--sn-cream);
+    min-height: 100vh;
+}
+
+
+/* Header */
+
+.dn-header-strip {
+
+    background: white;
+    padding: 22px 30px;
+    border-radius: 18px;
+    margin-bottom: 25px;
+
+    box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+
+}
+
+
+.dn-header-strip__title {
+
+    margin:0;
+    color:var(--sn-dark);
+    font-size:28px;
+
+}
+
+
+
+/* Welcome Banner */
+
+.dn-welcome-banner {
+
+    background: linear-gradient(
+        135deg,
+        var(--sn-sage),
+        var(--sn-light-sage)
+    );
+
+    padding:30px;
+    border-radius:20px;
+
+    color:white;
+
+    margin-bottom:30px;
+
+}
+
+
+.dn-welcome__greeting {
+
+    margin:0;
+    font-size:30px;
+
+}
+
+
+.dn-welcome__sub {
+
+    margin-top:10px;
+
+}
+
+
+
+/* Summary Cards */
+
+.dn-summary-cards {
+
+    display:grid;
+
+    grid-template-columns:
+    repeat(3,1fr);
+
+    gap:25px;
+
+    margin-bottom:30px;
+
+}
+
+
+
+.dn-summary-card {
+
+    background:white;
+
+    padding:25px;
+
+    border-radius:20px;
+
+    display:flex;
+
+    gap:20px;
+
+    align-items:center;
+
+    text-decoration:none;
+
+    color:var(--sn-dark);
+
+    box-shadow:
+    0 8px 20px rgba(0,0,0,0.08);
+
+    transition:.3s;
+
+}
+
+
+.dn-summary-card:hover {
+
+    transform:translateY(-5px);
+
+}
+
+
+
+.dn-card-icon-wrap {
+
+    height:60px;
+
+    width:60px;
+
+    border-radius:50%;
+
+    background:var(--sn-sage);
+
+    color:white;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    font-size:25px;
+
+}
+
+
+.dn-card-label {
+
+    margin:0;
+
+    font-size:15px;
+
+    color:#777;
+
+}
+
+
+.dn-card-value {
+
+    margin:5px 0;
+
+    font-size:24px;
+
+    font-weight:700;
+
+}
+
+
+
+/* Status Pills */
+
+.stable,
+.dn-notif-badge {
+
+    background:#e6f2ea;
+
+    padding:6px 12px;
+
+    border-radius:20px;
+
+    font-size:13px;
+
+}
+
+
+
+/* Two Column Section */
+
+.dn-two-col {
+
+    display:grid;
+
+    grid-template-columns:1fr 1fr;
+
+    gap:25px;
+
+}
+
+
+
+.dn-content-card {
+
+    background:white;
+
+    padding:25px;
+
+    border-radius:20px;
+
+    box-shadow:
+    0 8px 20px rgba(0,0,0,0.08);
+
+}
+
+
+
+.dn-content-card__title {
+
+    color:var(--sn-dark);
+
+    font-size:22px;
+
+    margin-bottom:20px;
+
+}
+
+
+
+/* Health List */
+
+.dn-health-list {
+
+    list-style:none;
+
+    padding:0;
+
+}
+
+
+.dn-health-item {
+
+    display:flex;
+
+    align-items:center;
+
+    gap:12px;
+
+    padding:15px 0;
+
+    border-bottom:1px solid #eee;
+
+}
+
+
+.dn-health-item i {
+
+    color:var(--sn-sage);
+
+}
+
+
+.dn-health-item__tag {
+
+    margin-left:auto;
+
+    background:#edf5ef;
+
+    padding:5px 12px;
+
+    border-radius:15px;
+
+    font-size:12px;
+
+}
+
+
+
+/* Timeline */
+
+
+.dn-timeline {
+
+    list-style:none;
+
+    padding:0;
+
+}
+
+
+.dn-timeline-item {
+
+    padding:15px;
+
+    border-left:3px solid var(--sn-light-sage);
+
+    margin-bottom:15px;
+
+}
+
+
+.dn-timeline-time {
+
+    font-weight:bold;
+
+    margin:0;
+
+}
+
+
+.dn-timeline-event {
+
+    margin:5px 0;
+
+}
+
+
+.dn-tl-tag {
+
+    font-size:12px;
+
+    padding:5px 10px;
+
+    border-radius:15px;
+
+    background:#eee;
+
+}
+
+
+
+/* Responsive */
+
+@media(max-width:900px){
+
+    .dn-page-wrapper{
+
+        margin-left:0;
+
+    }
+
+
+    .dn-summary-cards,
+    .dn-two-col{
+
+        grid-template-columns:1fr;
+
+    }
+
+}
+#sn-main-content {
+    padding-top: 28px !important;
+    margin-top: 0 !important;
+}
+
+.dn-page-wrapper {
+    padding-top: 0 !important;
+    margin-top: 0 !important;
+}
+
+.dn-header-strip {
+    margin-top: 0 !important;
+}

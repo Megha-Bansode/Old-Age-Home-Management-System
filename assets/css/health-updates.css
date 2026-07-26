@@ -657,3 +657,16 @@ body {
 @media (min-width: 1400px) {
     .hu-page-wrapper { padding: 36px 48px 56px; }
 }
+#sn-main-content {
+    padding-top: 28px !important;
+    margin-top: 0 !important;
+}
+
+.hu-page-wrapper {
+    padding-top: 0 !important;
+    margin-top: 0 !important;
+}
+
+.hu-header-strip {
+    margin-top: 0 !important;
+}
