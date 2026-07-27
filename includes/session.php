@@ -5,6 +5,8 @@
  * Version  : 1.0
  */
 
+require_once __DIR__ . '/../config/config.php';
+
 // ── TEMPORARY DEVELOPMENT MODE ──────────────────────────────────────────────
 // Set to true to skip authentication and mock credentials for UI testing.
 // Set to false for standard production database login checks.
@@ -13,15 +15,58 @@ if (!defined('DEV_MODE')) {
 }
 // ────────────────────────────────────────────────────────────────────────────
 
-if (session_status() === PHP_SESSION_NONE) {
-    session_set_cookie_params([
-        'path' => '/',
-        'secure' => false,
-        'httponly' => true,
-        'samesite' => 'Lax'
-    ]);
-    session_start();
+if (!function_exists('start_secure_session')) {
+    function start_secure_session() {
+        if (session_status() === PHP_SESSION_NONE) {
+            $cookieParams = [
+                'lifetime' => 0, // Until browser closes (or handled by remember me)
+                'path' => '/',
+                'domain' => '',
+                'secure' => isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on',
+                'httponly' => true,
+                'samesite' => 'Lax'
+            ];
+            
+            session_set_cookie_params($cookieParams);
+            session_start();
+        }
+
+        // Skip timeout check in DEV_MODE
+        if (defined('DEV_MODE') && DEV_MODE) {
+            return true;
+        }
+
+        // Check for session timeout
+        if (isset($_SESSION['user_id']) && isset($_SESSION['last_activity'])) {
+            if ((time() - $_SESSION['last_activity']) > SESSION_LIFETIME) {
+                // Session expired due to inactivity
+                session_unset();
+                session_destroy();
+                session_start();
+                $_SESSION['session_expired_msg'] = "Session expired due to inactivity. Please sign in again.";
+                return false;
+            }
+        }
+
+        // Update last activity timestamp
+        if (isset($_SESSION['user_id'])) {
+            $_SESSION['last_activity'] = time();
+        }
+
+        // Periodic session ID regeneration (every 15 mins)
+        if (isset($_SESSION['user_id']) && !isset($_SESSION['created_at'])) {
+            $_SESSION['created_at'] = time();
+        } elseif (isset($_SESSION['created_at']) && (time() - $_SESSION['created_at']) > 900) {
+            session_regenerate_id(true);
+            $_SESSION['created_at'] = time();
+        }
+
+        return true;
+    }
 }
+
+// Auto-run secure session start
+start_secure_session();
 
 // Auto-populate dummy session values in DEV_MODE based on the active path
 if (defined('DEV_MODE') && DEV_MODE) {
@@ -53,11 +98,13 @@ if (defined('DEV_MODE') && DEV_MODE) {
  *
  * @return bool
  */
-function is_logged_in() {
-    if (defined('DEV_MODE') && DEV_MODE) {
-        return true;
+if (!function_exists('is_logged_in')) {
+    function is_logged_in() {
+        if (defined('DEV_MODE') && DEV_MODE) {
+            return true;
+        }
+        return isset($_SESSION['user_id']) || isset($_SESSION['user_name']);
     }
-    return isset($_SESSION['user_id']) || isset($_SESSION['user_name']);
 }
 
 /**
@@ -65,12 +112,46 @@ function is_logged_in() {
  *
  * @param string $login_url
  */
-function require_login($login_url = '../../modules/authentication/login.php') {
-    if (!is_logged_in()) {
-        if (function_exists('log_error')) {
-            log_error("Authentication check failed. Session ID: " . session_id() . ", Session data: " . json_encode($_SESSION));
+if (!function_exists('require_login')) {
+    function require_login($login_url = null) {
+        if (defined('DEV_MODE') && DEV_MODE) {
+            return;
         }
-        header("Location: $login_url");
-        exit;
+        if ($login_url === null) {
+            $login_url = BASE_URL . "modules/authentication/login.php";
+        }
+        if (!is_logged_in()) {
+            if (function_exists('log_error')) {
+                log_error("Authentication check failed. Session ID: " . session_id() . ", Session data: " . json_encode($_SESSION));
+            }
+            header("Location: $login_url?error=unauthorized");
+            exit;
+        }
+    }
+}
+
+/**
+ * Generate or get existing CSRF Token
+ */
+if (!function_exists('generate_csrf_token')) {
+    function generate_csrf_token() {
+        start_secure_session();
+        if (empty($_SESSION[CSRF_TOKEN_KEY])) {
+            $_SESSION[CSRF_TOKEN_KEY] = bin2hex(random_bytes(32));
+        }
+        return $_SESSION[CSRF_TOKEN_KEY];
+    }
+}
+
+/**
+ * Verify CSRF Token
+ */
+if (!function_exists('verify_csrf_token')) {
+    function verify_csrf_token($token) {
+        start_secure_session();
+        if (!isset($_SESSION[CSRF_TOKEN_KEY]) || empty($token)) {
+            return false;
+        }
+        return hash_equals($_SESSION[CSRF_TOKEN_KEY], $token);
     }
 }

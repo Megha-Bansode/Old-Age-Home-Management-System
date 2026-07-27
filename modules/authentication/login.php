@@ -1,61 +1,19 @@
 <?php
 /**
- * SevaNest — Login & Forgot Password Interface
+ * SevaNest — Login & Unified Auth Interface
  * Authentication Module
  *
  * Reuses the design system CSS and JavaScript libraries.
  */
 
-require_once __DIR__ . '/../../includes/functions.php';
 require_once __DIR__ . '/../../includes/session.php';
-require_once __DIR__ . '/../../config/database.php';
+require_once __DIR__ . '/../../includes/auth.php';
 
-// ── START TEMPORARY UI INTEGRATION ──────────────────────────────────────────
-// NOTE: This role-based routing is temporary for local UI testing and runs
-// without database validation. It must be replaced with real, database-backed
-// authentication in the production phase.
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    header('Content-Type: application/json');
-    $role     = clean_str($_POST['role'] ?? '');
-    $email    = clean_str($_POST['email'] ?? '');
-    $password = (string)($_POST['password'] ?? '');
-
-    // Dummy authentication for local UI testing - no DB checks required
-    if (!empty($role) && !empty($email) && strlen($password) >= 8) {
-        $_SESSION['user_id']   = 999; // Dummy session ID
-        $_SESSION['user_name'] = ($role === 'Family Member') ? 'Kirti' : 'Staff User';
-        $_SESSION['user_role'] = $role;
-        $_SESSION['role']      = ($role === 'Family Member') ? 'family_member' : 'admin';
-
-        $roleRoutes = [
-            'Super Admin'        => '../../modules/super_admin/index.php',
-            'Old Age Home Admin' => '../../modules/admin/index.php',
-            'Caretaker'          => '../../modules/caretaker/index.php',
-            'Doctor'             => '../../modules/doctor/index.php',
-            'Donor'              => '../../modules/donor/index.php',
-            'Family Member'      => '../../modules/family/dashboard.php'
-        ];
-
-        $target = $roleRoutes[$role] ?? '../../index.php';
-        
-        // Resolve path relative to this script directory to check file state
-        $resolved_path = __DIR__ . '/' . $target;
-        
-        // If file is missing or exists but is empty (0 bytes), route to development page
-        if (!file_exists($resolved_path) || filesize($resolved_path) === 0) {
-            $redirect = 'under_development.php?role=' . urlencode($role);
-        } else {
-            $redirect = $target;
-        }
-
-        echo json_encode(['success' => true, 'redirect' => $redirect]);
-        exit;
-    } else {
-        echo json_encode(['success' => false, 'message' => 'Invalid credentials or password must be at least 8 characters.']);
-        exit;
-    }
+// Redirect logged-in users (unless in DEV_MODE, to allow testing the login interface)
+if (is_logged_in() && (!defined('DEV_MODE') || !DEV_MODE)) {
+    header("Location: " . get_dashboard_url($_SESSION['role']));
+    exit();
 }
-// ── END TEMPORARY UI INTEGRATION ────────────────────────────────────────────
 
 // Config variables for header template
 $base_path = '../../';
@@ -64,7 +22,33 @@ $page_title = 'Sign In — SevaNest';
 $extra_css = ['assets/css/style.css'];
 
 require_once('../../includes/header.php');
+
+// Generate CSRF token for forms
+$csrf_token = generate_csrf_token();
 ?>
+
+<!-- HTML Meta CSRF Token for JavaScript -->
+<meta name="csrf-token" content="<?php echo htmlspecialchars($csrf_token); ?>">
+
+<!-- Include SweetAlert2 CDN for modern alerts -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<style>
+  .swal2-popup {
+    font-family: 'Inter', sans-serif !important;
+    border-radius: 16px !important;
+    padding: 24px !important;
+  }
+  .swal2-title {
+    font-family: 'Outfit', sans-serif !important;
+    color: #2F3A3A !important;
+  }
+  .swal2-styled.swal2-confirm {
+    background-color: var(--color-primary-dark) !important;
+    border-radius: 10px !important;
+    padding: 10px 24px !important;
+    font-weight: 600 !important;
+  }
+</style>
 
 <div class="wrap">
 
@@ -124,15 +108,6 @@ require_once('../../includes/header.php');
           <p>Choose your role, then enter your credentials to continue.</p>
         </div>
 
-        <div class="banner error" id="login-banner-error">
-          <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="#8A3B29" stroke-width="1.6"/><path d="M12 8V13" stroke="#8A3B29" stroke-width="1.6" stroke-linecap="round"/><circle cx="12" cy="16" r="1" fill="#8A3B29"/></svg>
-          <span id="login-error-text">Something went wrong. Please try again.</span>
-        </div>
-        <div class="banner success" id="login-banner-success">
-          <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="#3E5C3E" stroke-width="1.6"/><path d="M8 12.5L10.5 15L16 9" stroke="#3E5C3E" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          <span id="login-success-text">Signed in. Redirecting to your dashboard…</span>
-        </div>
-
         <form id="login-form" novalidate>
           <div class="field">
             <label>I am signing in as</label>
@@ -184,29 +159,41 @@ require_once('../../includes/header.php');
           </div>
 
           <div class="field">
-            <label for="login-email">Email or username</label>
+            <label for="login-email">Email or phone number</label>
             <div class="input-shell" id="login-email-shell">
               <svg class="leading" viewBox="0 0 24 24" fill="none"><path d="M4 6H20V18H4V6Z" stroke="currentColor" stroke-width="1.4"/><path d="M4 6L12 13L20 6" stroke="currentColor" stroke-width="1.4"/></svg>
-              <input type="text" id="login-email" placeholder="you@sevanest.org" autocomplete="username">
+              <input type="text" id="login-email" name="email" placeholder="you@sevanest.org" autocomplete="username">
             </div>
-            <span class="field-error" id="login-email-error">Enter your email or username to continue.</span>
+            <span class="field-error" id="login-email-error">Enter your email or phone number to continue.</span>
           </div>
 
           <div class="field">
             <label for="login-password">Password</label>
             <div class="input-shell" id="login-password-shell">
               <svg class="leading" viewBox="0 0 24 24" fill="none"><rect x="5" y="10" width="14" height="10" rx="2" stroke="currentColor" stroke-width="1.4"/><path d="M8 10V7C8 4.8 9.8 3 12 3C14.2 3 16 4.8 16 7V10" stroke="currentColor" stroke-width="1.4"/></svg>
-              <input type="password" id="login-password" placeholder="Enter your password" autocomplete="current-password">
+              <input type="password" id="login-password" name="password" placeholder="Enter your password" autocomplete="current-password">
               <button type="button" class="toggle-visibility" id="toggle-password" aria-label="Show password" aria-pressed="false">
                 <svg id="eye-icon" viewBox="0 0 24 24" fill="none"><path d="M2 12C2 12 5.5 5.5 12 5.5C18.5 5.5 22 12 22 12C22 12 18.5 18.5 12 18.5C5.5 18.5 2 12 2 12Z" stroke="currentColor" stroke-width="1.4"/><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.4"/></svg>
               </button>
             </div>
+            
+            <!-- Real-time Password Strength Indicator -->
+            <div class="strength-meter" id="login-strength-container" style="display:none; margin-top:8px;">
+              <div class="strength-track">
+                <div class="strength-fill" id="login-strength-fill"></div>
+              </div>
+              <div class="strength-label">
+                <span>Password Strength</span>
+                <strong id="login-strength-text">Weak</strong>
+              </div>
+            </div>
+            
             <span class="field-error" id="login-password-error">Enter your password to continue.</span>
           </div>
 
           <div class="row-between">
-            <label class="remember"><input type="checkbox" id="remember-me"> Remember me</label>
-            <a href="forgot_password.php" class="link-btn">Forgot password?</a>
+            <label class="remember"><input type="checkbox" id="remember-me" name="remember_me"> Remember me</label>
+            <button type="button" class="link-btn" id="go-forgot">Forgot password?</button>
           </div>
 
           <button type="submit" class="btn-primary-auth" id="login-submit">
@@ -215,7 +202,151 @@ require_once('../../includes/header.php');
           </button>
         </form>
 
-        <p class="foot-note">Demo only — hooks up to your authentication API. Try any email + password 8+ characters, or leave a field blank to see validation.</p>
+        <p class="foot-note">SevaNest Old Age Home Management System — Secure Authentication.</p>
+      </section>
+
+      <!-- ---------- FORGOT PASSWORD VIEW ---------- -->
+      <section class="view" id="view-forgot">
+        <div class="card-logo mobile-only">
+          <?php if (file_exists($path_prefix . 'assets/images/logo/logo.jpeg')): ?>
+            <img src="<?php echo htmlspecialchars($path_prefix); ?>assets/images/logo/logo.jpeg" alt="SevaNest Logo">
+          <?php endif; ?>
+          <span>SevaNest</span>
+        </div>
+        <div class="card-head">
+          <span class="eyebrow">
+            <span class="back-arrow" id="go-login" style="display:inline-flex; cursor: pointer; align-items: center; vertical-align: middle;">
+              <svg viewBox="0 0 24 24" fill="none" style="width: 18px; height: 18px; margin-right: 4px;"><path d="M15 5L8 12L15 19" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </span>
+            Back to sign in
+          </span>
+          <h2>Reset your password</h2>
+          <p>Enter your registered account email and we'll send a 6-digit verification OTP code.</p>
+        </div>
+
+        <form id="forgot-form" novalidate>
+          <div class="field">
+            <label for="forgot-email">Email address</label>
+            <div class="input-shell" id="forgot-email-shell">
+              <svg class="leading" viewBox="0 0 24 24" fill="none"><path d="M4 6H20V18H4V6Z" stroke="currentColor" stroke-width="1.4"/><path d="M4 6L12 13L20 6" stroke="currentColor" stroke-width="1.4"/></svg>
+              <input type="email" id="forgot-email" name="email" placeholder="you@sevanest.com" autocomplete="email">
+            </div>
+            <span class="field-error" id="forgot-email-error">Enter the email on your account.</span>
+          </div>
+
+          <button type="submit" class="btn-primary-auth" id="forgot-submit">
+            <span class="spin"></span>
+            <span class="btn-label">Send OTP Code</span>
+          </button>
+        </form>
+
+        <p class="foot-note">Remembered your password? <button type="button" class="link-btn" id="go-login-2">Return to sign in</button></p>
+      </section>
+
+      <!-- ---------- VERIFY OTP VIEW ---------- -->
+      <section class="view" id="view-verify-otp">
+        <div class="card-head">
+          <span class="eyebrow">
+            <span class="back-arrow" id="go-forgot-back" style="display:inline-flex; cursor: pointer; align-items: center; vertical-align: middle;">
+              <svg viewBox="0 0 24 24" fill="none" style="width: 18px; height: 18px; margin-right: 4px;"><path d="M15 5L8 12L15 19" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </span>
+            Change email
+          </span>
+          <h2>Enter Verification OTP</h2>
+          <p>We've sent a 6-digit OTP code to <strong id="otp-registered-email">your email</strong>. Enter it below to proceed.</p>
+        </div>
+
+        <form id="otp-form" novalidate>
+          <div class="field">
+            <label>6-Digit Security Code</label>
+            <div class="otp-group">
+              <input type="text" class="otp-box" maxlength="1" pattern="[0-9]" autofocus>
+              <input type="text" class="otp-box" maxlength="1" pattern="[0-9]">
+              <input type="text" class="otp-box" maxlength="1" pattern="[0-9]">
+              <input type="text" class="otp-box" maxlength="1" pattern="[0-9]">
+              <input type="text" class="otp-box" maxlength="1" pattern="[0-9]">
+              <input type="text" class="otp-box" maxlength="1" pattern="[0-9]">
+            </div>
+          </div>
+
+          <button type="submit" class="btn-primary-auth" id="otp-submit">
+            <span class="spin"></span>
+            <span class="btn-label">Verify OTP Code</span>
+          </button>
+        </form>
+      </section>
+
+      <!-- ---------- RESET PASSWORD VIEW ---------- -->
+      <section class="view" id="view-reset-password">
+        <div class="card-head">
+          <span class="eyebrow">Secure Account</span>
+          <h2>Create New Password</h2>
+          <p>Set a strong password meeting all security requirements below.</p>
+        </div>
+
+        <form id="reset-form" novalidate>
+          <div class="field">
+            <label for="new-password">New Password</label>
+            <div class="input-shell" id="new-password-shell">
+              <svg class="leading" viewBox="0 0 24 24" fill="none"><rect x="5" y="10" width="14" height="10" rx="2" stroke="currentColor" stroke-width="1.4"/><path d="M8 10V7C8 4.8 9.8 3 12 3C14.2 3 16 4.8 16 7V10" stroke="currentColor" stroke-width="1.4"/></svg>
+              <input type="password" id="new-password" placeholder="Create strong password" autocomplete="new-password">
+              <button type="button" class="toggle-visibility" id="toggle-new-password" aria-label="Show password">
+                <svg id="new-eye-icon" viewBox="0 0 24 24" fill="none"><path d="M2 12C2 12 5.5 5.5 12 5.5C18.5 5.5 22 12 22 12C22 12 18.5 18.5 12 18.5C5.5 18.5 2 12 2 12Z" stroke="currentColor" stroke-width="1.4"/><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.4"/></svg>
+              </button>
+            </div>
+          </div>
+
+          <!-- Password Strength Meter -->
+          <div class="strength-meter">
+            <div class="strength-track">
+              <div class="strength-fill" id="strength-fill"></div>
+            </div>
+            <div class="strength-label">
+              <span>Password Quality</span>
+              <strong id="strength-label-text">Weak</strong>
+            </div>
+          </div>
+
+          <!-- Password Rules Checklist -->
+          <ul class="pw-rules">
+            <li class="pw-rule" id="req-length">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
+              At least 8 characters
+            </li>
+            <li class="pw-rule" id="req-upper">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
+              Uppercase letter (A-Z)
+            </li>
+            <li class="pw-rule" id="req-lower">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
+              Lowercase letter (a-z)
+            </li>
+            <li class="pw-rule" id="req-number">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
+              Number (0-9)
+            </li>
+            <li class="pw-rule" id="req-special">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
+              Special character (!@#$)
+            </li>
+          </ul>
+
+          <div class="field">
+            <label for="confirm-password">Confirm New Password</label>
+            <div class="input-shell" id="confirm-password-shell">
+              <svg class="leading" viewBox="0 0 24 24" fill="none"><rect x="5" y="10" width="14" height="10" rx="2" stroke="currentColor" stroke-width="1.4"/><path d="M8 10V7C8 4.8 9.8 3 12 3C14.2 3 16 4.8 16 7V10" stroke="currentColor" stroke-width="1.4"/></svg>
+              <input type="password" id="confirm-password" placeholder="Repeat new password" autocomplete="new-password">
+            </div>
+            <span class="field-error" id="confirm-password-error">Passwords must match.</span>
+          </div>
+
+          <button type="submit" class="btn-primary-auth" id="reset-submit">
+            <span class="spin"></span>
+            <span class="btn-label">Update Password</span>
+          </button>
+        </form>
+
+        <p class="foot-note">Done resetting? <button type="button" class="link-btn" id="go-login-3">Return to sign in</button></p>
       </section>
 
     </div>
@@ -224,6 +355,27 @@ require_once('../../includes/header.php');
 
 <!-- Load Main Application Script -->
 <script src="<?php echo htmlspecialchars($path_prefix); ?>assets/js/main.js"></script>
+
+<script>
+window.addEventListener('DOMContentLoaded', () => {
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('msg') === 'logged_out') {
+    Swal.fire({
+      icon: 'success',
+      title: 'Logged Out',
+      text: 'You have logged out successfully.',
+      confirmButtonText: 'OK'
+    });
+  } else if (urlParams.get('error') === 'unauthorized') {
+    Swal.fire({
+      icon: 'warning',
+      title: 'Access Required',
+      text: 'Please log in to access your dashboard.',
+      confirmButtonText: 'OK'
+    });
+  }
+});
+</script>
 
 <?php
 require_once('../../includes/footer.php');
