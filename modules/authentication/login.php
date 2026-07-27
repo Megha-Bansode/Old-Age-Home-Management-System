@@ -110,6 +110,7 @@ $csrf_token = generate_csrf_token();
         </div>
 
         <form id="login-form" action="login_api.php" method="POST" novalidate>
+          <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrf_token); ?>">
           <div class="field">
             <label>I am signing in as</label>
             <div class="role-grid" id="role-grid" role="radiogroup" aria-label="Select your role">
@@ -121,7 +122,7 @@ $csrf_token = generate_csrf_token();
                 </label>
               </div>
               <div class="role-opt" data-role="admin">
-                <input type="radio" name="role" id="role-admin" value="Old Age Home Admin" data-dash="Admin Dashboard">
+                <input type="radio" name="role" id="role-admin" value="Admin" data-dash="Admin Dashboard">
                 <label for="role-admin">
                   <span class="r-icon"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="4" fill="#fff"/><path d="M4 20C4 16 7.5 14 12 14C16.5 14 20 16 20 20" stroke="#fff" stroke-width="1.6"/></svg></span>
                   Admin
@@ -152,7 +153,7 @@ $csrf_token = generate_csrf_token();
                 <input type="radio" name="role" id="role-family" value="Family Member" data-dash="Family Member Dashboard">
                 <label for="role-family">
                   <span class="r-icon"><svg viewBox="0 0 24 24" fill="none"><circle cx="9" cy="8" r="3" stroke="#fff" stroke-width="1.4"/><circle cx="17" cy="9" r="2.4" stroke="#fff" stroke-width="1.4"/><path d="M4 19C4 15.8 6.2 14 9 14C11.8 14 14 15.8 14 19" stroke="#fff" stroke-width="1.4"/><path d="M15 14.5C17.4 14.7 19 16.2 19 19" stroke="#fff" stroke-width="1.4"/></svg></span>
-                  Family
+                  Family Member
                 </label>
               </div>
             </div>

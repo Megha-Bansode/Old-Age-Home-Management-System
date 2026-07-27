@@ -84,19 +84,8 @@ try {
         send_response(false, 'wrong_password', 'Incorrect Password', 'The password you entered is incorrect.');
     }
 
-    // Normalize incoming role name from radio input to DB enum format
-    $normalized_role = $user['role'];
-    $incoming_role = $role;
-    // Map input display name (e.g. 'Old Age Home Admin') to DB enum (e.g. 'Admin') if necessary
-    if ($incoming_role === 'Old Age Home Admin') {
-         $incoming_role = 'Admin';
-    }
-    if ($incoming_role === 'Family') {
-         $incoming_role = 'Family Member';
-    }
-
     // 6. Verify Selected Role
-    if ($user['role'] !== $incoming_role) {
+    if ($user['role'] !== $role) {
         send_response(false, 'role_mismatch', 'Role Mismatch', 'Please select the correct role before logging in.');
     }
 

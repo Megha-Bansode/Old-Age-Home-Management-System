@@ -103,7 +103,49 @@ if (!function_exists('is_logged_in')) {
         if (defined('DEV_MODE') && DEV_MODE) {
             return true;
         }
-        return isset($_SESSION['user_id']) || isset($_SESSION['user_name']);
+        return isset($_SESSION['user_id']) && isset($_SESSION['logged_in']) && $_SESSION['logged_in'] === true;
+    }
+}
+
+// Centralized Path-Based Authorization Gate & Browser Cache Disable
+if (!defined('DEV_MODE') || !DEV_MODE) {
+    $script_name = $_SERVER['SCRIPT_NAME'] ?? '';
+    $restricted_roles = null;
+    
+    if (strpos($script_name, '/modules/super_admin/') !== false) {
+        $restricted_roles = ['Super Admin'];
+    } elseif (strpos($script_name, '/modules/admin/') !== false) {
+        $restricted_roles = ['Admin', 'Old Age Home Admin'];
+    } elseif (strpos($script_name, '/modules/doctor/') !== false) {
+        $restricted_roles = ['Doctor'];
+    } elseif (strpos($script_name, '/modules/caretaker/') !== false) {
+        $restricted_roles = ['Caretaker'];
+    } elseif (strpos($script_name, '/modules/donor/') !== false) {
+        $restricted_roles = ['Donor'];
+    } elseif (strpos($script_name, '/modules/family/') !== false) {
+        $restricted_roles = ['Family Member'];
+    }
+    
+    if ($restricted_roles !== null) {
+        // Enforce cache-control headers to prevent Back-button dashboard recovery
+        header("Cache-Control: no-cache, no-store, must-revalidate");
+        header("Pragma: no-cache");
+        header("Expires: 0");
+        
+        start_secure_session();
+        if (!is_logged_in()) {
+            $login_url = BASE_URL . "modules/authentication/login.php";
+            header("Location: " . $login_url . "?error=unauthorized");
+            exit();
+        }
+        
+        $user_role = $_SESSION['user_role'] ?? $_SESSION['role'] ?? '';
+        if (!in_array($user_role, $restricted_roles)) {
+            require_once __DIR__ . '/auth.php';
+            $targetUrl = get_dashboard_url($user_role);
+            header("Location: " . $targetUrl . "?error=role_mismatch");
+            exit();
+        }
     }
 }
 

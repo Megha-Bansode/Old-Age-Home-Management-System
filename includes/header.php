@@ -10,21 +10,14 @@
  *   - $base_path : Relative path multiplier to root (e.g. "../../")
  */
 
-if (session_status() === PHP_SESSION_NONE) {
-    session_set_cookie_params([
-        'path' => '/',
-        'secure' => false,
-        'httponly' => true,
-        'samesite' => 'Lax'
-    ]);
-    session_start();
-}
-
 /* ── Path prefix helper for subfolder modules ──────────── */
 $path_prefix = isset($base_path) ? $base_path : '';
 
+require_once $path_prefix . 'includes/session.php';
+start_secure_session();
+
 /* ── Session state ─────────────────────────────────────── */
-$is_logged_in = (isset($_SESSION['user_name']) && !empty($_SESSION['user_name'])) || (defined('DEV_MODE') && DEV_MODE);
+$is_logged_in = is_logged_in();
 $user_name    = isset($_SESSION['user_name']) ? $_SESSION['user_name'] : '';
 $user_role    = isset($_SESSION['user_role']) ? $_SESSION['user_role'] : '';
 

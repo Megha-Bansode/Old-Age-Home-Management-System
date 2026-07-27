@@ -22,18 +22,18 @@ function sanitize_input($data) {
 function get_dashboard_url($role) {
     switch ($role) {
         case 'Super Admin':
-            return BASE_URL . 'modules/super_admin/';
+            return BASE_URL . 'modules/super_admin/dashboard.php';
         case 'Admin':
         case 'Old Age Home Admin':
-            return BASE_URL . 'modules/admin/';
+            return BASE_URL . 'modules/admin/dashboard.php';
         case 'Doctor':
-            return BASE_URL . 'modules/doctor/';
+            return BASE_URL . 'modules/doctor/dashboard.php';
         case 'Caretaker':
-            return BASE_URL . 'modules/caretaker/';
+            return BASE_URL . 'modules/caretaker/dashboard.php';
         case 'Family Member':
-            return BASE_URL . 'modules/family/';
+            return BASE_URL . 'modules/family/dashboard.php';
         case 'Donor':
-            return BASE_URL . 'modules/donor/';
+            return BASE_URL . 'modules/donor/dashboard.php';
         default:
             return BASE_URL . 'index.php';
     }

@@ -2,8 +2,8 @@ USE sevanest;
 
 -- Default admin login: admin@sevanest.org / Admin@123
 -- Change this password immediately after first login in production.
-INSERT INTO users (full_name, email, phone, password_hash, role) VALUES
-('SevaNest Admin', 'admin@sevanest.org', '9000000000', '$2b$10$//hoXDOM5..Acqmz0ejtlu.geCERSNVVVLlM6Ex5EEl.b3doQnYOS', 'admin');
+INSERT INTO users (full_name, email, phone, password, role) VALUES
+('SevaNest Admin', 'admin@sevanest.com', '9000000000', '$2y$10$Ym.BPavgUj/Sd3U7bzUUIuC3XwV2l5LEA8aEwHtbxhrjEoWEYRtfC', 'Admin');
 
 INSERT INTO homes (name, type, city, area, pincode, address, latitude, longitude, has_medical_facility, wheelchair_accessible, phone) VALUES
 ('Sunrise Residency', 'private', 'Pune', 'Baner', '411045', '12 Baner Road, Pune', 18.5590, 73.7868, 1, 1, '020-12345678'),
