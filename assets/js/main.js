@@ -139,7 +139,21 @@
         }
         if (successBanner) successBanner.classList.add('show');
         
-        // In a real app: window.location.href = roleRoutes[selectedRole.value];
+        const roleRoutes = {
+          'Super Admin': '../../modules/super_admin/index.php',
+          'superadmin': '../../modules/super_admin/index.php',
+          'Old Age Home Admin': '../../modules/admin/index.php',
+          'admin': '../../modules/admin/index.php',
+          'Caretaker': '../../modules/caretaker/index.php',
+          'Doctor': '../../modules/doctor/index.php',
+          'Donor': '../../modules/donor/index.php',
+          'Family Member': '../../modules/family/index.php'
+        };
+
+        const targetRoute = roleRoutes[selectedRole.value] || roleRoutes[selectedRole.id?.replace('role-', '')] || '../../modules/super_admin/index.php';
+        setTimeout(() => {
+          window.location.href = targetRoute;
+        }, 1000);
       }, 900);
     });
   }
