@@ -45,7 +45,23 @@ if (session_status() === PHP_SESSION_NONE) {
  * Resolve the current user role.
  * Priority: local $userRole variable → session → default 'admin'.
  */
-$sn_role = $userRole ?? $_SESSION['role'] ?? 'admin';
+$sn_role = $userRole ?? $_SESSION['role'] ?? null;
+if (empty($sn_role)) {
+    $script_name = $_SERVER['SCRIPT_NAME'] ?? '';
+    if (strpos($script_name, '/modules/doctor/') !== false) {
+        $sn_role = 'doctor';
+    } elseif (strpos($script_name, '/modules/donor/') !== false) {
+        $sn_role = 'donor';
+    } elseif (strpos($script_name, '/modules/caretaker/') !== false) {
+        $sn_role = 'caretaker';
+    } elseif (strpos($script_name, '/modules/family/') !== false) {
+        $sn_role = 'family_member';
+    } elseif (strpos($script_name, '/modules/super_admin/') !== false) {
+        $sn_role = 'super_admin';
+    } else {
+        $sn_role = 'admin';
+    }
+}
 $sn_role = strtolower(trim($sn_role));
 
 /**
