@@ -79,11 +79,11 @@ $profile_mapping = [
     'Family Member'      => 'modules/family/profile.php',
 ];
 
-$dashboard_url = ($is_logged_in && array_key_exists($user_role, $dashboard_mapping))
+$dashboard_url = ($is_logged_in && !(isset($is_landing_page) && $is_landing_page) && array_key_exists($user_role, $dashboard_mapping))
     ? $path_prefix . $dashboard_mapping[$user_role]
     : $path_prefix . 'index.php';
 
-$profile_url = ($is_logged_in && array_key_exists($user_role, $profile_mapping))
+$profile_url = ($is_logged_in && !(isset($is_landing_page) && $is_landing_page) && array_key_exists($user_role, $profile_mapping))
     ? $path_prefix . $profile_mapping[$user_role]
     : '#';
 
@@ -95,13 +95,13 @@ $settings_mapping = [
     'Donor'              => 'modules/donor/profile.php',
     'Family Member'      => 'modules/family/profile.php',
 ];
-$settings_url = ($is_logged_in && array_key_exists($user_role, $settings_mapping))
+$settings_url = ($is_logged_in && !(isset($is_landing_page) && $is_landing_page) && array_key_exists($user_role, $settings_mapping))
     ? $path_prefix . $settings_mapping[$user_role]
     : '#';
 
 /* ── Initials avatar (up to 2 letters) ─────────────────── */
 $initials = 'U';
-if ($is_logged_in && !empty($user_name)) {
+if ($is_logged_in && !(isset($is_landing_page) && $is_landing_page) && !empty($user_name)) {
     $parts    = preg_split('/\s+/', trim($user_name));
     $initials = '';
     foreach ($parts as $p) {
@@ -204,7 +204,7 @@ $unread_count = array_sum(array_column($notifications, 'unread'));
         <!-- ② RIGHT CONTROLS — always visible on all sizes ── -->
         <div class="oahms-nav-controls ms-auto order-lg-last">
 
-            <?php if ($is_logged_in): ?>
+            <?php if ($is_logged_in && !(isset($is_landing_page) && $is_landing_page)): ?>
 
                 <!-- Notification Bell -->
                 <div class="dropdown">
