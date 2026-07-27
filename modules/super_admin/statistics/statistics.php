@@ -6,17 +6,15 @@
  */
 
 $base_path = '../../../';
+require_once $base_path . 'includes/session.php';
+require_once $base_path . 'includes/auth.php';
+
+require_login();
+require_role('Super Admin');
+
 $page_title = 'System Statistics';
 $active_page = 'statistics';
 $module_name = 'Super Admin Module';
-
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
-if (!isset($_SESSION['user_name'])) {
-    $_SESSION['user_name'] = 'Super Admin';
-    $_SESSION['user_role'] = 'Super Admin';
-}
 
 require_once $base_path . 'includes/header.php';
 require_once $base_path . 'includes/navbar.php';
