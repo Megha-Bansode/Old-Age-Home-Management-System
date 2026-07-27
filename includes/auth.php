@@ -51,6 +51,7 @@ if (!function_exists('is_logged_in')) {
         start_secure_session();
 
         if (isset($_SESSION['user_id']) && !empty($_SESSION['user_id'])) {
+            $_SESSION['logged_in'] = true;
             return true;
         }
 
@@ -124,9 +125,65 @@ if (!function_exists('require_role')) {
             $allowedRoles = [$allowedRoles];
         }
 
-        if (!in_array($_SESSION['role'], $allowedRoles)) {
-            $targetUrl = get_dashboard_url($_SESSION['role']);
-            header("Location: " . $targetUrl . "?error=role_mismatch");
+        $user_role = $_SESSION['user_role'] ?? $_SESSION['role'] ?? '';
+        if (!in_array($user_role, $allowedRoles)) {
+            http_response_code(403);
+            ?>
+            <!DOCTYPE html>
+            <html lang="en">
+            <head>
+                <meta charset="UTF-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <title>Access Denied — SevaNest</title>
+                <!-- Bootstrap 5 -->
+                <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+                <!-- Bootstrap Icons -->
+                <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+                <style>
+                    body {
+                        background-color: #F6F4EC;
+                        font-family: 'Outfit', sans-serif;
+                        height: 100vh;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        margin: 0;
+                    }
+                    .error-card {
+                        background-color: #ffffff;
+                        border: 1px solid #EAE7DC;
+                        border-radius: 16px;
+                        padding: 40px;
+                        text-align: center;
+                        max-width: 500px;
+                        box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+                    }
+                    .error-icon {
+                        font-size: 4rem;
+                        color: #B5563F;
+                        margin-bottom: 20px;
+                    }
+                    .btn-primary {
+                        background-color: #2F3A3A;
+                        border: none;
+                        border-radius: 8px;
+                        padding: 10px 24px;
+                    }
+                    .btn-primary:hover {
+                        background-color: #1E2525;
+                    }
+                </style>
+            </head>
+            <body>
+                <div class="error-card">
+                    <i class="bi bi-shield-slash error-icon"></i>
+                    <h1 class="h3 fw-bold mb-3 text-dark">Access Denied</h1>
+                    <p class="text-muted mb-4">You do not have the required permissions to access this page.</p>
+                    <a href="<?php echo BASE_URL; ?>modules/authentication/login.php" class="btn btn-primary">Return to Sign In</a>
+                </div>
+            </body>
+            </html>
+            <?php
             exit();
         }
     }
@@ -193,5 +250,50 @@ function clear_remember_me_cookie() {
             'httponly' => true,
             'samesite' => 'Lax'
         ]);
+    }
+}
+
+/**
+ * Get current authenticated user details
+ */
+if (!function_exists('current_user')) {
+    function current_user() {
+        if (!is_logged_in()) {
+            return null;
+        }
+        return [
+            'id'            => $_SESSION['user_id'] ?? null,
+            'name'          => $_SESSION['user_name'] ?? null,
+            'role'          => $_SESSION['user_role'] ?? $_SESSION['role'] ?? null,
+            'email'         => $_SESSION['email'] ?? null,
+            'profile_photo' => $_SESSION['profile_photo'] ?? null
+        ];
+    }
+}
+
+/**
+ * Centralized logout helper
+ */
+if (!function_exists('logout')) {
+    function logout() {
+        start_secure_session();
+        clear_remember_me_cookie();
+        
+        $_SESSION = array();
+        
+        if (ini_get("session.use_cookies")) {
+            $params = session_get_cookie_params();
+            setcookie(
+                session_name(),
+                '',
+                time() - 42000,
+                $params["path"],
+                $params["domain"],
+                $params["secure"],
+                $params["httponly"]
+            );
+        }
+        
+        session_destroy();
     }
 }

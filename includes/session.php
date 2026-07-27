@@ -15,6 +15,8 @@ if (!defined('DEV_MODE')) {
 }
 // ────────────────────────────────────────────────────────────────────────────
 
+require_once __DIR__ . '/auth.php';
+
 if (!function_exists('start_secure_session')) {
     function start_secure_session() {
         if (session_status() === PHP_SESSION_NONE) {
@@ -93,19 +95,6 @@ if (defined('DEV_MODE') && DEV_MODE) {
     $_SESSION['role'] = $role;
 }
 
-/**
- * Checks if the current user is logged in.
- *
- * @return bool
- */
-if (!function_exists('is_logged_in')) {
-    function is_logged_in() {
-        if (defined('DEV_MODE') && DEV_MODE) {
-            return true;
-        }
-        return isset($_SESSION['user_id']) && isset($_SESSION['logged_in']) && $_SESSION['logged_in'] === true;
-    }
-}
 
 // Centralized Path-Based Authorization Gate & Browser Cache Disable
 if (!defined('DEV_MODE') || !DEV_MODE) {
@@ -141,7 +130,6 @@ if (!defined('DEV_MODE') || !DEV_MODE) {
         
         $user_role = $_SESSION['user_role'] ?? $_SESSION['role'] ?? '';
         if (!in_array($user_role, $restricted_roles)) {
-            require_once __DIR__ . '/auth.php';
             $targetUrl = get_dashboard_url($user_role);
             header("Location: " . $targetUrl . "?error=role_mismatch");
             exit();
@@ -149,28 +137,6 @@ if (!defined('DEV_MODE') || !DEV_MODE) {
     }
 }
 
-/**
- * Restricts access to logged-in users. Redirects to login page if not authenticated.
- *
- * @param string $login_url
- */
-if (!function_exists('require_login')) {
-    function require_login($login_url = null) {
-        if (defined('DEV_MODE') && DEV_MODE) {
-            return;
-        }
-        if ($login_url === null) {
-            $login_url = BASE_URL . "modules/authentication/login.php";
-        }
-        if (!is_logged_in()) {
-            if (function_exists('log_error')) {
-                log_error("Authentication check failed. Session ID: " . session_id() . ", Session data: " . json_encode($_SESSION));
-            }
-            header("Location: $login_url?error=unauthorized");
-            exit;
-        }
-    }
-}
 
 /**
  * Generate or get existing CSRF Token
