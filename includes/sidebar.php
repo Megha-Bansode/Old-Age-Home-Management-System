@@ -155,14 +155,30 @@ $sn_nav_map = [
     /* ── Admin ───────────────────────────────────────────────────────── */
     'admin' => [
         [
-            'heading' => 'Operations',
+            'heading' => 'Overview & Patients',
             'items'   => [
                 ['href' => 'dashboard.php',              'icon' => 'bi-grid-1x2',             'label' => 'Dashboard'],
+                ['href' => 'residents.php',              'icon' => 'bi-people',               'label' => 'Residents'],
+                ['href' => 'rooms.php',                  'icon' => 'bi-house-door',           'label' => 'Rooms'],
+            ],
+        ],
+        [
+            'heading' => 'Operations',
+            'items'   => [
                 ['href' => 'admission_management.php',   'icon' => 'bi-clipboard-check',      'label' => 'Admissions'],
                 ['href' => 'resident_registration.php',  'icon' => 'bi-person-plus',          'label' => 'Resident Registration'],
-                ['href' => 'discharge_management.php',   'icon' => 'bi-box-arrow-right',      'label' => 'Discharge Management'],
-                ['href' => 'staff_management.php',       'icon' => 'bi-people',               'label' => 'Staff Management'],
+                ['href' => 'discharge_management.php',   'icon' => 'bi-box-arrow-right',      'label' => 'Discharges'],
+                ['href' => 'staff_management.php',       'icon' => 'bi-shield-check',         'label' => 'Staff Management'],
                 ['href' => 'visitor_management.php',     'icon' => 'bi-person-bounding-box',  'label' => 'Visitor Management'],
+            ],
+        ],
+        [
+            'heading' => 'Administration',
+            'items'   => [
+                ['href' => 'inventory.php',              'icon' => 'bi-box-seam',             'label' => 'Inventory'],
+                ['href' => 'payments.php',               'icon' => 'bi-credit-card',          'label' => 'Payments'],
+                ['href' => 'reports.php',                'icon' => 'bi-file-earmark-bar-graph','label' => 'Reports'],
+                ['href' => 'notifications.php',          'icon' => 'bi-bell',                 'label' => 'Notifications'],
             ],
         ],
         [
