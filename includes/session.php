@@ -11,7 +11,7 @@ require_once __DIR__ . '/../config/config.php';
 // Set to true to skip authentication and mock credentials for UI testing.
 // Set to false for standard production database login checks.
 if (!defined('DEV_MODE')) {
-    define('DEV_MODE', true);
+    define('DEV_MODE', false);
 }
 // ────────────────────────────────────────────────────────────────────────────
 
