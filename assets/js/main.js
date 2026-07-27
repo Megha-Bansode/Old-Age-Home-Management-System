@@ -231,35 +231,58 @@
                 setFieldError('login-password-shell', 'login-password-error', false);
             }
 
+            const rememberMe = $('remember-me') ? $('remember-me').checked : false;
+
             setLoading(loginSubmit, true, 'Sign in');
 
-            let redirectUrl = '';
-            const roleVal = selectedRole.value;
-            if (roleVal === 'Super Admin') {
-                redirectUrl = '../super_admin/index.php';
-            } else if (roleVal === 'Old Age Home Admin') {
-                redirectUrl = '../admin/index.php';
-            } else if (roleVal === 'Doctor') {
-                redirectUrl = '../doctor/index.php';
-            } else if (roleVal === 'Caretaker') {
-                redirectUrl = '../caretaker/index.php';
-            } else if (roleVal === 'Family Member') {
-                redirectUrl = '../family/index.php';
-            } else if (roleVal === 'Donor') {
-                redirectUrl = '../donor/index.php';
-            } else {
-                redirectUrl = '../admin/index.php';
-            }
+            const formData = new FormData();
+            formData.append('role', selectedRole.value);
+            formData.append('email', emailVal);
+            formData.append('password', pwVal);
+            formData.append('remember_me', rememberMe ? '1' : '0');
+            formData.append('csrf_token', getCsrfToken());
 
-            Swal.fire({
-                icon: 'success',
-                title: 'Login Successful',
-                text: 'Welcome back!',
-                timer: 1500,
-                showConfirmButton: false
-            }).then(() => {
+            fetch('login_api.php', {
+                method: 'POST',
+                headers: { 'X-Requested-With': 'XMLHttpRequest' },
+                body: formData
+            })
+            .then(res => res.json())
+            .then(data => {
                 setLoading(loginSubmit, false, 'Sign in');
-                window.location.href = redirectUrl;
+
+                if (data.success) {
+                    // Success Popup
+                    Swal.fire({
+                        icon: 'success',
+                        title: data.title || 'Login Successful',
+                        text: data.message || 'Welcome back!',
+                        timer: 1500,
+                        showConfirmButton: false
+                    }).then(() => {
+                        window.location.href = data.redirect;
+                    });
+                } else {
+                    // SweetAlert2 Error Popups mapped exactly to required titles/messages
+                    let popupIcon = 'error';
+                    if (data.error_type === 'invalid_email' || data.error_type === 'role_mismatch') {
+                        popupIcon = 'warning';
+                    }
+
+                    Swal.fire({
+                        icon: popupIcon,
+                        title: data.title || 'Authentication Failed',
+                        text: data.message || 'Please check your credentials.'
+                    });
+                }
+            })
+            .catch(err => {
+                setLoading(loginSubmit, false, 'Sign in');
+                Swal.fire({
+                    icon: 'error',
+                    title: 'System Error',
+                    text: 'A network error occurred. Please try again.'
+                });
             });
         });
     }
