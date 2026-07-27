@@ -156,6 +156,11 @@ $unread_count = array_sum(array_column($notifications, 'unread'));
     <?php endif; ?>
 </head>
 <body class="<?php echo isset($body_class) ? htmlspecialchars($body_class) : ''; ?>">
+<script>
+    if (localStorage.getItem('sn_sidebar_collapsed') === 'true') {
+        document.body.classList.add('sidebar-collapsed');
+    }
+</script>
 
 <!-- ╔══════════════════════════════════════════════════════════╗
      ║  SEVANEST NAVIGATION HEADER                             ║

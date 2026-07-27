@@ -532,6 +532,7 @@ body {
     margin-left:280px;
     margin-top:64px;
     padding:24px;
+    transition: margin-left var(--sn-transition) !important;
 }
 
 
@@ -553,39 +554,39 @@ body {
 
 
 /* ─── 16. Collapsed State (desktop) ─────────────────────────────────────── */
-body.sn-collapsed #sn-sidebar {
+body.sidebar-collapsed #sn-sidebar {
     width: var(--sn-collapsed-w);
 }
  
-body.sn-collapsed #sn-main-content {
+body.sidebar-collapsed #sn-main-content {
     margin-left: var(--sn-collapsed-w);
 }
 
-body.sn-collapsed .sn-topbar{
+body.sidebar-collapsed .sn-topbar{
     left:var(--sn-collapsed-w);
 }
 
 /* Shrink logo area */
-body.sn-collapsed .sn-logo-wrap {
+body.sidebar-collapsed .sn-logo-wrap {
     padding   : 14px 10px;
     min-height: 72px;
 }
 
-body.sn-collapsed .sn-logo-container {
+body.sidebar-collapsed .sn-logo-container {
     max-width    : 52px;
     padding      : 8px;
     border-radius: 50%;
 }
 
-body.sn-collapsed .sn-logo-container img {
+body.sidebar-collapsed .sn-logo-container img {
     max-width: 36px;
 }
 
 /* Hide labels, headings, badges, version */
-body.sn-collapsed .sn-label,
-body.sn-collapsed .sn-nav-heading,
-body.sn-collapsed .sn-badge,
-body.sn-collapsed .sn-version {
+body.sidebar-collapsed .sn-label,
+body.sidebar-collapsed .sn-nav-heading,
+body.sidebar-collapsed .sn-badge,
+body.sidebar-collapsed .sn-version {
     opacity   : 0;
     max-width : 0;
     max-height: 0;
@@ -594,23 +595,27 @@ body.sn-collapsed .sn-version {
     pointer-events: none;
 }
 
-body.sn-collapsed .sn-nav-heading {
+body.sidebar-collapsed .sn-nav-wrap {
+    overflow: hidden !important;
+}
+
+body.sidebar-collapsed .sn-nav-heading {
     padding: 0;
 }
 
 /* Center icons when collapsed */
-body.sn-collapsed .sn-nav-link {
+body.sidebar-collapsed .sn-nav-link {
     justify-content: center;
     gap            : 0;
     padding        : var(--sn-nav-pad-y) 0;
 }
 
-body.sn-collapsed .sn-footer-divider {
+body.sidebar-collapsed .sn-footer-divider {
     margin: 4px 0;
 }
 
 /* Show tooltips on hover in collapsed mode */
-body.sn-collapsed .sn-nav-item:hover .sn-tooltip {
+body.sidebar-collapsed .sn-nav-item:hover .sn-tooltip {
     opacity   : 1;
     visibility: visible;
 }
@@ -645,13 +650,13 @@ body.sn-collapsed .sn-nav-item:hover .sn-tooltip {
     }
 
     /* Disable desktop collapse class effect on mobile */
-    body.sn-collapsed #sn-sidebar {
+    body.sidebar-collapsed #sn-sidebar {
         width    : var(--sn-sidebar-w);
         transform: translateX(-100%);
 
     }
 
-    body.sn-collapsed #sn-sidebar.sn-mobile-open {
+    body.sidebar-collapsed #sn-sidebar.sn-mobile-open {
         transform: translateX(0);
     }
 }

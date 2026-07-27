@@ -193,6 +193,21 @@
     padding: 0 !important;
     min-height: var(--header-height);
     position: relative;
+    margin-left: 280px !important;
+    width: calc(100% - 280px) !important;
+    transition: margin-left var(--sn-transition), width var(--sn-transition) !important;
+}
+
+body.sidebar-collapsed .oahms-header {
+    margin-left: var(--sn-collapsed-w) !important;
+    width: calc(100% - var(--sn-collapsed-w)) !important;
+}
+
+@media (max-width: 991.98px) {
+    .oahms-header {
+        margin-left: 0 !important;
+        width: 100% !important;
+    }
 }
 
 @keyframes oahms-header-gradient {

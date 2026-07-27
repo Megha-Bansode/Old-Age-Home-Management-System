@@ -87,7 +87,7 @@ function updateToggleAria(collapsed) {
  * Persists the preference and updates ARIA.
  */
 function collapseDesktop() {
-    document.body.classList.add('sn-collapsed');
+    document.body.classList.add('sidebar-collapsed');
     persistCollapse(true);
     updateToggleAria(true);
 }
@@ -97,7 +97,7 @@ function collapseDesktop() {
  * Persists the preference and updates ARIA.
  */
 function expandDesktop() {
-    document.body.classList.remove('sn-collapsed');
+    document.body.classList.remove('sidebar-collapsed');
     persistCollapse(false);
     updateToggleAria(false);
 }
@@ -106,7 +106,7 @@ function expandDesktop() {
  * Toggles the desktop collapse state.
  */
 function toggleDesktop() {
-    if (document.body.classList.contains('sn-collapsed')) {
+    if (document.body.classList.contains('sidebar-collapsed')) {
         expandDesktop();
     } else {
         collapseDesktop();
@@ -297,7 +297,7 @@ function handleResize() {
         }
     } else {
         /* Switching to mobile: always expand sidebar (it will be hidden via CSS) */
-        document.body.classList.remove('sn-collapsed');
+        document.body.classList.remove('sidebar-collapsed');
         sidebar && sidebar.setAttribute('aria-hidden', 'true');
     }
 }
