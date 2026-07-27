@@ -155,35 +155,21 @@ $sn_nav_map = [
     /* ── Admin ───────────────────────────────────────────────────────── */
     'admin' => [
         [
-            'heading' => 'Main',
+            'heading' => 'Operations',
             'items'   => [
-                ['href' => 'dashboard.php',      'icon' => 'bi-grid-1x2',             'label' => 'Dashboard'],
-                ['href' => 'residents.php',       'icon' => 'bi-people',               'label' => 'Residents'],
-                ['href' => 'medical-records.php', 'icon' => 'bi-file-earmark-medical', 'label' => 'Medical Records'],
-                ['href' => 'doctors.php',         'icon' => 'bi-hospital',         'label' => 'Doctors'],
-                ['href' => 'caretakers.php',      'icon' => 'bi-person-heart',         'label' => 'Caretakers'],
-                ['href' => 'visitors.php',        'icon' => 'bi-person-lines-fill',    'label' => 'Visitors'],
-            ],
-        ],
-        [
-            'heading' => 'Finance',
-            'items'   => [
-                ['href' => 'donations.php', 'icon' => 'bi-gift',    'label' => 'Donations'],
-                ['href' => 'billing.php',   'icon' => 'bi-receipt', 'label' => 'Billing'],
-            ],
-        ],
-        [
-            'heading' => 'Reports & Tools',
-            'items'   => [
-                ['href' => 'reports.php',       'icon' => 'bi-bar-chart-line', 'label' => 'Reports'],
-                ['href' => 'notifications.php', 'icon' => 'bi-bell',           'label' => 'Notifications', 'badge' => 2],
-                ['href' => 'settings.php',      'icon' => 'bi-sliders',        'label' => 'Settings'],
+                ['href' => 'dashboard.php',              'icon' => 'bi-grid-1x2',             'label' => 'Dashboard'],
+                ['href' => 'admission_management.php',   'icon' => 'bi-clipboard-check',      'label' => 'Admissions'],
+                ['href' => 'resident_registration.php',  'icon' => 'bi-person-plus',          'label' => 'Resident Registration'],
+                ['href' => 'discharge_management.php',   'icon' => 'bi-box-arrow-right',      'label' => 'Discharge Management'],
+                ['href' => 'staff_management.php',       'icon' => 'bi-people',               'label' => 'Staff Management'],
+                ['href' => 'visitor_management.php',     'icon' => 'bi-person-bounding-box',  'label' => 'Visitor Management'],
             ],
         ],
         [
             'heading' => 'Account',
             'items'   => [
-                ['href' => 'profile.php', 'icon' => 'bi-person-circle', 'label' => 'Profile'],
+                ['href' => 'profile.php',                'icon' => 'bi-person-circle',        'label' => 'Profile'],
+                ['href' => 'settings.php',               'icon' => 'bi-gear',                 'label' => 'Settings'],
             ],
         ],
     ],
