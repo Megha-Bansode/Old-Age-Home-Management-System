@@ -10,16 +10,19 @@ require_once __DIR__ . '/../../includes/functions.php';
 require_once __DIR__ . '/../../includes/session.php';
 require_once __DIR__ . '/../../config/database.php';
 
-// PHP authentication logic block
+// ── START TEMPORARY UI INTEGRATION ──────────────────────────────────────────
+// NOTE: This role-based routing is temporary for local UI testing and runs
+// without database validation. It must be replaced with real, database-backed
+// authentication in the production phase.
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     header('Content-Type: application/json');
     $role     = clean_str($_POST['role'] ?? '');
     $email    = clean_str($_POST['email'] ?? '');
     $password = (string)($_POST['password'] ?? '');
 
-    // Dummy authentication logic (can be easily replaced with database validation later)
+    // Dummy authentication for local UI testing - no DB checks required
     if (!empty($role) && !empty($email) && strlen($password) >= 8) {
-        $_SESSION['user_id']   = 999; // Dummy user ID
+        $_SESSION['user_id']   = 999; // Dummy session ID
         $_SESSION['user_name'] = ($role === 'Family Member') ? 'Kirti' : 'Staff User';
         $_SESSION['user_role'] = $role;
         $_SESSION['role']      = ($role === 'Family Member') ? 'family_member' : 'admin';
@@ -33,7 +36,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'Family Member'      => '../../modules/family/dashboard.php'
         ];
 
-        $redirect = $roleRoutes[$role] ?? '../../index.php';
+        $target = $roleRoutes[$role] ?? '../../index.php';
+        
+        // Resolve path relative to this script directory to check file state
+        $resolved_path = __DIR__ . '/' . $target;
+        
+        // If file is missing or exists but is empty (0 bytes), route to development page
+        if (!file_exists($resolved_path) || filesize($resolved_path) === 0) {
+            $redirect = 'under_development.php?role=' . urlencode($role);
+        } else {
+            $redirect = $target;
+        }
+
         echo json_encode(['success' => true, 'redirect' => $redirect]);
         exit;
     } else {
@@ -41,6 +55,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
 }
+// ── END TEMPORARY UI INTEGRATION ────────────────────────────────────────────
 
 // Config variables for header template
 $base_path = '../../';

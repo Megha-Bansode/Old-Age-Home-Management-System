@@ -6,35 +6,13 @@
 (function(){
   const $ = (id) => document.getElementById(id);
   
-  const loginView = $('view-login');
-  const forgotView = $('view-forgot');
-
-  // Verify elements exist before running page logic
-  if (!loginView || !forgotView) return;
-
-  function showView(view){
-    [loginView, forgotView].forEach(v => v.classList.remove('active'));
-    view.classList.add('active');
-    // reset banners when switching
-    hideAllBanners();
-  }
-  
   function hideAllBanners(){
-    ['login-banner-error','login-banner-success','forgot-banner-error','forgot-banner-success']
+    ['login-banner-error','login-banner-success']
       .forEach(id => {
         const el = $(id);
         if (el) el.classList.remove('show');
       });
   }
-
-  // View switches
-  const goForgot = $('go-forgot');
-  const goLogin = $('go-login');
-  const goLogin2 = $('go-login-2');
-
-  if (goForgot) goForgot.addEventListener('click', () => showView(forgotView));
-  if (goLogin) goLogin.addEventListener('click', () => showView(loginView));
-  if (goLogin2) goLogin2.addEventListener('click', () => showView(loginView));
 
   // ---------- password visibility toggle ----------
   const pwInput = $('login-password');
@@ -43,7 +21,7 @@
   
   if (pwInput && pwToggle && eyeIcon) {
     const EYE_OPEN = eyeIcon.innerHTML;
-    const EYE_CLOSED = '<path d="M3 3L21 21" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><path d="M9.9 5.1C10.6 5 11.3 4.9 12 4.9C18.5 4.9 22 11.4 22 11.4C21.6 12.2 20.9 13.2 20 14.2M6.3 6.6C3.6 8.3 2 11.4 2 11.4C2 11.4 5.5 17.9 12 17.9C13.4 17.9 14.6 17.6 15.7 17.1" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><path d="M9.9 12.9C9.6 12.5 9.5 12 9.5 11.5C9.5 10.1 10.6 9 12 9C12.6 9 13.1 9.2 13.5 9.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>';
+    const EYE_CLOSED = '<path d="M3 3L21 21" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><path d="M9.9 5.1C10.6 5 11.3 4.9C12 4.9C18.5 4.9 22 11.4 22 11.4C21.6 12.2 20.9 13.2 20 14.2M6.3 6.6C3.6 8.3 2 11.4 2 11.4C2 11.4 5.5 17.9 12 17.9C13.4 17.9 14.6 17.6 15.7 17.1" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><path d="M9.9 12.9C9.6 12.5 9.5 12 9.5 11.5C9.5 10.1 10.6 9 12 9C12.6 9 13.1 9.2 13.5 9.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>';
 
     pwToggle.addEventListener('click', () => {
       const showing = pwInput.type === 'text';
@@ -126,98 +104,54 @@
         return;
       }
 
-      // Perform AJAX authentication call to login.php
+      // ── START TEMPORARY UI INTEGRATION ──────────────────────────────────────────
+      // NOTE: This role-based routing is temporary for local UI testing and runs
+      // purely on the frontend. It must be replaced with real PHP+MySQL database
+      // authentication later.
       setLoading(loginSubmit, true, 'Sign in');
       
-      const formData = new FormData();
-      formData.append('role', selectedRole.value);
-      formData.append('email', emailVal);
-      formData.append('password', pwVal);
-
-      fetch('login.php', {
-        method: 'POST',
-        body: formData
-      })
-      .then(response => response.json())
-      .then(data => {
+      const role = selectedRole.value.toLowerCase().trim();
+      
+      // Routing dictionary mapping role input values to actual existing dashboard files
+      const routes = {
+        'super admin': '../super_admin/index.php',
+        'super_admin': '../super_admin/index.php',
+        'old age home admin': '../admin/index.php',
+        'admin': '../admin/index.php',
+        'caretaker': '../caretaker/dashboard.php',
+        'doctor': '../doctor/index.php',
+        'donor': '../donor/index.php',
+        'family member': '../family/dashboard.php',
+        'family_member': '../family/dashboard.php',
+        'family': '../family/dashboard.php'
+      };
+      
+      const successText = $('login-success-text');
+      const successBanner = $('login-banner-success');
+      
+      if (successText) {
+        successText.textContent = `Signed in as ${selectedRole.value}. Redirecting…`;
+      }
+      if (successBanner) successBanner.classList.add('show');
+      
+      setTimeout(() => {
         setLoading(loginSubmit, false, 'Sign in');
-        if (data.success) {
-          const dashboardName = selectedRole.getAttribute('data-dash');
-          const successText = $('login-success-text');
-          const successBanner = $('login-banner-success');
-          
-          if (successText) {
-            successText.textContent = `Signed in as ${selectedRole.value}. Redirecting to the ${dashboardName}…`;
-          }
-          if (successBanner) successBanner.classList.add('show');
-          
-          setTimeout(() => {
-            window.location.href = data.redirect;
-          }, 800);
+        
+        const target = routes[role];
+        
+        if (target) {
+          window.location.href = target;
         } else {
-          const errText = $('login-error-text');
-          const errBanner = $('login-banner-error');
-          if (errText) errText.textContent = data.message || 'Authentication failed.';
-          if (errBanner) errBanner.classList.add('show');
+          window.location.href = 'under_development.php?role=' + encodeURIComponent(selectedRole.value);
         }
-      })
-      .catch(error => {
-        setLoading(loginSubmit, false, 'Sign in');
-        const errText = $('login-error-text');
-        const errBanner = $('login-banner-error');
-        if (errText) errText.textContent = 'Server communication error. Please try again.';
-        if (errBanner) errBanner.classList.add('show');
-      });
+      }, 1000);
+      // ── END TEMPORARY UI INTEGRATION ────────────────────────────────────────────
     });
   }
 
   // clear role error as soon as one is picked
   if (roleGrid && roleError) {
     roleGrid.addEventListener('change', () => { roleError.style.display = 'none'; });
-  }
-
-  // ---------- forgot password form ----------
-  const forgotForm = $('forgot-form');
-  const forgotSubmit = $('forgot-submit');
-
-  if (forgotForm) {
-    forgotForm.addEventListener('submit', function(e){
-      e.preventDefault();
-      hideAllBanners();
-
-      const emailVal = $('forgot-email') ? $('forgot-email').value.trim() : '';
-      let valid = true;
-
-      if(!emailVal){
-        setFieldError('forgot-email-shell','forgot-email-error', true, 'Enter the email or username on your account.');
-        valid = false;
-      } else if(emailVal.includes('@') && typeof validateEmail === 'function' && !validateEmail(emailVal)){
-        setFieldError('forgot-email-shell','forgot-email-error', true, 'That email address doesn\'t look right.');
-        valid = false;
-      } else {
-        setFieldError('forgot-email-shell','forgot-email-error', false);
-      }
-
-      if(!valid){
-        const errText = $('forgot-error-text');
-        const errBanner = $('forgot-banner-error');
-        if (errText) errText.textContent = 'Please enter a valid email or username.';
-        if (errBanner) errBanner.classList.add('show');
-        return;
-      }
-
-      setLoading(forgotSubmit, true, 'Send reset link');
-      setTimeout(() => {
-        setLoading(forgotSubmit, false, 'Send reset link');
-        const successText = $('forgot-success-text');
-        const successBanner = $('forgot-banner-success');
-        
-        if (successText) {
-          successText.textContent = `If an account exists for "${emailVal}", a reset link is on its way.`;
-        }
-        if (successBanner) successBanner.classList.add('show');
-      }, 900);
-    });
   }
 
   // ---------- background slideshow ----------

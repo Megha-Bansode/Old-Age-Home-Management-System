@@ -219,17 +219,12 @@ $sn_nav_map = [
         [
             'heading' => 'Main',
             'items'   => [
-                ['href' => 'dashboard.php',      'icon' => 'bi-grid-1x2',             'label' => 'Dashboard'],
-                ['href' => 'residents.php',       'icon' => 'bi-people',               'label' => 'Residents'],
-                ['href' => 'medical-records.php', 'icon' => 'bi-file-earmark-medical', 'label' => 'Medical Records'],
-                ['href' => 'tasks.php',           'icon' => 'bi-clipboard-check',      'label' => 'My Tasks'],
-                ['href' => 'visitors.php',        'icon' => 'bi-person-lines-fill',    'label' => 'Visitors'],
-            ],
-        ],
-        [
-            'heading' => 'Communication',
-            'items'   => [
-                ['href' => 'notifications.php', 'icon' => 'bi-bell', 'label' => 'Notifications', 'badge' => 5],
+                ['href' => 'dashboard.php',   'icon' => 'bi-grid-1x2',             'label' => 'Dashboard'],
+                ['href' => 'attendance.php',  'icon' => 'bi-check-circle',         'label' => 'Resident Attendance'],
+                ['href' => 'activities.php',  'icon' => 'bi-calendar2-range',      'label' => 'Daily Activities'],
+                ['href' => 'meals.php',       'icon' => 'bi-egg-fried',            'label' => 'Meal Schedule'],
+                ['href' => 'specialcare.php', 'icon' => 'bi-heart-fill',           'label' => 'Special Care'],
+                ['href' => 'emergency.php',   'icon' => 'bi-exclamation-triangle', 'label' => 'Emergency Report'],
             ],
         ],
         [
@@ -420,7 +415,7 @@ $sn_base = rtrim(dirname($_SERVER['PHP_SELF'] ?? ''), '/');
     <footer class="sn-footer" role="contentinfo">
         <ul class="sn-nav-list" role="list">
             <li class="sn-nav-item">
-                <a href="logout.php"
+                <a href="<?php echo htmlspecialchars($sn_asset_root); ?>/../modules/authentication/logout.php"
                    class="sn-nav-link sn-logout-link"
                    aria-label="Logout of SevaNest"
                    tabindex="0"
