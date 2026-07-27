@@ -182,14 +182,15 @@
 
     if (loginForm) {
         loginForm.addEventListener('submit', function (e) {
+            e.preventDefault();
+
             const selectedRole = loginForm.querySelector('input[name="role"]:checked');
             if (!selectedRole) {
-                e.preventDefault();
                 if (roleError) roleError.style.display = 'block';
                 Swal.fire({
                     icon: 'warning',
-                    title: 'Role Mismatch',
-                    text: 'Please select the correct role before logging in.'
+                    title: 'Role Required',
+                    text: 'Please select your role before signing in.'
                 });
                 return;
             } else {
@@ -198,16 +199,14 @@
 
             const emailVal = $('login-email').value.trim();
             if (!emailVal) {
-                e.preventDefault();
-                setFieldError('login-email-shell', 'login-email-error', true, 'Please enter your email address.');
+                setFieldError('login-email-shell', 'login-email-error', true, 'Please enter your email or phone.');
                 Swal.fire({
                     icon: 'warning',
-                    title: 'Invalid Email',
-                    text: 'Please enter a valid email address.'
+                    title: 'Identifier Required',
+                    text: 'Please enter your email address or phone number.'
                 });
                 return;
             } else if (emailVal.includes('@') && !EMAIL_RE.test(emailVal)) {
-                e.preventDefault();
                 setFieldError('login-email-shell', 'login-email-error', true, 'Please enter a valid email address.');
                 Swal.fire({
                     icon: 'warning',
@@ -221,12 +220,11 @@
 
             const pwVal = $('login-password').value;
             if (!pwVal) {
-                e.preventDefault();
                 setFieldError('login-password-shell', 'login-password-error', true, 'Enter your password.');
                 Swal.fire({
-                    icon: 'error',
-                    title: 'Incorrect Password',
-                    text: 'The password you entered is incorrect.'
+                    icon: 'warning',
+                    title: 'Password Required',
+                    text: 'Please enter your password.'
                 });
                 return;
             } else {
@@ -234,6 +232,57 @@
             }
 
             setLoading(loginSubmit, true, 'Sign in');
+
+            const formData = new FormData(loginForm);
+            
+            fetch('login_api.php', {
+                method: 'POST',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: formData
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                setLoading(loginSubmit, false, 'Sign in');
+                
+                if (data.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: data.title || 'Login Successful',
+                        text: data.message || 'Welcome back!',
+                        timer: 1500,
+                        showConfirmButton: false
+                    }).then(() => {
+                        window.location = data.redirect;
+                    });
+                } else {
+                    let alertIcon = 'error';
+                    if (data.error_type === 'role_mismatch') {
+                        alertIcon = 'warning';
+                    } else if (data.error_type === 'account_disabled') {
+                        alertIcon = 'info';
+                    }
+                    Swal.fire({
+                        icon: alertIcon,
+                        title: data.title || 'Error',
+                        text: data.message || 'Authentication failed.'
+                    });
+                }
+            })
+            .catch(error => {
+                setLoading(loginSubmit, false, 'Sign in');
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Connection Error',
+                    text: 'Unable to connect to the authentication server.'
+                });
+            });
         });
     }
 
