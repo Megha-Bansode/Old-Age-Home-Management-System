@@ -182,10 +182,9 @@
 
     if (loginForm) {
         loginForm.addEventListener('submit', function (e) {
-            e.preventDefault();
-
             const selectedRole = loginForm.querySelector('input[name="role"]:checked');
             if (!selectedRole) {
+                e.preventDefault();
                 if (roleError) roleError.style.display = 'block';
                 Swal.fire({
                     icon: 'warning',
@@ -199,6 +198,7 @@
 
             const emailVal = $('login-email').value.trim();
             if (!emailVal) {
+                e.preventDefault();
                 setFieldError('login-email-shell', 'login-email-error', true, 'Please enter your email address.');
                 Swal.fire({
                     icon: 'warning',
@@ -207,6 +207,7 @@
                 });
                 return;
             } else if (emailVal.includes('@') && !EMAIL_RE.test(emailVal)) {
+                e.preventDefault();
                 setFieldError('login-email-shell', 'login-email-error', true, 'Please enter a valid email address.');
                 Swal.fire({
                     icon: 'warning',
@@ -220,6 +221,7 @@
 
             const pwVal = $('login-password').value;
             if (!pwVal) {
+                e.preventDefault();
                 setFieldError('login-password-shell', 'login-password-error', true, 'Enter your password.');
                 Swal.fire({
                     icon: 'error',
@@ -231,59 +233,7 @@
                 setFieldError('login-password-shell', 'login-password-error', false);
             }
 
-            const rememberMe = $('remember-me') ? $('remember-me').checked : false;
-
             setLoading(loginSubmit, true, 'Sign in');
-
-            const formData = new FormData();
-            formData.append('role', selectedRole.value);
-            formData.append('email', emailVal);
-            formData.append('password', pwVal);
-            formData.append('remember_me', rememberMe ? '1' : '0');
-            formData.append('csrf_token', getCsrfToken());
-
-            fetch('login_api.php', {
-                method: 'POST',
-                headers: { 'X-Requested-With': 'XMLHttpRequest' },
-                body: formData
-            })
-            .then(res => res.json())
-            .then(data => {
-                setLoading(loginSubmit, false, 'Sign in');
-
-                if (data.success) {
-                    // Success Popup
-                    Swal.fire({
-                        icon: 'success',
-                        title: data.title || 'Login Successful',
-                        text: data.message || 'Welcome back!',
-                        timer: 1500,
-                        showConfirmButton: false
-                    }).then(() => {
-                        window.location.href = data.redirect;
-                    });
-                } else {
-                    // SweetAlert2 Error Popups mapped exactly to required titles/messages
-                    let popupIcon = 'error';
-                    if (data.error_type === 'invalid_email' || data.error_type === 'role_mismatch') {
-                        popupIcon = 'warning';
-                    }
-
-                    Swal.fire({
-                        icon: popupIcon,
-                        title: data.title || 'Authentication Failed',
-                        text: data.message || 'Please check your credentials.'
-                    });
-                }
-            })
-            .catch(err => {
-                setLoading(loginSubmit, false, 'Sign in');
-                Swal.fire({
-                    icon: 'error',
-                    title: 'System Error',
-                    text: 'A network error occurred. Please try again.'
-                });
-            });
         });
     }
 

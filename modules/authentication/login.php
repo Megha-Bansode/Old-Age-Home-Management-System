@@ -20,6 +20,7 @@ $base_path = '../../';
 $body_class = 'auth-page';
 $page_title = 'Sign In — SevaNest';
 $extra_css = ['assets/css/style.css'];
+$is_public_page = true;
 
 require_once('../../includes/header.php');
 
@@ -108,7 +109,7 @@ $csrf_token = generate_csrf_token();
           <p>Choose your role, then enter your credentials to continue.</p>
         </div>
 
-        <form id="login-form" novalidate>
+        <form id="login-form" action="login_api.php" method="POST" novalidate>
           <div class="field">
             <label>I am signing in as</label>
             <div class="role-grid" id="role-grid" role="radiogroup" aria-label="Select your role">
@@ -359,18 +360,63 @@ $csrf_token = generate_csrf_token();
 <script>
 window.addEventListener('DOMContentLoaded', () => {
   const urlParams = new URLSearchParams(window.location.search);
-  if (urlParams.get('msg') === 'logged_out') {
+  const msg = urlParams.get('msg');
+  const error = urlParams.get('error');
+
+  if (msg === 'logged_out') {
     Swal.fire({
       icon: 'success',
       title: 'Logged Out',
       text: 'You have logged out successfully.',
       confirmButtonText: 'OK'
     });
-  } else if (urlParams.get('error') === 'unauthorized') {
+  } else if (error === 'unauthorized') {
     Swal.fire({
       icon: 'warning',
       title: 'Access Required',
       text: 'Please log in to access your dashboard.',
+      confirmButtonText: 'OK'
+    });
+  } else if (error === 'wrong_password') {
+    Swal.fire({
+      icon: 'error',
+      title: 'Incorrect Password',
+      text: 'The password you entered is incorrect.',
+      confirmButtonText: 'OK'
+    });
+  } else if (error === 'email_not_found') {
+    Swal.fire({
+      icon: 'warning',
+      title: 'Account Not Found',
+      text: 'No account exists with this email or phone number.',
+      confirmButtonText: 'OK'
+    });
+  } else if (error === 'role_mismatch') {
+    Swal.fire({
+      icon: 'warning',
+      title: 'Role Mismatch',
+      text: 'Please select the correct role before logging in.',
+      confirmButtonText: 'OK'
+    });
+  } else if (error === 'account_disabled') {
+    Swal.fire({
+      icon: 'error',
+      title: 'Access Denied',
+      text: 'Your account has been disabled. Please contact the administrator.',
+      confirmButtonText: 'OK'
+    });
+  } else if (error === 'csrf_error') {
+    Swal.fire({
+      icon: 'error',
+      title: 'Security Session Timeout',
+      text: 'CSRF validation failed. Please refresh the page and try again.',
+      confirmButtonText: 'OK'
+    });
+  } else if (error === 'invalid_email') {
+     Swal.fire({
+      icon: 'warning',
+      title: 'Invalid Email',
+      text: 'Please enter a valid email address.',
       confirmButtonText: 'OK'
     });
   }

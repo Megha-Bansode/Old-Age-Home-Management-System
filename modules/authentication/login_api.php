@@ -8,27 +8,34 @@ require_once __DIR__ . '/../../config/database.php';
 require_once __DIR__ . '/../../includes/session.php';
 require_once __DIR__ . '/../../includes/auth.php';
 
-header('Content-Type: application/json');
+function send_response($success, $error_type, $title, $message, $redirectUrl = null) {
+    $isAjax = !empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest';
+    if ($isAjax) {
+        header('Content-Type: application/json');
+        echo json_encode([
+            'success'    => $success,
+            'error_type' => $error_type,
+            'title'      => $title,
+            'message'    => $message,
+            'redirect'   => $redirectUrl
+        ]);
+    } else {
+        if ($success) {
+            header("Location: " . $redirectUrl);
+        } else {
+            header("Location: login.php?error=" . urlencode($error_type));
+        }
+    }
+    exit();
+}
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    echo json_encode([
-        'success'    => false,
-        'error_type' => 'invalid_request',
-        'title'      => 'Invalid Request',
-        'message'    => 'Invalid request method.'
-    ]);
-    exit();
+    send_response(false, 'invalid_request', 'Invalid Request', 'Invalid request method.');
 }
 
 $csrfToken = $_POST['csrf_token'] ?? '';
 if (!verify_csrf_token($csrfToken)) {
-    echo json_encode([
-        'success'    => false,
-        'error_type' => 'csrf_error',
-        'title'      => 'Session Security',
-        'message'    => 'CSRF validation failed. Please refresh the page and try again.'
-    ]);
-    exit();
+    send_response(false, 'csrf_error', 'Session Security', 'CSRF validation failed. Please refresh the page and try again.');
 }
 
 $role       = sanitize_input($_POST['role'] ?? '');
@@ -38,45 +45,17 @@ $rememberMe = isset($_POST['remember_me']) && ($_POST['remember_me'] === '1' || 
 
 // 1. Role Check
 if (empty($role)) {
-    echo json_encode([
-        'success'    => false,
-        'error_type' => 'role_mismatch',
-        'title'      => 'Role Mismatch',
-        'message'    => 'Please select the correct role before logging in.'
-    ]);
-    exit();
+    send_response(false, 'role_mismatch', 'Role Mismatch', 'Please select the correct role before logging in.');
 }
 
 // 2. Email Validation
 if (empty($identifier)) {
-    echo json_encode([
-        'success'    => false,
-        'error_type' => 'invalid_email',
-        'title'      => 'Invalid Email',
-        'message'    => 'Please enter a valid email address.'
-    ]);
-    exit();
-}
-
-if (strpos($identifier, '@') !== false && !filter_var($identifier, FILTER_VALIDATE_EMAIL)) {
-    echo json_encode([
-        'success'    => false,
-        'error_type' => 'invalid_email',
-        'title'      => 'Invalid Email',
-        'message'    => 'Please enter a valid email address.'
-    ]);
-    exit();
+    send_response(false, 'invalid_email', 'Invalid Email', 'Please enter a valid email address.');
 }
 
 // 3. Password Field Check
 if (empty($password)) {
-    echo json_encode([
-        'success'    => false,
-        'error_type' => 'wrong_password',
-        'title'      => 'Incorrect Password',
-        'message'    => 'The password you entered is incorrect.'
-    ]);
-    exit();
+    send_response(false, 'wrong_password', 'Incorrect Password', 'The password you entered is incorrect.');
 }
 
 try {
@@ -97,24 +76,12 @@ try {
 
     // 4. Verify Account Exists
     if (!$user) {
-        echo json_encode([
-            'success'    => false,
-            'error_type' => 'email_not_found',
-            'title'      => 'Account Not Found',
-            'message'    => 'No account exists with this email.'
-        ]);
-        exit();
+        send_response(false, 'email_not_found', 'Account Not Found', 'No account exists with this email.');
     }
 
     // 5. Verify Password
     if (!password_verify($password, $user['password'])) {
-        echo json_encode([
-            'success'    => false,
-            'error_type' => 'wrong_password',
-            'title'      => 'Incorrect Password',
-            'message'    => 'The password you entered is incorrect.'
-        ]);
-        exit();
+        send_response(false, 'wrong_password', 'Incorrect Password', 'The password you entered is incorrect.');
     }
 
     // Normalize incoming role name from radio input to DB enum format
@@ -130,24 +97,12 @@ try {
 
     // 6. Verify Selected Role
     if ($user['role'] !== $incoming_role) {
-        echo json_encode([
-            'success'    => false,
-            'error_type' => 'role_mismatch',
-            'title'      => 'Role Mismatch',
-            'message'    => 'Please select the correct role before logging in.'
-        ]);
-        exit();
+        send_response(false, 'role_mismatch', 'Role Mismatch', 'Please select the correct role before logging in.');
     }
 
     // 7. Verify Account Status
     if ($user['status'] !== 'active') {
-        echo json_encode([
-            'success'    => false,
-            'error_type' => 'account_disabled',
-            'title'      => 'Access Denied',
-            'message'    => 'Your account has been disabled. Please contact the administrator.'
-        ]);
-        exit();
+        send_response(false, 'account_disabled', 'Access Denied', 'Your account has been disabled. Please contact the administrator.');
     }
 
     // 8. Authentication Success - Create Session
@@ -170,21 +125,8 @@ try {
 
     $redirectUrl = get_dashboard_url($user['role']);
 
-    echo json_encode([
-        'success'    => true,
-        'error_type' => 'success',
-        'title'      => 'Login Successful',
-        'message'    => 'Welcome back!',
-        'redirect'   => $redirectUrl
-    ]);
-    exit();
+    send_response(true, 'success', 'Login Successful', 'Welcome back!', $redirectUrl);
 
 } catch (Exception $e) {
-    echo json_encode([
-        'success'    => false,
-        'error_type' => 'db_error',
-        'title'      => 'System Error',
-        'message'    => 'Database error: ' . $e->getMessage()
-    ]);
-    exit();
+    send_response(false, 'db_error', 'System Error', 'Database error: ' . $e->getMessage());
 }

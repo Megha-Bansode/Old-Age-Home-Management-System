@@ -53,7 +53,7 @@ if (strpos($script_name, '/modules/doctor/') !== false) {
     $detected_name = 'Rajesh Sharma';
 }
 
-if ((defined('DEV_MODE') && DEV_MODE) || empty($user_name)) {
+if (defined('DEV_MODE') && DEV_MODE) {
     $is_logged_in = true;
     $user_name = $detected_name;
     $user_role = $detected_role;
