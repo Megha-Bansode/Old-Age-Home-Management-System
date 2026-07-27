@@ -56,15 +56,17 @@ if (defined('DEV_MODE') && DEV_MODE) {
 
 /* ── Role → Dashboard & Profile URL map ────────────────── */
 $dashboard_mapping = [
-    'Super Admin'        => 'modules/super_admin/index.php',
-    'Old Age Home Admin' => 'modules/admin/index.php',
-    'Caretaker'          => 'modules/caretaker/index.php',
-    'Doctor'             => 'modules/doctor/index.php',
-    'Donor'              => 'modules/donor/index.php',
-    'Family Member'      => 'modules/family/index.php',
+    'Super Admin'        => 'modules/super_admin/dashboard.php',
+    'Admin'              => 'modules/admin/dashboard.php',
+    'Old Age Home Admin' => 'modules/admin/dashboard.php',
+    'Caretaker'          => 'modules/caretaker/dashboard.php',
+    'Doctor'             => 'modules/doctor/dashboard.php',
+    'Donor'              => 'modules/donor/dashboard.php',
+    'Family Member'      => 'modules/family/dashboard.php',
 ];
 $profile_mapping = [
     'Super Admin'        => 'modules/super_admin/profile.php',
+    'Admin'              => 'modules/admin/profile.php',
     'Old Age Home Admin' => 'modules/admin/profile.php',
     'Caretaker'          => 'modules/caretaker/profile.php',
     'Doctor'             => 'modules/doctor/profile.php',

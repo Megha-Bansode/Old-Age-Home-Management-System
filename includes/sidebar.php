@@ -157,7 +157,7 @@ $sn_nav_map = [
         [
             'heading' => 'Control Center',
             'items'   => [
-                ['href' => 'modules/super_admin/index.php',                           'icon' => 'bi-speedometer2',                  'label' => 'Dashboard'],
+                ['href' => 'modules/super_admin/dashboard.php',                         'icon' => 'bi-speedometer2',                  'label' => 'Dashboard'],
                 ['href' => 'modules/super_admin/user_management/user_management.php', 'icon' => 'bi-people-fill',                   'label' => 'User Management'],
                 ['href' => 'modules/super_admin/role_management/role_management.php', 'icon' => 'bi-shield-check',                  'label' => 'Role Management'],
                 ['href' => 'modules/super_admin/reports/reports.php',                 'icon' => 'bi-file-earmark-bar-graph-fill',   'label' => 'Reports'],

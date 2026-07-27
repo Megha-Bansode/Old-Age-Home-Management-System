@@ -166,9 +166,9 @@ require_once $base_path . 'includes/sidebar.php';
                             <option value="Super Admin">Super Admin</option>
                             <option value="Admin">Admin</option>
                             <option value="Doctor">Doctor</option>
-                            <option value="Nurse">Nurse</option>
                             <option value="Caretaker">Caretaker</option>
-                            <option value="Staff">Staff</option>
+                            <option value="Donor">Donor</option>
+                            <option value="Family Member">Family Member</option>
                         </select>
                     </div>
 
@@ -308,9 +308,9 @@ require_once $base_path . 'includes/sidebar.php';
                             <option value="Super Admin">Super Admin</option>
                             <option value="Admin">Admin</option>
                             <option value="Doctor">Doctor</option>
-                            <option value="Nurse">Nurse</option>
                             <option value="Caretaker">Caretaker</option>
-                            <option value="Staff">Staff</option>
+                            <option value="Donor">Donor</option>
+                            <option value="Family Member">Family Member</option>
                         </select>
                         <span class="field-error" id="errAddRole">Please assign a user role.</span>
                     </div>
@@ -419,9 +419,9 @@ require_once $base_path . 'includes/sidebar.php';
                             <option value="Super Admin">Super Admin</option>
                             <option value="Admin">Admin</option>
                             <option value="Doctor">Doctor</option>
-                            <option value="Nurse">Nurse</option>
                             <option value="Caretaker">Caretaker</option>
-                            <option value="Staff">Staff</option>
+                            <option value="Donor">Donor</option>
+                            <option value="Family Member">Family Member</option>
                         </select>
                         <span class="field-error" id="errEditRole">Please assign a user role.</span>
                     </div>

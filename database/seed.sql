@@ -9,17 +9,19 @@ USE `sevanest`;
 -- Donor: donor@sevanest.com / Donor@123
 -- Disabled Account: disabled@sevanest.com / Disabled@123
 
-INSERT INTO `users` (`id`, `full_name`, `email`, `phone`, `password`, `role`, `status`, `profile_photo`) VALUES
-(1, 'Rajesh Sharma', 'superadmin@sevanest.com', '9876543210', '$2y$10$Awqzgb.l2zp4NUKwvmo9k.PzKcPvhUwfcHqyxYXNuBkze5Rs4CRVi', 'Super Admin', 'active', 'superadmin.png'),
-(2, 'Anita Verma', 'admin@sevanest.com', '9876543211', '$2y$10$Ym.BPavgUj/Sd3U7bzUUIuC3XwV2l5LEA8aEwHtbxhrjEoWEYRtfC', 'Admin', 'active', 'admin.png'),
-(3, 'Dr. Priya Nair', 'doctor@sevanest.com', '9876543213', '$2y$10$ymD.tGsmd.JKPf2Ktq0AK./jAJdg1yzRtdVFAksa6u3dzJL10UpcK', 'Doctor', 'active', 'doctor.png'),
-(4, 'Suresh Kumar', 'caretaker@sevanest.com', '9876543212', '$2y$10$.AoPyF7DFHZlFQzrUZObpOeElOQ1SQzw0bAWSw419bUNESoVkpPlm', 'Caretaker', 'active', 'caretaker.png'),
-(5, 'Sunita Deshmukh', 'family@sevanest.com', '9876543215', '$2y$10$rd3bpHQy7kNQ9C4ZVNLF8emDY9K61Sk3abMOy4TjZyAjx5MfwI15C', 'Family Member', 'active', 'family.png'),
-(6, 'Vikramaditya Mehta', 'donor@sevanest.com', '9876543214', '$2y$10$LpSYCkliA6zQv07fQ4Yqr.bhCjfjPdNrLSOLD.ht0gQ.VQgUcRJUq', 'Donor', 'active', 'donor.png'),
-(7, 'Ramesh Chandra (Disabled)', 'disabled@sevanest.com', '9876543216', '$2y$10$MzbSYS1i7LCOD8KvFIfJdOXJEq1MsC0qwUs.SsbP.8QbPLPx9sAhG', 'Caretaker', 'disabled', 'default_avatar.png')
+INSERT INTO `users` (`id`, `full_name`, `email`, `phone`, `gender`, `address`, `password`, `role`, `status`, `profile_photo`) VALUES
+(1, 'Rajesh Sharma', 'superadmin@sevanest.com', '9876543210', 'Male', '7th Floor, Admin Tower, Bangalore, KA', '$2y$10$Awqzgb.l2zp4NUKwvmo9k.PzKcPvhUwfcHqyxYXNuBkze5Rs4CRVi', 'Super Admin', 'active', 'superadmin.png'),
+(2, 'Anita Verma', 'admin@sevanest.com', '9876543211', 'Female', '55 Temple Street, Chennai, TN', '$2y$10$Ym.BPavgUj/Sd3U7bzUUIuC3XwV2l5LEA8aEwHtbxhrjEoWEYRtfC', 'Admin', 'active', 'admin.png'),
+(3, 'Dr. Priya Nair', 'doctor@sevanest.com', '9876543213', 'Female', 'Suite 4B, Care Avenue, Mumbai, MH', '$2y$10$ymD.tGsmd.JKPf2Ktq0AK./jAJdg1yzRtdVFAksa6u3dzJL10UpcK', 'Doctor', 'active', 'doctor.png'),
+(4, 'Suresh Kumar', 'caretaker@sevanest.com', '9876543212', 'Male', 'House 24, Sunshine Colony, Pune, MH', '$2y$10$.AoPyF7DFHZlFQzrUZObpOeElOQ1SQzw0bAWSw419bUNESoVkpPlm', 'Caretaker', 'active', 'caretaker.png'),
+(5, 'Sunita Deshmukh', 'family@sevanest.com', '9876543215', 'Female', 'Block C, Green Park, New Delhi', '$2y$10$rd3bpHQy7kNQ9C4ZVNLF8emDY9K61Sk3abMOy4TjZyAjx5MfwI15C', 'Family Member', 'active', 'family.png'),
+(6, 'Vikramaditya Mehta', 'donor@sevanest.com', '9876543214', 'Male', 'Plot 12, Riverbed Road, Nagpur, MH', '$2y$10$LpSYCkliA6zQv07fQ4Yqr.bhCjfjPdNrLSOLD.ht0gQ.VQgUcRJUq', 'Donor', 'active', 'donor.png'),
+(7, 'Ramesh Chandra (Disabled)', 'disabled@sevanest.com', '9876543216', 'Male', 'Plot 12, Riverbed Road, Nagpur, MH', '$2y$10$MzbSYS1i7LCOD8KvFIfJdOXJEq1MsC0qwUs.SsbP.8QbPLPx9sAhG', 'Caretaker', 'disabled', 'default_avatar.png')
 ON DUPLICATE KEY UPDATE 
     `full_name` = VALUES(`full_name`),
     `phone` = VALUES(`phone`),
+    `gender` = VALUES(`gender`),
+    `address` = VALUES(`address`),
     `password` = VALUES(`password`),
     `role` = VALUES(`role`),
     `status` = VALUES(`status`),

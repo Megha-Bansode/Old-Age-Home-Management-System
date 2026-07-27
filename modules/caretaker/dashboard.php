@@ -11,6 +11,7 @@ require_once __DIR__ . '/../../config/database.php';
 
 // Require caretaker login
 require_login();
+require_role('Caretaker');
 
 $base_path = '../../';
 $page_title = 'Caretaker Dashboard | SevaNest';

@@ -11,6 +11,7 @@ require_once __DIR__ . '/../../config/database.php';
 
 // Require Donor login
 require_login();
+require_role('Donor');
 
 $base_path = '../../';
 $page_title = 'Donor Dashboard | SevaNest';

@@ -11,6 +11,7 @@ require_once __DIR__ . '/../../config/database.php';
 
 // Require Doctor login
 require_login();
+require_role('Doctor');
 
 $base_path = '../../';
 $page_title = 'Doctor Dashboard | SevaNest';

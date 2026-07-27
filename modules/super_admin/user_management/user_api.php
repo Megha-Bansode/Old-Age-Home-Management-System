@@ -13,88 +13,18 @@ header('Content-Type: application/json; charset=utf-8');
 error_reporting(E_ALL & ~E_NOTICE);
 ini_set('display_errors', '0');
 
-// Database Connection Helper
-function get_pdo_connection() {
-    static $pdo = null;
-    if ($pdo !== null) {
-        return $pdo;
-    }
+require_once __DIR__ . '/../../../config/config.php';
+require_once __DIR__ . '/../../../config/database.php';
 
-    $host = 'localhost';
-    $dbname = 'sevanest';
-    $username = 'root';
-    $password = '';
-    $charset = 'utf8mb4';
-
-    try {
-        $dsn = "mysql:host={$host};dbname={$dbname};charset={$charset}";
-        $pdo = new PDO($dsn, $username, $password, [
-            PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
-            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-            PDO::ATTR_EMULATE_PREPARES   => false,
-        ]);
-        return $pdo;
-    } catch (PDOException $e) {
-        // Fallback: Attempt without dbname to create database if not exists
-        try {
-            $dsn_no_db = "mysql:host={$host};charset={$charset}";
-            $pdo_init = new PDO($dsn_no_db, $username, $password);
-            $pdo_init->exec("CREATE DATABASE IF NOT EXISTS `{$dbname}` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;");
-            
-            $dsn = "mysql:host={$host};dbname={$dbname};charset={$charset}";
-            $pdo = new PDO($dsn, $username, $password, [
-                PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
-                PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-                PDO::ATTR_EMULATE_PREPARES   => false,
-            ]);
-            return $pdo;
-        } catch (PDOException $ex) {
-            echo json_encode([
-                'success' => false,
-                'message' => 'Database connection failed: ' . $ex->getMessage()
-            ]);
-            exit;
-        }
-    }
+try {
+    $pdo = getDBConnection();
+} catch (Exception $ex) {
+    echo json_encode([
+        'success' => false,
+        'message' => 'Database connection failed: ' . $ex->getMessage()
+    ]);
+    exit;
 }
-
-$pdo = get_pdo_connection();
-
-// Ensure users table exists with proper schema
-function ensure_users_table($pdo) {
-    $sql = "CREATE TABLE IF NOT EXISTS users (
-        id INT AUTO_INCREMENT PRIMARY KEY,
-        full_name VARCHAR(150) NOT NULL,
-        email VARCHAR(150) NOT NULL UNIQUE,
-        phone VARCHAR(50) DEFAULT NULL,
-        gender VARCHAR(20) DEFAULT 'Male',
-        role VARCHAR(50) NOT NULL DEFAULT 'Staff',
-        status VARCHAR(20) NOT NULL DEFAULT 'Active',
-        address TEXT DEFAULT NULL,
-        password_hash VARCHAR(255) NOT NULL,
-        photo VARCHAR(255) DEFAULT NULL,
-        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;";
-    
-    $pdo->exec($sql);
-
-    // Insert sample seed users if table is freshly created and empty
-    $count = $pdo->query("SELECT COUNT(*) FROM users")->fetchColumn();
-    if ($count == 0) {
-        $seed_password = password_hash('Admin@123', PASSWORD_BCRYPT);
-        $seed_sql = "INSERT INTO users (full_name, email, phone, gender, role, status, address, password_hash, created_at) VALUES
-        ('Dr. Rajesh Sharma', 'rajesh.sharma@oldcare.org', '9876543210', 'Male', 'Doctor', 'Active', 'Suite 4B, Care Avenue, Mumbai, MH', '{$seed_password}', '2024-01-15 10:00:00'),
-        ('Sunita Verma', 'sunita.v@oldcare.org', '9812345678', 'Female', 'Nurse', 'Active', 'Block C, Green Park, New Delhi', '{$seed_password}', '2024-02-01 11:30:00'),
-        ('Vikramaditya Roy', 'admin@sevanest.org', '9900011223', 'Male', 'Super Admin', 'Active', '7th Floor, Admin Tower, Bangalore, KA', '{$seed_password}', '2023-11-10 09:15:00'),
-        ('Ananya Deshmukh', 'ananya.d@oldcare.org', '9765432109', 'Female', 'Caretaker', 'Active', 'House 24, Sunshine Colony, Pune, MH', '{$seed_password}', '2024-03-12 14:20:00'),
-        ('Ramesh Pawar', 'ramesh.p@oldcare.org', '9123456789', 'Male', 'Staff', 'Inactive', 'Plot 12, Riverbed Road, Nagpur, MH', '{$seed_password}', '2024-03-20 16:45:00'),
-        ('Meenakshi Sundaram', 'meenakshi.s@oldcare.org', '9444455555', 'Female', 'Admin', 'Active', '55 Temple Street, Chennai, TN', '{$seed_password}', '2024-04-05 12:10:00');";
-        $pdo->exec($seed_sql);
-    }
-}
-
-ensure_users_table($pdo);
 
 // Upload helper function
 function handle_profile_upload($file_input_name) {
@@ -164,7 +94,7 @@ try {
 
             if ($status !== 'All' && $status !== '') {
                 $where_clauses[] = "status = ?";
-                $params[] = $status;
+                $params[] = ($status === 'Active') ? 'active' : 'disabled';
             }
 
             $where_sql = count($where_clauses) > 0 ? 'WHERE ' . implode(' AND ', $where_clauses) : '';
@@ -175,14 +105,19 @@ try {
             $total_records = (int)$count_stmt->fetchColumn();
 
             // Fetch page records
-            $data_stmt = $pdo->prepare("SELECT id, full_name AS name, email, phone, gender, role, status, address, photo, DATE_FORMAT(created_at, '%Y-%m-%d') AS created_at FROM users {$where_sql} ORDER BY id DESC LIMIT {$limit} OFFSET {$offset}");
+            $data_stmt = $pdo->prepare("SELECT id, full_name AS name, email, phone, gender, role, status, address, profile_photo, DATE_FORMAT(created_at, '%Y-%m-%d') AS created_at FROM users {$where_sql} ORDER BY id DESC LIMIT {$limit} OFFSET {$offset}");
             $data_stmt->execute($params);
             $users = $data_stmt->fetchAll();
 
+            foreach ($users as &$u) {
+                $u['status'] = ($u['status'] === 'active') ? 'Active' : 'Inactive';
+                $u['photo']  = $u['profile_photo']; // Align frontend javascript expectations
+            }
+
             // Overall Stats calculation
             $total_users    = (int)$pdo->query("SELECT COUNT(*) FROM users")->fetchColumn();
-            $active_users   = (int)$pdo->query("SELECT COUNT(*) FROM users WHERE status = 'Active'")->fetchColumn();
-            $inactive_users = (int)$pdo->query("SELECT COUNT(*) FROM users WHERE status = 'Inactive'")->fetchColumn();
+            $active_users   = (int)$pdo->query("SELECT COUNT(*) FROM users WHERE status = 'active'")->fetchColumn();
+            $inactive_users = (int)$pdo->query("SELECT COUNT(*) FROM users WHERE status = 'disabled'")->fetchColumn();
             $total_roles    = (int)$pdo->query("SELECT COUNT(DISTINCT role) FROM users")->fetchColumn();
 
             echo json_encode([
@@ -209,13 +144,16 @@ try {
                 throw new Exception('Invalid user ID provided.');
             }
 
-            $stmt = $pdo->prepare("SELECT id, full_name AS name, email, phone, gender, role, status, address, photo, DATE_FORMAT(created_at, '%Y-%m-%d') AS created_at FROM users WHERE id = ?");
+            $stmt = $pdo->prepare("SELECT id, full_name AS name, email, phone, gender, role, status, address, profile_photo, DATE_FORMAT(created_at, '%Y-%m-%d') AS created_at FROM users WHERE id = ?");
             $stmt->execute([$id]);
             $user = $stmt->fetch();
 
             if (!$user) {
                 throw new Exception('User record not found.');
             }
+
+            $user['status'] = ($user['status'] === 'active') ? 'Active' : 'Inactive';
+            $user['photo']  = $user['profile_photo']; // Align frontend javascript expectations
 
             echo json_encode([
                 'success' => true,
@@ -249,12 +187,13 @@ try {
             }
 
             // Upload profile photo if present
-            $photo_path = handle_profile_upload('photo_file');
+            $photo_path = handle_profile_upload('photo_file') ?? 'default_avatar.png';
 
-            $password_hash = password_hash($password, PASSWORD_BCRYPT);
+            $hashed_password = password_hash($password, PASSWORD_BCRYPT);
+            $db_status = ($status === 'Active') ? 'active' : 'disabled';
 
-            $insert_stmt = $pdo->prepare("INSERT INTO users (full_name, email, phone, gender, role, status, address, password_hash, photo, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())");
-            $insert_stmt->execute([$full_name, $email, $phone, $gender, $role, $status, $address, $password_hash, $photo_path]);
+            $insert_stmt = $pdo->prepare("INSERT INTO users (full_name, email, phone, gender, role, status, address, password, profile_photo, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())");
+            $insert_stmt->execute([$full_name, $email, $phone, $gender, $role, $db_status, $address, $hashed_password, $photo_path]);
             
             $new_id = $pdo->lastInsertId();
 
@@ -294,24 +233,25 @@ try {
 
             // Check for new uploaded profile photo
             $photo_path = handle_profile_upload('photo_file');
+            $db_status = ($status === 'Active') ? 'active' : 'disabled';
 
             if ($photo_path !== null) {
                 if (!empty($password)) {
-                    $password_hash = password_hash($password, PASSWORD_BCRYPT);
-                    $update_stmt = $pdo->prepare("UPDATE users SET full_name = ?, email = ?, phone = ?, gender = ?, role = ?, status = ?, address = ?, password_hash = ?, photo = ? WHERE id = ?");
-                    $update_stmt->execute([$full_name, $email, $phone, $gender, $role, $status, $address, $password_hash, $photo_path, $id]);
+                    $hashed_password = password_hash($password, PASSWORD_BCRYPT);
+                    $update_stmt = $pdo->prepare("UPDATE users SET full_name = ?, email = ?, phone = ?, gender = ?, role = ?, status = ?, address = ?, password = ?, profile_photo = ? WHERE id = ?");
+                    $update_stmt->execute([$full_name, $email, $phone, $gender, $role, $db_status, $address, $hashed_password, $photo_path, $id]);
                 } else {
-                    $update_stmt = $pdo->prepare("UPDATE users SET full_name = ?, email = ?, phone = ?, gender = ?, role = ?, status = ?, address = ?, photo = ? WHERE id = ?");
-                    $update_stmt->execute([$full_name, $email, $phone, $gender, $role, $status, $address, $photo_path, $id]);
+                    $update_stmt = $pdo->prepare("UPDATE users SET full_name = ?, email = ?, phone = ?, gender = ?, role = ?, status = ?, address = ?, profile_photo = ? WHERE id = ?");
+                    $update_stmt->execute([$full_name, $email, $phone, $gender, $role, $db_status, $address, $photo_path, $id]);
                 }
             } else {
                 if (!empty($password)) {
-                    $password_hash = password_hash($password, PASSWORD_BCRYPT);
-                    $update_stmt = $pdo->prepare("UPDATE users SET full_name = ?, email = ?, phone = ?, gender = ?, role = ?, status = ?, address = ?, password_hash = ? WHERE id = ?");
-                    $update_stmt->execute([$full_name, $email, $phone, $gender, $role, $status, $address, $password_hash, $id]);
+                    $hashed_password = password_hash($password, PASSWORD_BCRYPT);
+                    $update_stmt = $pdo->prepare("UPDATE users SET full_name = ?, email = ?, phone = ?, gender = ?, role = ?, status = ?, address = ?, password = ? WHERE id = ?");
+                    $update_stmt->execute([$full_name, $email, $phone, $gender, $role, $db_status, $address, $hashed_password, $id]);
                 } else {
                     $update_stmt = $pdo->prepare("UPDATE users SET full_name = ?, email = ?, phone = ?, gender = ?, role = ?, status = ?, address = ? WHERE id = ?");
-                    $update_stmt->execute([$full_name, $email, $phone, $gender, $role, $status, $address, $id]);
+                    $update_stmt->execute([$full_name, $email, $phone, $gender, $role, $db_status, $address, $id]);
                 }
             }
 
@@ -334,9 +274,11 @@ try {
 
             if (!$user) throw new Exception('User not found.');
 
-            $new_status = ($user['status'] === 'Active') ? 'Inactive' : 'Active';
+            $new_db_status = ($user['status'] === 'active') ? 'disabled' : 'active';
             $update_stmt = $pdo->prepare("UPDATE users SET status = ? WHERE id = ?");
-            $update_stmt->execute([$new_status, $id]);
+            $update_stmt->execute([$new_db_status, $id]);
+
+            $new_status = ($new_db_status === 'active') ? 'Active' : 'Inactive';
 
             echo json_encode([
                 'success'    => true,
