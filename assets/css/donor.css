@@ -1,0 +1,283 @@
+/* ==========================================================
+   SevaNest — Donor Module Stylesheet
+   ========================================================= */
+
+.donor-page-wrapper {
+    padding: 30px;
+    background: var(--color-secondary);
+    min-height: 100vh;
+}
+
+.dn-header-strip {
+    background: var(--color-bg-card);
+    padding: 22px 30px;
+    border-radius: var(--radius-large);
+    margin-bottom: 25px;
+    box-shadow: var(--shadow-light);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.dn-header-strip__title {
+    margin: 0;
+    color: var(--color-text);
+    font-size: 28px;
+    font-weight: 700;
+}
+
+/* Campaign Card & Progress Bar */
+.campaign-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+}
+
+.campaign-card {
+    background: var(--color-bg-card);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-large);
+    box-shadow: var(--shadow-light);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    transition: transform var(--transition-medium), box-shadow var(--transition-medium);
+}
+
+.campaign-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-heavy);
+}
+
+.camp-img-placeholder {
+    height: 180px;
+    background: var(--color-primary-soft-team);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 3rem;
+    color: var(--color-primary);
+}
+
+.camp-body {
+    padding: 20px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.camp-title {
+    font-size: var(--font-size-md);
+    font-weight: 700;
+    color: var(--color-text);
+    margin: 0;
+}
+
+.camp-desc {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-muted-team);
+    line-height: 1.5;
+    margin: 0;
+}
+
+.camp-progress-container {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-top: 8px;
+}
+
+.camp-progress-bar {
+    height: 8px;
+    background: var(--color-secondary);
+    border-radius: 4px;
+    overflow: hidden;
+    position: relative;
+}
+
+.camp-progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--color-primary), var(--color-accent));
+    border-radius: 4px;
+}
+
+.camp-stats-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: var(--font-size-xs);
+    font-weight: 600;
+    color: var(--color-text);
+}
+
+.camp-days-left {
+    color: var(--color-danger);
+}
+
+.camp-footer {
+    padding: 14px 20px;
+    background: var(--color-bg-card);
+    border-top: 1px solid var(--color-border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* Beneficiary Cards */
+.beneficiary-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 20px;
+}
+
+.beneficiary-card {
+    background: var(--color-bg-card);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-large);
+    box-shadow: var(--shadow-light);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    transition: transform var(--transition-medium), box-shadow var(--transition-medium);
+}
+
+.beneficiary-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-heavy);
+}
+
+.bene-header {
+    display: flex;
+    gap: 16px;
+    padding: 20px;
+    background: linear-gradient(135deg, var(--color-primary-soft-team), #f0f7f4);
+    border-bottom: 1px solid var(--color-border);
+}
+
+.bene-photo {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: var(--color-primary);
+    color: var(--color-white);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    font-weight: 700;
+}
+
+.bene-meta h4 {
+    margin: 0;
+    color: var(--color-text);
+    font-weight: 700;
+}
+
+.bene-meta span {
+    font-size: var(--font-size-xs);
+    color: var(--color-text-muted-team);
+}
+
+.bene-body {
+    padding: 20px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.bene-story {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-muted-team);
+    line-height: 1.5;
+    margin: 0;
+}
+
+.bene-support-list {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.bene-support-tag {
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: var(--font-size-xs);
+    font-weight: 600;
+}
+
+.bene-support-tag.medical {
+    background: rgba(231, 111, 81, 0.1);
+    color: var(--color-danger);
+}
+
+.bene-support-tag.food {
+    background: var(--color-accent-soft-team);
+    color: var(--color-accent);
+}
+
+.bene-support-tag.shelter {
+    background: var(--color-primary-soft-team);
+    color: var(--color-primary);
+}
+
+/* Timeline Layout for Donation History */
+.donor-timeline {
+    position: relative;
+    padding-left: 30px;
+    list-style: none;
+}
+
+.donor-timeline::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 9px;
+    width: 2px;
+    background: var(--color-border);
+}
+
+.donor-timeline-item {
+    position: relative;
+    margin-bottom: 30px;
+}
+
+.donor-timeline-item::before {
+    content: '';
+    position: absolute;
+    left: -26px;
+    top: 5px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--color-primary);
+    border: 3px solid var(--color-bg-card);
+    box-shadow: 0 0 0 3px var(--color-primary-soft-team);
+    z-index: 1;
+}
+
+.donor-timeline-item.campaign::before {
+    background: var(--color-accent);
+    box-shadow: 0 0 0 3px var(--color-accent-soft-team);
+}
+
+.donor-timeline-time {
+    font-size: var(--font-size-xs);
+    color: var(--color-text-muted-team);
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+
+.donor-timeline-title {
+    font-size: var(--font-size-sm);
+    font-weight: 700;
+    color: var(--color-text);
+    margin-bottom: 6px;
+}
+
+.donor-timeline-desc {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-muted-team);
+    line-height: 1.5;
+}

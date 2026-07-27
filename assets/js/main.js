@@ -119,8 +119,8 @@
         'old age home admin': '../admin/index.php',
         'admin': '../admin/index.php',
         'caretaker': '../caretaker/dashboard.php',
-        'doctor': '../doctor/index.php',
-        'donor': '../donor/index.php',
+        'doctor': '../doctor/dashboard.php',
+        'donor': '../donor/dashboard.php',
         'family member': '../family/dashboard.php',
         'family_member': '../family/dashboard.php',
         'family': '../family/dashboard.php'

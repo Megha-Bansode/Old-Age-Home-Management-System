@@ -238,25 +238,17 @@ $sn_nav_map = [
     /* ── Doctor ──────────────────────────────────────────────────────── */
     'doctor' => [
         [
-            'heading' => 'Main',
+            'heading' => 'Medical Portal',
             'items'   => [
-                ['href' => 'dashboard.php',      'icon' => 'bi-grid-1x2',             'label' => 'Dashboard'],
-                ['href' => 'residents.php',       'icon' => 'bi-people',               'label' => 'Patients'],
-                ['href' => 'medical-records.php', 'icon' => 'bi-file-earmark-medical', 'label' => 'Medical Records'],
-                ['href' => 'prescriptions.php',   'icon' => 'bi-capsule',              'label' => 'Prescriptions'],
-                ['href' => 'appointments.php',    'icon' => 'bi-calendar-check',       'label' => 'Appointments'],
-            ],
-        ],
-        [
-            'heading' => 'Communication',
-            'items'   => [
-                ['href' => 'notifications.php', 'icon' => 'bi-bell', 'label' => 'Notifications', 'badge' => 1],
-            ],
-        ],
-        [
-            'heading' => 'Account',
-            'items'   => [
-                ['href' => 'profile.php', 'icon' => 'bi-person-circle', 'label' => 'Profile'],
+                ['href' => 'dashboard.php',        'icon' => 'bi-grid-1x2',             'label' => 'Dashboard'],
+                ['href' => 'appointments.php',     'icon' => 'bi-calendar-check',       'label' => 'Appointments'],
+                ['href' => 'residents.php',        'icon' => 'bi-people',               'label' => 'Residents'],
+                ['href' => 'medical_records.php',  'icon' => 'bi-file-earmark-medical', 'label' => 'Medical Records'],
+                ['href' => 'prescriptions.php',    'icon' => 'bi-capsule',              'label' => 'Prescriptions'],
+                ['href' => 'health_reports.php',   'icon' => 'bi-bar-chart-line',       'label' => 'Health Reports'],
+                ['href' => 'emergency_cases.php',  'icon' => 'bi-exclamation-triangle', 'label' => 'Emergency Cases'],
+                ['href' => 'schedule.php',         'icon' => 'bi-calendar3',            'label' => 'My Schedule'],
+                ['href' => 'profile.php',          'icon' => 'bi-person-circle',        'label' => 'Profile'],
             ],
         ],
     ],
@@ -264,19 +256,16 @@ $sn_nav_map = [
     /* ── Donor ───────────────────────────────────────────────────────── */
     'donor' => [
         [
-            'heading' => 'Main',
+            'heading' => 'Donor Portal',
             'items'   => [
-                ['href' => 'dashboard.php',        'icon' => 'bi-grid-1x2',       'label' => 'Dashboard'],
-                ['href' => 'donations.php',        'icon' => 'bi-gift',           'label' => 'My Donations'],
-                ['href' => 'donation-history.php', 'icon' => 'bi-clock-history',  'label' => 'Donation History'],
-                ['href' => 'impact.php',           'icon' => 'bi-heart-pulse',    'label' => 'Impact Stories'],
-            ],
-        ],
-        [
-            'heading' => 'Account',
-            'items'   => [
-                ['href' => 'notifications.php', 'icon' => 'bi-bell',           'label' => 'Notifications'],
-                ['href' => 'profile.php',       'icon' => 'bi-person-circle',  'label' => 'Profile'],
+                ['href' => 'dashboard.php',        'icon' => 'bi-grid-1x2',             'label' => 'Dashboard'],
+                ['href' => 'donations.php',        'icon' => 'bi-gift',                 'label' => 'Donations'],
+                ['href' => 'campaigns.php',        'icon' => 'bi-calendar-event',       'label' => 'Campaigns'],
+                ['href' => 'receipts.php',         'icon' => 'bi-file-earmark-medical', 'label' => 'Receipts'],
+                ['href' => 'beneficiaries.php',    'icon' => 'bi-people',               'label' => 'Beneficiaries'],
+                ['href' => 'history.php',          'icon' => 'bi-clock-history',        'label' => 'History'],
+                ['href' => 'profile.php',          'icon' => 'bi-person-circle',        'label' => 'Profile'],
+                ['href' => 'notifications.php',    'icon' => 'bi-bell',                 'label' => 'Notifications'],
             ],
         ],
     ],
