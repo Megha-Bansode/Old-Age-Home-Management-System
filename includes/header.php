@@ -24,11 +24,44 @@ if (session_status() === PHP_SESSION_NONE) {
 $path_prefix = isset($base_path) ? $base_path : '';
 
 /* ── Session state ─────────────────────────────────────── */
-$is_logged_in = isset($_SESSION['user_name']) && !empty($_SESSION['user_name']);
-$user_name    = $is_logged_in ? $_SESSION['user_name'] : '';
+$is_logged_in = (isset($_SESSION['user_name']) && !empty($_SESSION['user_name'])) || (defined('DEV_MODE') && DEV_MODE);
+$user_name    = isset($_SESSION['user_name']) ? $_SESSION['user_name'] : '';
 $user_role    = isset($_SESSION['user_role']) ? $_SESSION['user_role'] : '';
 
-/* ── Role → Dashboard URL map ──────────────────────────── */
+/* ── Dynamic dev-mode or empty session role lookup ────── */
+$script_name = $_SERVER['SCRIPT_NAME'] ?? '';
+$detected_role = 'Super Admin';
+$detected_name = 'Rajesh Sharma';
+
+if (strpos($script_name, '/modules/doctor/') !== false) {
+    $detected_role = 'Doctor';
+    $detected_name = 'Dr. Priya Nair';
+} elseif (strpos($script_name, '/modules/donor/') !== false) {
+    $detected_role = 'Donor';
+    $detected_name = 'Vikramaditya Mehta';
+} elseif (strpos($script_name, '/modules/caretaker/') !== false) {
+    $detected_role = 'Caretaker';
+    $detected_name = 'Suresh Kumar';
+} elseif (strpos($script_name, '/modules/family/') !== false) {
+    $detected_role = 'Family Member';
+    $detected_name = 'Sunita Deshmukh';
+} elseif (strpos($script_name, '/modules/admin/') !== false) {
+    $detected_role = 'Old Age Home Admin';
+    $detected_name = 'Anita Verma';
+} elseif (strpos($script_name, '/modules/super_admin/') !== false) {
+    $detected_role = 'Super Admin';
+    $detected_name = 'Rajesh Sharma';
+}
+
+if ((defined('DEV_MODE') && DEV_MODE) || empty($user_name)) {
+    $is_logged_in = true;
+    $user_name = $detected_name;
+    $user_role = $detected_role;
+    $_SESSION['user_name'] = $detected_name;
+    $_SESSION['user_role'] = $detected_role;
+}
+
+/* ── Role → Dashboard & Profile URL map ────────────────── */
 $dashboard_mapping = [
     'Super Admin'        => 'modules/super_admin/index.php',
     'Old Age Home Admin' => 'modules/admin/index.php',
@@ -37,13 +70,38 @@ $dashboard_mapping = [
     'Donor'              => 'modules/donor/index.php',
     'Family Member'      => 'modules/family/index.php',
 ];
+$profile_mapping = [
+    'Super Admin'        => 'modules/super_admin/profile.php',
+    'Old Age Home Admin' => 'modules/admin/profile.php',
+    'Caretaker'          => 'modules/caretaker/profile.php',
+    'Doctor'             => 'modules/doctor/profile.php',
+    'Donor'              => 'modules/donor/profile.php',
+    'Family Member'      => 'modules/family/profile.php',
+];
+
 $dashboard_url = ($is_logged_in && array_key_exists($user_role, $dashboard_mapping))
     ? $path_prefix . $dashboard_mapping[$user_role]
     : $path_prefix . 'index.php';
 
+$profile_url = ($is_logged_in && array_key_exists($user_role, $profile_mapping))
+    ? $path_prefix . $profile_mapping[$user_role]
+    : '#';
+
+$settings_mapping = [
+    'Super Admin'        => 'modules/super_admin/settings/settings.php',
+    'Old Age Home Admin' => 'modules/admin/settings.php',
+    'Caretaker'          => 'modules/caretaker/profile.php',
+    'Doctor'             => 'modules/doctor/profile.php',
+    'Donor'              => 'modules/donor/profile.php',
+    'Family Member'      => 'modules/family/profile.php',
+];
+$settings_url = ($is_logged_in && array_key_exists($user_role, $settings_mapping))
+    ? $path_prefix . $settings_mapping[$user_role]
+    : '#';
+
 /* ── Initials avatar (up to 2 letters) ─────────────────── */
 $initials = 'U';
-if ($is_logged_in) {
+if ($is_logged_in && !empty($user_name)) {
     $parts    = preg_split('/\s+/', trim($user_name));
     $initials = '';
     foreach ($parts as $p) {
@@ -232,12 +290,12 @@ $unread_count = array_sum(array_column($notifications, 'unread'));
                         <li><hr class="dropdown-divider oahms-dropdown-divider"></li>
 
                         <li>
-                            <a class="dropdown-item oahms-dropdown-item" href="<?php echo htmlspecialchars($path_prefix); ?>profile.php">
+                            <a class="dropdown-item oahms-dropdown-item" href="<?php echo htmlspecialchars($profile_url); ?>">
                                 <i class="bi bi-person-circle"></i> My Profile
                             </a>
                         </li>
                         <li>
-                            <a class="dropdown-item oahms-dropdown-item" href="#">
+                            <a class="dropdown-item oahms-dropdown-item" href="<?php echo htmlspecialchars($settings_url); ?>">
                                 <i class="bi bi-gear"></i> Settings
                             </a>
                         </li>

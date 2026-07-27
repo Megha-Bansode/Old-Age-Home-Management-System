@@ -21,15 +21,15 @@ if (!isset($_SESSION['user_name'])) {
 
 require_once $base_path . 'includes/header.php';
 require_once $base_path . 'includes/navbar.php';
+
+/* ── Sidebar Component ───────────────────────────────────────────────────── */
+$userRole      = 'super_admin';
+$currentPage   = 'index.php';
+$sn_asset_root = "../../assets";
+require_once $base_path . 'includes/sidebar.php';
 ?>
 
-<div class="d-flex min-vh-100 position-relative">
-    
-    <!-- Sidebar Include -->
-    <?php require_once $base_path . 'includes/sidebar.php'; ?>
-
-    <!-- Main Content Body -->
-    <main class="main-content flex-grow-1 bg-light p-4">
+<main id="sn-main-content" role="main" class="p-4 flex-grow-1">
         
         <!-- Welcome Hero Banner -->
         <div class="card border-0 shadow-sm rounded-4 mb-4 overflow-hidden" 
@@ -334,7 +334,5 @@ require_once $base_path . 'includes/navbar.php';
         </div>
 
     </main>
-
-</div>
 
 <?php require_once $base_path . 'includes/footer.php'; ?>

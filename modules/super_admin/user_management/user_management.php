@@ -28,13 +28,15 @@ require_once $base_path . 'includes/navbar.php';
 <!-- Direct Module CSS Link -->
 <link rel="stylesheet" href="user_management.css">
 
-<div class="d-flex min-vh-100 position-relative">
-    
-    <!-- Sidebar Include -->
-    <?php require_once $base_path . 'includes/sidebar.php'; ?>
+<?php
+/* ── Sidebar Component ───────────────────────────────────────────────────── */
+$userRole      = 'super_admin';
+$currentPage   = 'user_management.php';
+$sn_asset_root = "../../../assets";
+require_once $base_path . 'includes/sidebar.php';
+?>
 
-    <!-- Main Content Body -->
-    <main class="main-content flex-grow-1 bg-light p-2">
+<main id="sn-main-content" role="main" class="p-4 flex-grow-1">
 
         <!-- Toast Notification Container -->
         <div class="toast-container" id="toastContainer"></div>
@@ -262,8 +264,6 @@ require_once $base_path . 'includes/navbar.php';
         </div><!-- /.user-management-container -->
 
     </main>
-
-</div>
 
 <!-- =========================================================================
     MODAL 1: ADD USER MODAL

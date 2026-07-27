@@ -22,13 +22,15 @@ require_once $base_path . 'includes/header.php';
 require_once $base_path . 'includes/navbar.php';
 ?>
 
-<div class="d-flex min-vh-100 position-relative">
-    
-    <!-- Sidebar Include -->
-    <?php require_once $base_path . 'includes/sidebar.php'; ?>
+<?php
+/* ── Sidebar Component ───────────────────────────────────────────────────── */
+$userRole      = 'super_admin';
+$currentPage   = 'statistics.php';
+$sn_asset_root = "../../../assets";
+require_once $base_path . 'includes/sidebar.php';
+?>
 
-    <!-- Main Content Body -->
-    <main class="main-content flex-grow-1 bg-light p-4">
+<main id="sn-main-content" role="main" class="p-4 flex-grow-1">
         
         <!-- Page Header Strip -->
         <div class="d-flex align-items-center justify-content-between flex-wrap gap-3 mb-4 p-4 bg-white rounded-4 shadow-sm border-start border-4 border-warning">
@@ -352,7 +354,5 @@ require_once $base_path . 'includes/navbar.php';
         </div>
 
     </main>
-
-</div>
 
 <?php require_once $base_path . 'includes/footer.php'; ?>

@@ -80,8 +80,14 @@ function sn_nav_item(
         $resolved_href = $prefix . $href;
     }
 
-    $file        = basename($href);
-    $is_active   = ($file === $sn_current_page);
+    $normalized_href = str_replace('\\', '/', $href);
+    $normalized_script = str_replace('\\', '/', $_SERVER['SCRIPT_NAME'] ?? '');
+    
+    if (strpos($normalized_href, 'modules/') !== false) {
+        $is_active = (strpos($normalized_script, $normalized_href) !== false);
+    } else {
+        $is_active = (basename($normalized_script) === basename($normalized_href));
+    }
     $active_cls  = $is_active ? ' active' : '';
     $aria_cur    = $is_active ? ' aria-current="page"' : '';
     $badge_html  = '';
@@ -148,6 +154,12 @@ $sn_nav_map = [
                 ['href' => 'modules/super_admin/reports/reports.php',                 'icon' => 'bi-file-earmark-bar-graph-fill',   'label' => 'Reports'],
                 ['href' => 'modules/super_admin/statistics/statistics.php',           'icon' => 'bi-pie-chart-fill',                'label' => 'Statistics'],
                 ['href' => 'modules/super_admin/settings/settings.php',               'icon' => 'bi-gear-fill',                     'label' => 'Settings'],
+            ],
+        ],
+        [
+            'heading' => 'Account',
+            'items'   => [
+                ['href' => 'modules/super_admin/profile.php',                         'icon' => 'bi-person-circle',                 'label' => 'Profile'],
             ],
         ],
     ],
