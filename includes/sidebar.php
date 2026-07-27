@@ -25,8 +25,6 @@
  *   assets/js/sidebar.js
  *   Bootstrap 5 CSS + Icons (via CDN)
  *   Inter font (via Google Fonts, in sidebar.css)
- *
- * ==========================================================================
  */
 
 /* ─────────────────────────────────────────────────────────────────────────
@@ -43,19 +41,13 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-// /**
-//  * Resolve the current user role.
-//  * Priori// Start session if not already started
-// if ty: local $userRole variable → session → default 'admin'.
-//  */
-// $sn_role = $userRole ?? $_SESSION['role'] ?? 'admin';
-// $sn_role = strtolower(trim($sn_role));
 /**
  * Resolve the current user role.
  * Priority: local $userRole variable → session → default 'admin'.
  */
 $sn_role = $userRole ?? $_SESSION['role'] ?? 'admin';
 $sn_role = strtolower(trim($sn_role));
+
 /**
  * Resolve the current page filename for active-state highlighting.
  * Priority: local $currentPage → basename of the actual script.
@@ -80,6 +72,13 @@ function sn_nav_item(
     string $extraClass = ''
 ): string {
     global $sn_current_page;
+    global $path_prefix;
+
+    $prefix = $path_prefix ?? '';
+    $resolved_href = $href;
+    if (strpos($href, 'modules/') === 0) {
+        $resolved_href = $prefix . $href;
+    }
 
     $file        = basename($href);
     $is_active   = ($file === $sn_current_page);
@@ -95,7 +94,7 @@ function sn_nav_item(
 
     $tooltip = htmlspecialchars($label);
     $label_e = htmlspecialchars($label);
-    $href_e  = htmlspecialchars($href);
+    $href_e  = htmlspecialchars($resolved_href);
     $icon_e  = htmlspecialchars($icon);
     $extra   = $extraClass ? ' ' . htmlspecialchars($extraClass) : '';
 
@@ -125,7 +124,6 @@ function sn_nav_heading(string $text): string {
          . '</li>';
 }
 
-
 /* ─────────────────────────────────────────────────────────────────────────
  * Role-Based Navigation Map
  *
@@ -139,41 +137,17 @@ function sn_nav_heading(string $text): string {
  * ───────────────────────────────────────────────────────────────────────── */
 $sn_nav_map = [
 
-    /* ── Super Admin – full access ───────────────────────────────────── */
+    /* ── Super Admin ─────────────────────────────────────────────────── */
     'super_admin' => [
         [
-            'heading' => 'Main',
+            'heading' => 'Control Center',
             'items'   => [
-                ['href' => 'dashboard.php',      'icon' => 'bi-grid-1x2',        'label' => 'Dashboard'],
-                ['href' => 'residents.php',       'icon' => 'bi-people',           'label' => 'Residents'],
-                ['href' => 'medical-records.php', 'icon' => 'bi-file-earmark-medical', 'label' => 'Medical Records'],
-                ['href' => 'doctors.php',         'icon' => 'bi-hospital',     'label' => 'Doctors'],
-                ['href' => 'caretakers.php',      'icon' => 'bi-person-heart',     'label' => 'Caretakers'],
-                ['href' => 'visitors.php',        'icon' => 'bi-person-lines-fill','label' => 'Visitors'],
-            ],
-        ],
-        [
-            'heading' => 'Finance',
-            'items'   => [
-                ['href' => 'donations.php',  'icon' => 'bi-gift',       'label' => 'Donations'],
-                ['href' => 'billing.php',    'icon' => 'bi-receipt',    'label' => 'Billing'],
-                ['href' => 'expenses.php',   'icon' => 'bi-wallet2',    'label' => 'Expenses'],
-            ],
-        ],
-        [
-            'heading' => 'System',
-            'items'   => [
-                ['href' => 'reports.php',       'icon' => 'bi-bar-chart-line',    'label' => 'Reports'],
-                ['href' => 'notifications.php', 'icon' => 'bi-bell',              'label' => 'Notifications', 'badge' => 3],
-                ['href' => 'users.php',         'icon' => 'bi-person-gear',       'label' => 'User Management'],
-                ['href' => 'settings.php',      'icon' => 'bi-sliders',           'label' => 'Settings'],
-                ['href' => 'audit-log.php',     'icon' => 'bi-journal-text',      'label' => 'Audit Log'],
-            ],
-        ],
-        [
-            'heading' => 'Account',
-            'items'   => [
-                ['href' => 'profile.php', 'icon' => 'bi-person-circle', 'label' => 'Profile'],
+                ['href' => 'modules/super_admin/index.php',                           'icon' => 'bi-speedometer2',                  'label' => 'Dashboard'],
+                ['href' => 'modules/super_admin/user_management/user_management.php', 'icon' => 'bi-people-fill',                   'label' => 'User Management'],
+                ['href' => 'modules/super_admin/role_management/role_management.php', 'icon' => 'bi-shield-check',                  'label' => 'Role Management'],
+                ['href' => 'modules/super_admin/reports/reports.php',                 'icon' => 'bi-file-earmark-bar-graph-fill',   'label' => 'Reports'],
+                ['href' => 'modules/super_admin/statistics/statistics.php',           'icon' => 'bi-pie-chart-fill',                'label' => 'Statistics'],
+                ['href' => 'modules/super_admin/settings/settings.php',               'icon' => 'bi-gear-fill',                     'label' => 'Settings'],
             ],
         ],
     ],
@@ -298,11 +272,6 @@ if (!array_key_exists($sn_role, $sn_nav_map)) {
 }
 
 $sn_sections = $sn_nav_map[$sn_role];
-
-/* Relative path prefix for assets (adjust if sidebar.php moves) */
-$sn_base = rtrim(dirname($_SERVER['PHP_SELF'] ?? ''), '/');
-/* Resolve asset root – assumes sidebar.php is in /includes/ */
-
 ?>
 <!-- =========================================================
      SevaNest Sidebar Component
@@ -328,27 +297,6 @@ $sn_base = rtrim(dirname($_SERVER['PHP_SELF'] ?? ''), '/');
 <!-- ═══════════════════════════════════════════════
      SIDEBAR
      ═══════════════════════════════════════════════ -->
-<!-- <aside id="sn-sidebar"
-       role="navigation"
-       aria-label="Main sidebar navigation">
-       
-       <button id="sn-toggle-btn" type="button" aria-label="Toggle Sidebar">
-    <i class="bi bi-list"></i>
-</button> -->
-
-    <!-- ── Logo ──────────────────────────────────────────────────────── -->
-<!-- <div class="sn-logo-wrap">
-    <div class="sn-brand">
-
-        <img
-            src="<?php echo htmlspecialchars($sn_asset_root); ?>/images/logo/logo.jpeg"
-            alt="SevaNest Logo"
-            class="sn-logo">
-
-        <span class="sn-brand-name">SevaNest</span>
-
-    </div>
-</div> -->
 <aside id="sn-sidebar"
        role="navigation"
        aria-label="Main sidebar navigation">

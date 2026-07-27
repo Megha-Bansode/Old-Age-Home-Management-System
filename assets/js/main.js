@@ -143,8 +143,7 @@
           window.location.href = target;
         } else {
           window.location.href = 'under_development.php?role=' + encodeURIComponent(selectedRole.value);
-        }
-      }, 1000);
+        }, 1000);
       // ── END TEMPORARY UI INTEGRATION ────────────────────────────────────────────
     });
   }

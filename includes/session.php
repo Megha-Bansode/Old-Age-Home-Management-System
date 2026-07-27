@@ -74,4 +74,3 @@ function require_login($login_url = '../../modules/authentication/login.php') {
         exit;
     }
 }
-
