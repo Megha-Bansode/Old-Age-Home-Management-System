@@ -29,3 +29,9 @@ function log_error($msg) {
     $timestamp = date('[Y-m-d H:i:s]');
     error_log("$timestamp $msg\n", 3, $log_file);
 }
+if (!function_exists('sn_e')) {
+    function sn_e($value)
+    {
+        return htmlspecialchars((string)$value, ENT_QUOTES, 'UTF-8');
+    }
+}

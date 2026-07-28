@@ -24,74 +24,84 @@ $userRole    = 'family_member';
 $currentPage = 'health-updates.php';
 
 /* ── PHP Placeholders – Today's Vitals (replace with DB fetch if available) ── */
-$last_updated   = 'Today • 08:30 AM';
-$blood_pressure = '120/80 mmHg';
-$heart_rate     = '72 bpm';
-$temperature    = '98.6 °F';
-$blood_sugar    = '110 mg/dL';
-$weight         = '68 kg';
+$last_updated   = 'No health logs found';
+$blood_pressure = '--/-- mmHg';
+$heart_rate     = '-- bpm';
+$temperature    = '-- °F';
+$blood_sugar    = '-- mg/dL';
+$weight         = '-- kg';
 
 /* ── PHP Placeholders – Medical Updates ──────────────────────────────────── */
-$doctor_name    = 'Dr. Robert Watson';
-$symptoms       = 'Mild fatigue reported in the evening, resolved with rest.';
-$diagnosis      = 'General age-related fatigue, blood pressure normal.';
-$treatment      = 'Multivitamin supplements prescribed and dietary adjustments recommended.';
-$doctor_advice  = 'Encourage mild morning walking and maintaining hydration.';
+$doctor_name    = 'No doctor visited recently';
+$symptoms       = 'No symptoms reported.';
+$diagnosis      = 'No diagnosis recorded.';
+$treatment      = 'No treatment prescribed.';
+$doctor_advice  = 'No advice recorded.';
 
-/* ── PHP Placeholders – Medication Tracker rows ──────────────────────────── */
-$medications = [
-    [
-        'name'     => 'Amlodipine (5mg)',
-        'dosage'   => '1 Tablet',
-        'schedule' => '08:00 AM (Breakfast)',
-        'status'   => 'taken',
-    ],
-    [
-        'name'     => 'Metformin (500mg)',
-        'dosage'   => '1 Tablet',
-        'schedule' => '01:30 PM (Lunch)',
-        'status'   => 'taken',
-    ],
-    [
-        'name'     => 'Multivitamin Gold',
-        'dosage'   => '1 Capsule',
-        'schedule' => '08:00 PM (Dinner)',
-        'status'   => 'upcoming',
-    ],
-];
-
-/* ── PHP Placeholders – Medical Reports rows ─────────────────────────────── */
-$reports = [
-    [
-        'name'   => 'Complete Blood Count (CBC) Report',
-        'date'   => '18 Jul 2026',
-        'doctor' => 'Dr. Robert Watson',
-        'type'   => 'blood',
-        'type_label' => 'Blood Test',
-    ],
-    [
-        'name'   => 'Chest X-Ray Digital',
-        'date'   => '10 Jun 2026',
-        'doctor' => 'Dr. Rohan Kulkarni',
-        'type'   => 'xray',
-        'type_label' => 'X-Ray',
-    ],
-    [
-        'name'   => 'Electrocardiogram (ECG) Chart',
-        'date'   => '15 May 2026',
-        'doctor' => 'Dr. Priya Nair',
-        'type'   => 'ecg',
-        'type_label' => 'ECG',
-    ],
-];
+$medications = [];
+$reports = [];
 
 // Database binding hook
 $pdo = get_db_connection();
 if ($pdo) {
     try {
-        // Fetch health details from DB if available
-        $user_id = $_SESSION['user_id'] ?? null;
-        // Query database table for latest vitals / medical reports
+        $user_id = $_SESSION['user_id'] ?? 5;
+        
+        // Fetch resident ID
+        $stmt_res = $pdo->prepare("SELECT resident_id FROM residents WHERE family_member_id = ? LIMIT 1");
+        $stmt_res->execute([$user_id]);
+        $resident_id = (int)$stmt_res->fetchColumn();
+        
+        if ($resident_id > 0) {
+            // 1. Fetch latest vitals
+            $stmt_v = $pdo->prepare("SELECT hr.*, u.full_name AS doctor_name FROM health_records hr LEFT JOIN users u ON hr.created_by = u.id WHERE hr.resident_id = ? ORDER BY hr.record_date DESC LIMIT 1");
+            $stmt_v->execute([$resident_id]);
+            $vitals = $stmt_v->fetch();
+            
+            if ($vitals) {
+                $last_updated   = date('jS F Y • h:i A', strtotime($vitals['record_date']));
+                $blood_pressure = $vitals['systolic_bp'] . '/' . $vitals['diastolic_bp'] . ' mmHg';
+                $heart_rate     = $vitals['pulse'] . ' bpm';
+                $temperature    = $vitals['temperature'] ? $vitals['temperature'] . ' °F' : '-- °F';
+                $blood_sugar    = $vitals['blood_sugar'] ? $vitals['blood_sugar'] . ' mg/dL' : '-- mg/dL';
+                $weight         = $vitals['weight'] ? $vitals['weight'] . ' kg' : '-- kg';
+                
+                $doctor_name    = $vitals['doctor_name'] ?? 'Attending Doctor';
+                $symptoms       = $vitals['symptoms'] ?: 'No symptoms reported.';
+                $diagnosis      = $vitals['notes'] ?: 'Blood pressure and vitals normal.';
+                $treatment      = $vitals['notes'] ?: 'No treatment prescribed.';
+                $doctor_advice  = 'Encourage mild morning walking and maintaining hydration.';
+            }
+            
+            // 2. Fetch prescriptions
+            $stmt_meds = $pdo->prepare("SELECT p.*, u.full_name AS doctor_name FROM prescriptions p LEFT JOIN users u ON p.doctor_id = u.id WHERE p.resident_id = ? ORDER BY p.created_at DESC");
+            $stmt_meds->execute([$resident_id]);
+            $db_meds = $stmt_meds->fetchAll();
+            
+            foreach ($db_meds as $m) {
+                $medications[] = [
+                    'name'     => $m['medication_name'],
+                    'dosage'   => $m['dosage'],
+                    'schedule' => $m['frequency'] . ' (' . ($m['instructions'] ?: 'No notes') . ')',
+                    'status'   => ($m['status'] === 'Active') ? 'taken' : 'upcoming',
+                ];
+            }
+            
+            // 3. Fetch reports
+            $stmt_reps = $pdo->prepare("SELECT mr.*, u.full_name AS doctor_name FROM medical_reports mr LEFT JOIN users u ON mr.uploaded_by = u.id WHERE mr.resident_id = ? ORDER BY mr.report_date DESC");
+            $stmt_reps->execute([$resident_id]);
+            $db_reps = $stmt_reps->fetchAll();
+            
+            foreach ($db_reps as $rep) {
+                $reports[] = [
+                    'name'       => $rep['report_name'],
+                    'date'       => date('d M Y', strtotime($rep['report_date'])),
+                    'doctor'     => $rep['doctor_name'] ?: 'System Health Log',
+                    'type'       => strtolower($rep['report_type'] ?: 'blood'),
+                    'type_label' => $rep['report_type'] ?: 'Medical Report'
+                ];
+            }
+        }
     } catch (PDOException $e) {
         log_error("DB health updates fetch failed: " . $e->getMessage());
     }

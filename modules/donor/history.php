@@ -11,6 +11,34 @@ require_once __DIR__ . '/../../config/database.php';
 
 // Require Donor login
 require_login();
+require_role('Donor');
+
+$pdo = get_db_connection();
+$donor_id = $_SESSION['user_id'] ?? 6;
+
+// Query donation timeline
+$stmt = $pdo->prepare("SELECT * FROM donations WHERE donor_id = ? ORDER BY donation_date DESC");
+$stmt->execute([$donor_id]);
+$timeline_donations = $stmt->fetchAll();
+
+// Query active residents
+$total_residents = (int)$pdo->query("SELECT COUNT(*) FROM residents WHERE status = 'Active'")->fetchColumn();
+
+// Query supported campaigns count
+$stmt = $pdo->prepare("SELECT COUNT(DISTINCT purpose) FROM donations WHERE donor_id = ?");
+$stmt->execute([$donor_id]);
+$supported_campaigns = (int)($stmt->fetchColumn() ?? 0);
+
+// Query monthly summary
+$stmt = $pdo->prepare("
+    SELECT DATE_FORMAT(donation_date, '%M %Y') AS month_name, SUM(amount) AS total_amount, COUNT(DISTINCT purpose) AS category_count
+    FROM donations
+    WHERE donor_id = ?
+    GROUP BY YEAR(donation_date), MONTH(donation_date)
+    ORDER BY YEAR(donation_date) DESC, MONTH(donation_date) DESC
+");
+$stmt->execute([$donor_id]);
+$monthly_summaries = $stmt->fetchAll();
 
 $base_path = '../../';
 $page_title = 'Donation History & Impact | SevaNest';
@@ -24,6 +52,7 @@ require_once __DIR__ . '/../../includes/header.php';
 $userRole      = 'donor';
 $currentPage   = 'history.php';
 $sn_asset_root = "../../assets";
+$base_path = '../../';
 include '../../includes/sidebar.php';
 ?>
 
@@ -50,21 +79,17 @@ include '../../includes/sidebar.php';
                     <h3>Philanthropic History Timeline</h3>
                 </div>
                 <ul class="donor-timeline">
-                    <li class="donor-timeline-item campaign">
-                        <div class="donor-timeline-time">24 July 2026</div>
-                        <div class="donor-timeline-title">Participated in Winter Clothing Drive</div>
-                        <div class="donor-timeline-desc">Contributed $250.00 to procure winter garments and blankets for Wing A senior residents.</div>
-                    </li>
-                    <li class="donor-timeline-item">
-                        <div class="donor-timeline-time">15 July 2026</div>
-                        <div class="donor-timeline-title">Monthly Welfare Support Cleared</div>
-                        <div class="donor-timeline-desc">Cleared $500.00 monthly subscription targeting general dietary requirements and fresh fruit plans.</div>
-                    </li>
-                    <li class="donor-timeline-item campaign">
-                        <div class="donor-timeline-time">02 June 2026</div>
-                        <div class="donor-timeline-title">Contributed to ICU Equipment Setup</div>
-                        <div class="donor-timeline-desc">Contributed $1,500.00 to purchase ECG monitors and oxygen concentrators for the on-site clinic.</div>
-                    </li>
+                    <?php if (empty($timeline_donations)): ?>
+                        <li class="text-muted small">No philanthropy history found.</li>
+                    <?php else: ?>
+                        <?php foreach ($timeline_donations as $don): ?>
+                            <li class="donor-timeline-item campaign">
+                                <div class="donor-timeline-time"><?php echo date('d F Y', strtotime($don['donation_date'])); ?></div>
+                                <div class="donor-timeline-title"><?php echo sn_e($don['purpose'] ?? 'General Contribution'); ?></div>
+                                <div class="donor-timeline-desc">Contributed $<?php echo number_format($don['amount'], 2); ?> via <?php echo sn_e($don['payment_method']); ?>. Reference ID: <?php echo sn_e($don['transaction_id']); ?>.</div>
+                            </li>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
                 </ul>
             </div>
 
@@ -78,12 +103,12 @@ include '../../includes/sidebar.php';
                     </div>
                     <div class="d-flex flex-column gap-3" style="font-size: var(--font-size-sm);">
                         <div style="background: var(--color-secondary); padding: 15px; border-radius: var(--radius-medium);">
-                            <strong style="color: var(--color-primary); font-size: var(--font-size-lg); display: block; margin-bottom: 2px;">15 Residents Helped</strong>
-                            <span style="color: var(--color-text-muted-team);">Your donations funded medicine, dietary plans, or mobility support aids for 15 elderly residents.</span>
+                            <strong style="color: var(--color-primary); font-size: var(--font-size-lg); display: block; margin-bottom: 2px;"><?php echo $total_residents; ?> Residents Helped</strong>
+                            <span style="color: var(--color-text-muted-team);">Your donations funded medicine, dietary plans, or mobility support aids for <?php echo $total_residents; ?> elderly residents.</span>
                         </div>
                         <div style="background: var(--color-secondary); padding: 15px; border-radius: var(--radius-medium);">
-                            <strong style="color: var(--color-accent); font-size: var(--font-size-lg); display: block; margin-bottom: 2px;">4 Active Campaigns Supported</strong>
-                            <span style="color: var(--color-text-muted-team);">You have actively funded 4 medical and utility setups inside SevaNest this year.</span>
+                            <strong style="color: var(--color-accent); font-size: var(--font-size-lg); display: block; margin-bottom: 2px;"><?php echo $supported_campaigns; ?> Categories Supported</strong>
+                            <span style="color: var(--color-text-muted-team);">You have actively funded <?php echo $supported_campaigns; ?> distinct support campaign areas inside SevaNest.</span>
                         </div>
                     </div>
                 </div>
@@ -94,9 +119,13 @@ include '../../includes/sidebar.php';
                         <h3>Monthly Summary</h3>
                     </div>
                     <ul class="tl">
-                        <li><b>July 2026:</b> Total donated: $750.00 across 2 categories.</li>
-                        <li><b>June 2026:</b> Total donated: $1,500.00 across 1 category.</li>
-                        <li><b>May 2026:</b> Total donated: $500.00 general subscription.</li>
+                        <?php if (empty($monthly_summaries)): ?>
+                            <li class="text-muted small">No monthly summary data available.</li>
+                        <?php else: ?>
+                            <?php foreach ($monthly_summaries as $month): ?>
+                                <li><b><?php echo sn_e($month['month_name']); ?>:</b> Total donated: $<?php echo number_format($month['total_amount'], 2); ?> across <?php echo $month['category_count']; ?> categories.</li>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
                     </ul>
                 </div>
 

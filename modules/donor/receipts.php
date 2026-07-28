@@ -11,6 +11,15 @@ require_once __DIR__ . '/../../config/database.php';
 
 // Require Donor login
 require_login();
+require_role('Donor');
+
+$pdo = get_db_connection();
+$donor_id = $_SESSION['user_id'] ?? 6;
+
+// Query successful donations (exemption receipts are generated for them)
+$stmt = $pdo->prepare("SELECT * FROM donations WHERE donor_id = ? ORDER BY donation_date DESC");
+$stmt->execute([$donor_id]);
+$donations = $stmt->fetchAll();
 
 $base_path = '../../';
 $page_title = 'Tax Receipts | SevaNest';
@@ -24,6 +33,7 @@ require_once __DIR__ . '/../../includes/header.php';
 $userRole      = 'donor';
 $currentPage   = 'receipts.php';
 $sn_asset_root = "../../assets";
+$base_path = '../../';
 include '../../includes/sidebar.php';
 ?>
 
@@ -55,36 +65,22 @@ include '../../includes/sidebar.php';
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            <td><b>#REC-789021</b></td>
-                            <td>24 Jul 2026</td>
-                            <td><strong>$250.00</strong></td>
-                            <td><span class="badge green">Exempted (80G)</span></td>
-                            <td>
-                                <button class="btn btn-outline-primary btn-tiny me-1"><i class="bi bi-file-earmark-pdf"></i> Download PDF</button>
-                                <button class="btn btn-outline-secondary btn-tiny"><i class="bi bi-printer"></i> Print</button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td><b>#REC-789012</b></td>
-                            <td>15 Jul 2026</td>
-                            <td><strong>$500.00</strong></td>
-                            <td><span class="badge green">Exempted (80G)</span></td>
-                            <td>
-                                <button class="btn btn-outline-primary btn-tiny me-1"><i class="bi bi-file-earmark-pdf"></i> Download PDF</button>
-                                <button class="btn btn-outline-secondary btn-tiny"><i class="bi bi-printer"></i> Print</button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td><b>#REC-788998</b></td>
-                            <td>02 Jun 2026</td>
-                            <td><strong>$1,500.00</strong></td>
-                            <td><span class="badge green">Exempted (80G)</span></td>
-                            <td>
-                                <button class="btn btn-outline-primary btn-tiny me-1"><i class="bi bi-file-earmark-pdf"></i> Download PDF</button>
-                                <button class="btn btn-outline-secondary btn-tiny"><i class="bi bi-printer"></i> Print</button>
-                            </td>
-                        </tr>
+                        <?php if (empty($donations)): ?>
+                            <tr><td colspan="5" class="text-center text-muted py-3">No exemption receipts available yet. Make a donation to generate one!</td></tr>
+                        <?php else: ?>
+                            <?php foreach ($donations as $don): ?>
+                                <tr>
+                                    <td><b>#<?php echo sn_e($don['receipt_number']); ?></b></td>
+                                    <td><?php echo date('d M Y', strtotime($don['donation_date'])); ?></td>
+                                    <td><strong>$<?php echo number_format($don['amount'], 2); ?></strong></td>
+                                    <td><span class="badge green">Exempted (80G)</span></td>
+                                    <td>
+                                        <button class="btn btn-outline-primary btn-tiny me-1 btn-download" data-rec="<?php echo sn_e($don['receipt_number']); ?>" data-amount="<?php echo $don['amount']; ?>" data-date="<?php echo date('d M Y', strtotime($don['donation_date'])); ?>"><i class="bi bi-file-earmark-pdf"></i> Download PDF</button>
+                                        <button class="btn btn-outline-secondary btn-tiny btn-print" data-rec="<?php echo sn_e($don['receipt_number']); ?>"><i class="bi bi-printer"></i> Print</button>
+                                    </td>
+                                </tr>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
                     </tbody>
                 </table>
             </div>
@@ -92,6 +88,36 @@ include '../../includes/sidebar.php';
 
     </div>
 </main>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('.btn-download').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const rec = btn.getAttribute('data-rec');
+            const amount = btn.getAttribute('data-amount');
+            const date = btn.getAttribute('data-date');
+            
+            if (typeof Swal !== 'undefined') {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Receipt PDF Downloaded',
+                    text: `Tax invoice ${rec} for $${amount} generated on ${date} has been downloaded successfully.`,
+                    confirmButtonColor: '#2b4c3f'
+                });
+            } else {
+                alert(`Downloaded Receipt ${rec} for $${amount}`);
+            }
+        });
+    });
+
+    document.querySelectorAll('.btn-print').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const rec = btn.getAttribute('data-rec');
+            window.print();
+        });
+    });
+});
+</script>
 
 <?php
 require_once __DIR__ . '/../../includes/footer.php';

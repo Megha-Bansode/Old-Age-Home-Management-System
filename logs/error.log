@@ -28,3 +28,5 @@
 [2026-07-27 09:20:09] Authentication check failed. Session ID: o6dgcn9o4qkouvnrqf5n9sd8ct, Session data: []
 [2026-07-27 09:20:35] Authentication check failed. Session ID: o6dgcn9o4qkouvnrqf5n9sd8ct, Session data: []
 [2026-07-27 09:20:46] Authentication check failed. Session ID: o6dgcn9o4qkouvnrqf5n9sd8ct, Session data: []
+[2026-07-28 12:40:33] DB health updates fetch failed: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'hr.created_by' in 'on clause'
+[2026-07-28 12:45:16] DB health updates fetch failed: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'hr.created_by' in 'on clause'

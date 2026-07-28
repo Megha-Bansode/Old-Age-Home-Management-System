@@ -17,45 +17,62 @@
 require_once __DIR__ . '/../../includes/functions.php';
 require_once __DIR__ . '/../../includes/session.php';
 require_once __DIR__ . '/../../config/database.php';
-
 // Require login
 require_login();
+require_role('Family Member');
 
 /* ── Role & Page ──────────────────────────────────────────────────────────── */
 $userRole    = 'family_member';
 $currentPage = 'resident-profile.php';
 
-/* ── PHP Placeholders (replace with DB fetch if available) ────────────────── */
-$resident_name        = 'Devendra Bansode';
+// Database binding hook
+$pdo = get_db_connection();
+$user_id = $_SESSION['user_id'] ?? 5;
+
+// Default fallbacks
+$resident_name        = 'Devendra Joshi';
 $resident_age         = '74';
 $resident_gender      = 'Male';
 $resident_blood_group = 'O+';
 $resident_room        = 'Room 104 (A Wing)';
 $resident_admission   = '12 Oct 2024';
-$resident_photo       = '';   // set to image path when available
+$resident_photo       = '';
 
-$guardian_name        = 'Megha Bansode';
+$guardian_name        = 'Sunita Deshmukh';
 $guardian_age         = '42';
-$guardian_relation    = 'Daughter';
-$guardian_phone       = '+91 98765 43210';
+$guardian_relation    = 'Guardian';
+$guardian_phone       = '+91 98765 43215';
 $guardian_address     = 'Flat 302, Sunrise Apartments, Baner, Pune - 411045';
 
 $occupation           = 'Retired High School Principal';
 $preferred_language   = 'Marathi, English';
-// Hobbies & allergies as arrays
 $hobbies   = ['Reading Biographies', 'Morning Walks in the Garden', 'Listening to Indian Classical Music'];
 $allergies = ['Peanuts', 'Penicillin'];
 
-// Database binding hook
-$pdo = get_db_connection();
 if ($pdo) {
     try {
-        // If there is an active session, fetch the associated resident details
-        $user_id = $_SESSION['user_id'] ?? null;
-        if ($user_id) {
-            // E.g. $stmt = $pdo->prepare("SELECT r.* FROM residents r JOIN users u ON u.resident_id = r.id WHERE u.id = ?");
-            // $stmt->execute([$user_id]);
-            // if ($row = $stmt->fetch()) { ... }
+        // Fetch resident details associated with the family member user ID
+        $stmt = $pdo->prepare("SELECT * FROM residents WHERE family_member_id = ? AND status = 'Active' LIMIT 1");
+        $stmt->execute([$user_id]);
+        $row = $stmt->fetch();
+        
+        if ($row) {
+            $resident_name        = $row['full_name'];
+            $resident_age         = $row['age'];
+            $resident_gender      = $row['gender'];
+            $resident_blood_group = $row['blood_group'] ?? 'O+';
+            $resident_room        = $row['room_number'] ?? 'Room 104 (A Wing)';
+            $resident_admission   = date('d M Y', strtotime($row['admission_date']));
+            
+            // Guardian details from users table
+            $stmt_u = $pdo->prepare("SELECT * FROM users WHERE id = ?");
+            $stmt_u->execute([$user_id]);
+            $family_user = $stmt_u->fetch();
+            if ($family_user) {
+                $guardian_name    = $family_user['full_name'];
+                $guardian_phone   = $family_user['phone'] ?? '+91 98765 43215';
+                $guardian_address = $family_user['address'] ?? 'Pune, Maharashtra';
+            }
         }
     } catch (PDOException $e) {
         log_error("DB resident profile fetch failed: " . $e->getMessage());

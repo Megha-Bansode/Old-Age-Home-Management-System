@@ -16,10 +16,121 @@ require_role('Family Member');
 $base_path = '../../';
 $page_title = 'Billing & Payments | SevaNest';
 
+$pdo = get_db_connection();
+$user_id = $_SESSION['user_id'] ?? 5;
+
+// Fetch family user details
+$stmt = $pdo->prepare("SELECT * FROM users WHERE id = ?");
+$stmt->execute([$user_id]);
+$family_user = $stmt->fetch();
+$family_name = $family_user['full_name'] ?? 'Sunita Deshmukh';
+
 // Mock payment trigger
 $formSuccess = '';
+$formError = '';
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $formSuccess = 'Payment transaction processed successfully! Receipt generated.';
+    $action = $_POST['action'] ?? '';
+    if ($action === 'pay_invoice') {
+        $invoice = trim($_POST['invoice'] ?? '');
+        try {
+            $stmt = $pdo->prepare("SELECT * FROM donations WHERE receipt_number = ? AND donor_id = ?");
+            $stmt->execute([$invoice, $user_id]);
+            $row = $stmt->fetch();
+            
+            if ($row) {
+                $purpose = $row['purpose'];
+                $new_purpose = preg_replace('/^\[Fee:(Pending|Overdue):/', '[Fee:Paid:', $purpose);
+                
+                $stmt_upd = $pdo->prepare("UPDATE donations SET purpose = ?, donation_date = NOW() WHERE receipt_number = ?");
+                $stmt_upd->execute([$new_purpose, $invoice]);
+                
+                $formSuccess = "Payment for invoice $invoice processed successfully! Receipt generated.";
+            } else {
+                throw new Exception("Invoice $invoice not found.");
+            }
+        } catch (Exception $e) {
+            $formError = $e->getMessage();
+        }
+    } else {
+        $formSuccess = 'Payment transaction processed successfully! Receipt generated.';
+    }
+}
+
+// Fetch billing records
+$stmt_bills = $pdo->prepare("SELECT * FROM donations WHERE donor_id = ? ORDER BY donation_date DESC");
+$stmt_bills->execute([$user_id]);
+$db_bills = $stmt_bills->fetchAll();
+
+$invoices = [];
+$medBills = [];
+$pending = [];
+$receipts = [];
+
+$total_paid_sum = 0;
+$outstanding_dues_sum = 0;
+$next_due_date = '--';
+$last_payment_date = '--';
+
+foreach ($db_bills as $b) {
+    $purpose = $b['purpose'] ?? '';
+    $amount_val = (float)$b['amount'];
+    $amount_formatted = '₹' . number_format($amount_val);
+    $date_formatted = date('Y-m-d', strtotime($b['donation_date']));
+    $pretty_date = date('d F Y', strtotime($b['donation_date']));
+    
+    if (strpos($purpose, '[Fee:') === 0) {
+        if (preg_match('/^\[Fee:(.*?):(.*?)\]\s*(.*)$/', $purpose, $matches)) {
+            $status = $matches[1];
+            $payer_name = $matches[2];
+            $fee_description = $matches[3];
+        } else {
+            $status = 'Paid';
+            $payer_name = $family_name;
+            $fee_description = 'Maintenance Fee';
+        }
+        
+        if ($status === 'Paid') {
+            $total_paid_sum += $amount_val;
+            $last_payment_date = $pretty_date;
+            
+            if (stripos($fee_description, 'maintenance') !== false) {
+                $invoices[] = [
+                    'no' => $b['receipt_number'],
+                    'date' => $date_formatted,
+                    'type' => $fee_description,
+                    'amount' => $amount_formatted,
+                    'status' => 'Paid'
+                ];
+            } else {
+                $medBills[] = [
+                    'id' => $b['receipt_number'],
+                    'date' => $date_formatted,
+                    'desc' => $fee_description,
+                    'amount' => $amount_formatted,
+                    'status' => 'Paid'
+                ];
+            }
+            
+            $receipts[] = [
+                'receipt' => 'REC-' . substr($b['receipt_number'], 4),
+                'date' => $date_formatted,
+                'amount' => $amount_formatted,
+                'ref' => $b['receipt_number']
+            ];
+        } else {
+            $outstanding_dues_sum += $amount_val;
+            $next_due_date = $pretty_date;
+            
+            $pending[] = [
+                'no' => $b['receipt_number'],
+                'due' => $date_formatted,
+                'type' => $fee_description,
+                'amount' => $amount_formatted,
+                'status' => $status
+            ];
+        }
+    }
 }
 
 require_once __DIR__ . '/../../includes/header.php';
@@ -29,26 +140,6 @@ $userRole      = 'family_member';
 $currentPage   = 'billing.php';
 $sn_asset_root = "../../assets";
 include '../../includes/sidebar.php';
-
-// Mock billing datasets
-$invoices = [
-    ['no' => 'INV-9081', 'date' => '2026-07-05', 'type' => 'Maintenance Fee', 'amount' => '₹15,000', 'status' => 'Paid'],
-    ['no' => 'INV-9079', 'date' => '2026-06-05', 'type' => 'Maintenance Fee', 'amount' => '₹15,000', 'status' => 'Paid'],
-];
-
-$medBills = [
-    ['id' => 'MED-302', 'date' => '2026-07-15', 'desc' => 'Cardiology Checkup & Lab Tests', 'amount' => '₹3,500', 'status' => 'Paid'],
-    ['id' => 'MED-301', 'date' => '2026-06-18', 'desc' => 'Monthly Medication Refill', 'amount' => '₹1,200', 'status' => 'Paid'],
-];
-
-$pending = [
-    ['no' => 'INV-9084', 'due' => '2026-08-01', 'type' => 'Maintenance Fee (August)', 'amount' => '₹15,000', 'status' => 'Pending'],
-];
-
-$receipts = [
-    ['receipt' => 'REC-7081', 'date' => '2026-07-05', 'amount' => '₹15,000', 'ref' => 'INV-9081'],
-    ['receipt' => 'REC-7079', 'date' => '2026-06-05', 'amount' => '₹15,000', 'ref' => 'INV-9079'],
-];
 ?>
 
 <main id="sn-main-content" role="main" aria-label="Family Member billing content" class="p-4 flex-grow-1">
@@ -60,11 +151,17 @@ $receipts = [
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
         <?php endif; ?>
+        <?php if ($formError): ?>
+            <div class="alert alert-danger alert-dismissible fade show border-0 shadow-sm rounded-3 mb-4" role="alert">
+                <i class="bi bi-exclamation-triangle-fill me-2"></i> <?php echo htmlspecialchars($formError); ?>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        <?php endif; ?>
 
         <!-- Page Header -->
         <div class="mb-4">
             <h3 class="fw-bold mb-0 text-dark">Billing &amp; Invoices</h3>
-            <small class="text-muted">Review fee schedules, medical checkup invoices, pending dues, and download receipts for Kamala Devi</small>
+            <small class="text-muted">Review fee schedules, medical checkup invoices, pending dues, and download receipts for <?php echo htmlspecialchars($family_name); ?></small>
         </div>
 
         <!-- Stat summaries -->
@@ -72,25 +169,25 @@ $receipts = [
             <div class="col-12 col-md-3">
                 <div class="card border-0 shadow-sm rounded-3 p-3 bg-white border-start border-4 border-success">
                     <span class="text-muted small fw-semibold text-uppercase" style="font-size: 0.72rem;">Total Amount Paid</span>
-                    <h4 class="fw-bold mb-0 text-success">₹34,700</h4>
+                    <h4 class="fw-bold mb-0 text-success">₹<?php echo number_format($total_paid_sum); ?></h4>
                 </div>
             </div>
             <div class="col-12 col-md-3">
                 <div class="card border-0 shadow-sm rounded-3 p-3 bg-white border-start border-4 border-warning">
                     <span class="text-muted small fw-semibold text-uppercase" style="font-size: 0.72rem;">Outstanding Due</span>
-                    <h4 class="fw-bold mb-0 text-warning">₹15,000</h4>
+                    <h4 class="fw-bold mb-0 text-warning">₹<?php echo number_format($outstanding_dues_sum); ?></h4>
                 </div>
             </div>
             <div class="col-12 col-md-3">
                 <div class="card border-0 shadow-sm rounded-3 p-3 bg-white border-start border-4 border-primary">
                     <span class="text-muted small fw-semibold text-uppercase" style="font-size: 0.72rem;">Next Due Date</span>
-                    <h4 class="fw-bold mb-0 text-primary" style="font-size: 1.25rem; line-height: 1.6;">01 August 2026</h4>
+                    <h4 class="fw-bold mb-0 text-primary" style="font-size: 1.1rem; line-height: 1.6;"><?php echo htmlspecialchars($next_due_date); ?></h4>
                 </div>
             </div>
             <div class="col-12 col-md-3">
                 <div class="card border-0 shadow-sm rounded-3 p-3 bg-white border-start border-4 border-dark">
                     <span class="text-muted small fw-semibold text-uppercase" style="font-size: 0.72rem;">Last Payment Cleared</span>
-                    <h4 class="fw-bold mb-0 text-dark" style="font-size: 1.25rem; line-height: 1.6;">05 July 2026</h4>
+                    <h4 class="fw-bold mb-0 text-dark" style="font-size: 1.1rem; line-height: 1.6;"><?php echo htmlspecialchars($last_payment_date); ?></h4>
                 </div>
             </div>
         </div>
@@ -209,6 +306,8 @@ $receipts = [
                                             <td><span class="badge bg-warning-subtle text-warning rounded-pill px-2.5 py-1"><?php echo htmlspecialchars($pend['status']); ?></span></td>
                                             <td class="pe-3 text-end">
                                                 <form method="POST" action="billing.php">
+                                                    <input type="hidden" name="action" value="pay_invoice">
+                                                    <input type="hidden" name="invoice" value="<?php echo htmlspecialchars($pend['no']); ?>">
                                                     <button type="submit" class="btn btn-sm btn-primary fw-semibold py-1">Pay Outstanding</button>
                                                 </form>
                                             </td>

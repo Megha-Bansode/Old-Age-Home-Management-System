@@ -70,3 +70,59 @@ ON DUPLICATE KEY UPDATE
     `role` = VALUES(`role`),
     `message` = VALUES(`message`),
     `rating` = VALUES(`rating`);
+
+-- Seeding residents table
+INSERT INTO `residents` (
+  `resident_id`, `resident_code`, `full_name`, `gender`, `date_of_birth`, `age`, `blood_group`, 
+  `emergency_contact_name`, `emergency_contact_phone`, `address`, `room_number`, `health_status`, 
+  `admission_date`, `profile_photo`, `status`
+) VALUES
+(1, 'RES001', 'Devendra Joshi', 'Male', '1945-05-15', 81, 'O+', 'Rohan Joshi', '9876500001', 'Flat 4A, Green Meadows, Mumbai', 'Room 101', 'Stable health, under regular observation for pressure.', '2024-01-10', 'resident1.png', 'Active'),
+(2, 'RES002', 'Savitri Devi', 'Female', '1950-08-20', 75, 'A+', 'Priya Sharma', '9876500002', 'House 55, Temple Street, Chennai', 'Room 102', 'Mild hypertension, requires low-sodium meals.', '2024-02-15', 'resident2.png', 'Active'),
+(3, 'RES003', 'Hari Haran', 'Male', '1942-12-10', 83, 'B+', 'Suresh Haran', '9876500003', 'Sector 15, Vashi, Navi Mumbai', 'Room 103', 'Diabetic, daily insulin injections at 9 AM.', '2024-03-01', 'resident3.png', 'Active'),
+(4, 'RES004', 'Nirmala Deshpande', 'Female', '1948-03-25', 78, 'AB+', 'Amit Deshpande', '9876500004', 'Block C, Green Park, New Delhi', 'Room 104', 'Severe arthritis, uses a wheelchair for mobility.', '2024-04-12', 'resident4.png', 'Inactive'),
+(5, 'RES005', 'Balraj Sahni', 'Male', '1940-11-05', 85, 'O-', 'Vikram Sahni', '9876500005', 'Plot 12, Riverbed Road, Nagpur', 'Room 105', 'Fully recovered from minor fracture. Discharged to family.', '2023-06-20', 'resident5.png', 'Discharged')
+ON DUPLICATE KEY UPDATE 
+    `resident_code` = VALUES(`resident_code`),
+    `full_name` = VALUES(`full_name`),
+    `gender` = VALUES(`gender`),
+    `date_of_birth` = VALUES(`date_of_birth`),
+    `age` = VALUES(`age`),
+    `blood_group` = VALUES(`blood_group`),
+    `emergency_contact_name` = VALUES(`emergency_contact_name`),
+    `emergency_contact_phone` = VALUES(`emergency_contact_phone`),
+    `address` = VALUES(`address`),
+    `room_number` = VALUES(`room_number`),
+    `health_status` = VALUES(`health_status`),
+    `admission_date` = VALUES(`admission_date`),
+    `profile_photo` = VALUES(`profile_photo`),
+    `status` = VALUES(`status`);
+
+-- Seeding staff table
+INSERT INTO `staff` (
+  `staff_id`, `staff_code`, `full_name`, `gender`, `date_of_birth`, `age`, `department`, 
+  `designation`, `phone`, `email`, `address`, `joining_date`, `salary`, `employment_type`, 
+  `shift`, `profile_photo`, `status`
+) VALUES
+(1, 'STF001', 'Ramesh Kadam', 'Male', '1985-04-12', 41, 'Nursing', 'Head Nurse', '9876540001', 'ramesh@sevanest.com', 'Baner, Pune, MH', '2022-03-15', 45000.00, 'Permanent', 'Day Shift', 'staff1.png', 'Active'),
+(2, 'STF002', 'Sunita Patil', 'Female', '1990-07-22', 36, 'Kitchen', 'Head Cook', '9876540002', 'sunita@sevanest.com', 'Kothrud, Pune, MH', '2023-01-10', 25000.00, 'Permanent', 'Morning Shift', 'staff2.png', 'Active'),
+(3, 'STF003', 'Amit Joshi', 'Male', '1993-11-05', 32, 'Administration', 'Front Desk Officer', '9876540003', 'amit@sevanest.com', 'Hadapsar, Pune, MH', '2024-05-01', 30000.00, 'Permanent', 'General Shift', 'staff3.png', 'Active'),
+(4, 'STF004', 'Rekha Sawant', 'Female', '1988-09-18', 37, 'Housekeeping', 'Cleaning Staff', '9876540004', 'rekha@sevanest.com', 'Viman Nagar, Pune, MH', '2023-06-20', 18000.00, 'Contract', 'Evening Shift', 'staff4.png', 'On Leave'),
+(5, 'STF005', 'Vijay Shinde', 'Male', '1980-01-30', 46, 'Security', 'Senior Guard', '9876540005', 'vijay@sevanest.com', 'Baner, Pune, MH', '2021-11-01', 20000.00, 'Part-Time', 'Night Shift', 'staff5.png', 'Resigned')
+ON DUPLICATE KEY UPDATE 
+    `staff_code` = VALUES(`staff_code`),
+    `full_name` = VALUES(`full_name`),
+    `gender` = VALUES(`gender`),
+    `date_of_birth` = VALUES(`date_of_birth`),
+    `age` = VALUES(`age`),
+    `department` = VALUES(`department`),
+    `designation` = VALUES(`designation`),
+    `phone` = VALUES(`phone`),
+    `email` = VALUES(`email`),
+    `address` = VALUES(`address`),
+    `joining_date` = VALUES(`joining_date`),
+    `salary` = VALUES(`salary`),
+    `employment_type` = VALUES(`employment_type`),
+    `shift` = VALUES(`shift`),
+    `profile_photo` = VALUES(`profile_photo`),
+    `status` = VALUES(`status`);

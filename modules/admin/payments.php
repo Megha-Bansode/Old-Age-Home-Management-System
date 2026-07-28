@@ -16,10 +16,309 @@ require_role(['Admin', 'Old Age Home Admin']);
 $base_path = '../../';
 $page_title = 'Financial Dashboard | SevaNest';
 
-// Handle Form Submission Mock
+// Database Connection
+require_once __DIR__ . '/../../config/database.php';
+$pdo = get_db_connection();
+
 $formSuccess = '';
+$formError = '';
+
+// Programmatically seed mock data on first run
+try {
+    $stmt = $pdo->query("SELECT COUNT(*) FROM donations");
+    if ($stmt->fetchColumn() == 0) {
+        $mocks = [
+            ['INV-9081', 15000, 'Cash', '[Fee:Paid:Kamala Devi] Maintenance Fee', '2026-07-05 10:00:00'],
+            ['INV-9082', 18000, 'Card', '[Fee:Paid:Harish Mehta] Special Care Fee', '2026-07-04 11:30:00'],
+            ['INV-9083', 12000, 'UPI', '[Fee:Paid:Gopal Prasad] Maintenance Fee', '2026-07-02 14:15:00'],
+            ['INV-9084', 15000, 'Cash', '[Fee:Pending:Devaki Amma] Maintenance Fee', '2026-08-01 00:00:00'],
+            ['INV-9085', 8500, 'UPI', '[Fee:Overdue:Savitri Bai] Special Care Fee', '2026-07-20 00:00:00'],
+            ['REC-4011', 150000, 'Bank Transfer', '[Donation:Vikramaditya Mehta] Medical Equipment', '2026-07-25 09:00:00'],
+            ['REC-4012', 200000, 'Bank Transfer', '[Donation:Sudha Murthy Foundation] Nutritional Meals', '2026-07-20 15:45:00'],
+            ['REC-4013', 75000, 'UPI', '[Donation:Anil Kapoor] General Fund', '2026-07-15 12:20:00']
+        ];
+        
+        foreach ($mocks as $m) {
+            $stmt_ins = $pdo->prepare("INSERT INTO donations (receipt_number, amount, payment_method, purpose, donation_date) VALUES (?, ?, ?, ?, ?)");
+            $stmt_ins->execute([$m[0], $m[1], $m[2], $m[3], $m[4]]);
+        }
+    }
+} catch (Exception $e) {
+    // Fail silently
+}
+
+// Parser Helper
+if (!function_exists('parse_finance_records')) {
+    function parse_finance_records($pdo) {
+        $stmt = $pdo->query("SELECT * FROM donations ORDER BY donation_id DESC");
+        $rows = $stmt->fetchAll();
+        
+        $payments = [];
+        $pendingPayments = [];
+        $donations = [];
+        
+        foreach ($rows as $row) {
+            $purpose = $row['purpose'] ?? '';
+            
+            if (strpos($purpose, '[Fee:') === 0) {
+                if (preg_match('/^\[Fee:(.*?):(.*?)\]\s*(.*)$/', $purpose, $matches)) {
+                    $status = $matches[1];
+                    $payer_name = $matches[2];
+                    $fee_type = $matches[3];
+                } else {
+                    $status = 'Paid';
+                    $payer_name = 'Anonymous';
+                    $fee_type = 'Maintenance Fee';
+                }
+                
+                if ($status === 'Paid') {
+                    $payments[] = [
+                        'invoice' => $row['receipt_number'],
+                        'payer' => $payer_name,
+                        'amount' => '₹' . number_format($row['amount']),
+                        'date' => date('Y-m-d', strtotime($row['donation_date'])),
+                        'status' => 'Paid',
+                        'type' => $fee_type
+                    ];
+                } else {
+                    $pendingPayments[] = [
+                        'invoice' => $row['receipt_number'],
+                        'payer' => $payer_name,
+                        'amount' => '₹' . number_format($row['amount']),
+                        'due_date' => date('Y-m-d', strtotime($row['donation_date'])),
+                        'status' => $status
+                    ];
+                }
+            } else {
+                if (preg_match('/^\[Donation:(.*?)\]\s*(.*)$/', $purpose, $matches)) {
+                    $donor_name = $matches[1];
+                    $category = $matches[2];
+                } else {
+                    $donor_name = 'Anonymous';
+                    $category = $purpose ?: 'General Fund';
+                }
+                
+                $donations[] = [
+                    'receipt' => $row['receipt_number'],
+                    'donor' => $donor_name,
+                    'amount' => '₹' . number_format($row['amount']),
+                    'category' => $category,
+                    'date' => date('Y-m-d', strtotime($row['donation_date']))
+                ];
+            }
+        }
+        
+        return [
+            'payments' => $payments,
+            'pendingPayments' => $pendingPayments,
+            'donations' => $donations
+        ];
+    }
+}
+
+// Rendering Helpers
+if (!function_exists('render_history_tab')) {
+    function render_history_tab($payments) {
+        ob_start();
+        if (empty($payments)) {
+            echo '<tr><td colspan="7" class="text-center py-4 text-muted">No payment records found.</td></tr>';
+        } else {
+            foreach ($payments as $p) {
+                ?>
+                <tr>
+                    <td class="ps-3"><span class="font-monospace text-muted"><?php echo sn_e($p['invoice']); ?></span></td>
+                    <td><span class="fw-semibold text-dark"><?php echo sn_e($p['payer']); ?></span></td>
+                    <td><span class="text-dark"><?php echo sn_e($p['type']); ?></span></td>
+                    <td><span class="text-dark fw-bold"><?php echo sn_e($p['amount']); ?></span></td>
+                    <td><span class="text-dark"><?php echo sn_e($p['date']); ?></span></td>
+                    <td><span class="badge bg-success-subtle text-success rounded-pill px-2.5 py-1"><?php echo sn_e($p['status']); ?></span></td>
+                    <td class="pe-3 text-end">
+                        <button class="btn btn-sm btn-light text-primary btn-view-invoice" data-invoice="<?php echo sn_e($p['invoice']); ?>" data-payer="<?php echo sn_e($p['payer']); ?>" data-type="<?php echo sn_e($p['type']); ?>" data-date="<?php echo sn_e($p['date']); ?>" data-amount="<?php echo sn_e($p['amount']); ?>">
+                            <i class="bi bi-file-earmark-text-fill"></i> View
+                        </button>
+                    </td>
+                </tr>
+                <?php
+            }
+        }
+        return ob_get_clean();
+    }
+}
+
+if (!function_exists('render_pending_tab')) {
+    function render_pending_tab($pendingPayments) {
+        ob_start();
+        if (empty($pendingPayments)) {
+            echo '<tr><td colspan="6" class="text-center py-4 text-muted">No pending invoices found.</td></tr>';
+        } else {
+            foreach ($pendingPayments as $pp) {
+                $badge = ($pp['status'] === 'Overdue') ? 'danger' : 'warning';
+                ?>
+                <tr>
+                    <td class="ps-3"><span class="font-monospace text-muted"><?php echo sn_e($pp['invoice']); ?></span></td>
+                    <td><span class="fw-semibold text-dark"><?php echo sn_e($pp['payer']); ?></span></td>
+                    <td><span class="text-dark fw-bold"><?php echo sn_e($pp['amount']); ?></span></td>
+                    <td><span class="text-dark"><?php echo sn_e($pp['due_date']); ?></span></td>
+                    <td><span class="badge bg-<?php echo $badge; ?>-subtle text-<?php echo $badge; ?> rounded-pill px-2.5 py-1"><?php echo sn_e($pp['status']); ?></span></td>
+                    <td class="pe-3 text-end">
+                        <form method="POST" action="payments.php" class="d-inline record-payment-form">
+                            <input type="hidden" name="action" value="record_payment">
+                            <input type="hidden" name="invoice" value="<?php echo sn_e($pp['invoice']); ?>">
+                            <button type="submit" class="btn btn-sm btn-primary fw-semibold py-1">Record Payment</button>
+                        </form>
+                    </td>
+                </tr>
+                <?php
+            }
+        }
+        return ob_get_clean();
+    }
+}
+
+if (!function_exists('render_donations_tab')) {
+    function render_donations_tab($donations) {
+        ob_start();
+        if (empty($donations)) {
+            echo '<tr><td colspan="5" class="text-center py-4 text-muted">No donations logged yet.</td></tr>';
+        } else {
+            foreach ($donations as $don) {
+                ?>
+                <tr>
+                    <td class="ps-3"><span class="font-monospace text-muted"><?php echo sn_e($don['receipt']); ?></span></td>
+                    <td><span class="fw-semibold text-dark"><?php echo sn_e($don['donor']); ?></span></td>
+                    <td><span class="text-dark"><?php echo sn_e($don['category']); ?></span></td>
+                    <td><span class="text-success fw-bold"><?php echo sn_e($don['amount']); ?></span></td>
+                    <td class="pe-3"><span class="text-dark"><?php echo sn_e($don['date']); ?></span></td>
+                </tr>
+                <?php
+            }
+        }
+        return ob_get_clean();
+    }
+}
+
+if (!function_exists('render_modals')) {
+    function render_modals($payments) {
+        ob_start();
+        if (!empty($payments)) {
+            foreach ($payments as $p) {
+                ?>
+                <div class="modal fade" id="invoiceModal_<?php echo sn_e($p['invoice']); ?>" tabindex="-1" aria-labelledby="invoiceModalLabel_<?php echo sn_e($p['invoice']); ?>" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content border-0 shadow-lg rounded-3">
+                            <div class="modal-header border-light">
+                                <h5 class="modal-title fw-bold" id="invoiceModalLabel_<?php echo sn_e($p['invoice']); ?>">Invoice Details</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body p-4">
+                                <div class="text-center mb-4">
+                                    <div class="fs-4 text-success"><i class="bi bi-patch-check-fill"></i></div>
+                                    <h3 class="fw-bold mb-0 mt-2 text-dark"><?php echo sn_e($p['amount']); ?></h3>
+                                    <span class="badge bg-success-subtle text-success rounded-pill mt-1">Paid</span>
+                                </div>
+                                <div class="row g-3">
+                                    <div class="col-6 text-muted">Invoice No:</div>
+                                    <div class="col-6 text-end fw-semibold text-dark"><?php echo sn_e($p['invoice']); ?></div>
+                                    <div class="col-6 text-muted">Payer:</div>
+                                    <div class="col-6 text-end fw-semibold text-dark"><?php echo sn_e($p['payer']); ?></div>
+                                    <div class="col-6 text-muted">Fee Type:</div>
+                                    <div class="col-6 text-end fw-semibold text-dark"><?php echo sn_e($p['type']); ?></div>
+                                    <div class="col-6 text-muted">Payment Date:</div>
+                                    <div class="col-6 text-end fw-semibold text-dark"><?php echo sn_e($p['date']); ?></div>
+                                </div>
+                            </div>
+                            <div class="modal-footer border-light">
+                                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Close</button>
+                                <button type="button" class="btn btn-primary btn-sm" onclick="window.print();">Print</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <?php
+            }
+        }
+        return ob_get_clean();
+    }
+}
+
+// Handle POST actions
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $formSuccess = 'Payment clearance logged successfully!';
+    $action = $_POST['action'] ?? '';
+    $is_ajax = (isset($_POST['ajax']) && $_POST['ajax'] == '1');
+
+    if ($action === 'record_payment') {
+        $invoice = trim($_POST['invoice'] ?? '');
+        try {
+            $stmt = $pdo->prepare("SELECT * FROM donations WHERE receipt_number = ?");
+            $stmt->execute([$invoice]);
+            $row = $stmt->fetch();
+            
+            if ($row) {
+                $purpose = $row['purpose'];
+                $new_purpose = preg_replace('/^\[Fee:(Pending|Overdue):/', '[Fee:Paid:', $purpose);
+                
+                $stmt_upd = $pdo->prepare("UPDATE donations SET purpose = ?, donation_date = NOW() WHERE receipt_number = ?");
+                $stmt_upd->execute([$new_purpose, $invoice]);
+                
+                $msg = "Payment for invoice $invoice recorded successfully!";
+                if ($is_ajax) {
+                    header('Content-Type: application/json');
+                    echo json_encode(['success' => true, 'message' => $msg]);
+                    exit;
+                }
+                $formSuccess = $msg;
+            } else {
+                throw new Exception("Invoice $invoice not found.");
+            }
+        } catch (Exception $e) {
+            $msg = $e->getMessage();
+            if ($is_ajax) {
+                header('Content-Type: application/json');
+                echo json_encode(['success' => false, 'message' => $msg]);
+                exit;
+            }
+            $formError = $msg;
+        }
+    }
+}
+
+// Fetch stats and lists
+$all_records = parse_finance_records($pdo);
+$payments = $all_records['payments'];
+$pendingPayments = $all_records['pendingPayments'];
+$donations = $all_records['donations'];
+
+// Calculate stats sums
+$total_donations_sum = 0;
+$fees_collected_sum = 0;
+$outstanding_dues_sum = 0;
+$pending_invoices_count = 0;
+
+foreach ($donations as $don) {
+    $total_donations_sum += (float)str_replace(['₹', ','], '', $don['amount']);
+}
+foreach ($payments as $p) {
+    $fees_collected_sum += (float)str_replace(['₹', ','], '', $p['amount']);
+}
+foreach ($pendingPayments as $pp) {
+    $outstanding_dues_sum += (float)str_replace(['₹', ','], '', $pp['amount']);
+    $pending_invoices_count++;
+}
+
+// Handle AJAX Fetch Request
+if (isset($_GET['action']) && $_GET['action'] === 'fetch') {
+    header('Content-Type: application/json');
+    echo json_encode([
+        'html_history' => render_history_tab($payments),
+        'html_pending' => render_pending_tab($pendingPayments),
+        'html_donations' => render_donations_tab($donations),
+        'html_modals' => render_modals($payments),
+        'total_donations' => '₹' . number_format($total_donations_sum),
+        'fees_collected' => '₹' . number_format($fees_collected_sum),
+        'outstanding_dues' => '₹' . number_format($outstanding_dues_sum),
+        'outstanding_count' => $pending_invoices_count . ' invoice' . ($pending_invoices_count == 1 ? '' : 's') . ' unpaid'
+    ]);
+    exit;
 }
 
 require_once __DIR__ . '/../../includes/header.php';
@@ -28,25 +327,8 @@ require_once __DIR__ . '/../../includes/header.php';
 $userRole      = 'admin';
 $currentPage   = 'payments.php';
 $sn_asset_root = "../../assets";
+$base_path = '../../'; // Ensure correct path prefix
 include '../../includes/sidebar.php';
-
-// Mock Financial Records
-$payments = [
-    ['invoice' => 'INV-9081', 'payer' => 'Kamala Devi', 'amount' => '₹15,000', 'date' => '2026-07-05', 'status' => 'Paid', 'type' => 'Maintenance Fee'],
-    ['invoice' => 'INV-9082', 'payer' => 'Harish Mehta', 'amount' => '₹18,000', 'date' => '2026-07-04', 'status' => 'Paid', 'type' => 'Special Care Fee'],
-    ['invoice' => 'INV-9083', 'payer' => 'Gopal Prasad', 'amount' => '₹12,000', 'date' => '2026-07-02', 'status' => 'Paid', 'type' => 'Maintenance Fee'],
-];
-
-$pendingPayments = [
-    ['invoice' => 'INV-9084', 'payer' => 'Devaki Amma', 'amount' => '₹15,000', 'due_date' => '2026-08-01', 'status' => 'Pending'],
-    ['invoice' => 'INV-9085', 'payer' => 'Savitri Bai', 'amount' => '₹8,500', 'due_date' => '2026-07-20', 'status' => 'Overdue'],
-];
-
-$donations = [
-    ['receipt' => 'REC-4011', 'donor' => 'Vikramaditya Mehta', 'amount' => '₹1,50,000', 'category' => 'Medical Equipment', 'date' => '2026-07-25'],
-    ['receipt' => 'REC-4012', 'donor' => 'Sudha Murthy Foundation', 'amount' => '₹2,00,000', 'category' => 'Nutritional Meals', 'date' => '2026-07-20'],
-    ['receipt' => 'REC-4013', 'donor' => 'Anil Kapoor', 'amount' => '₹75,000', 'category' => 'General Fund', 'date' => '2026-07-15'],
-];
 ?>
 
 <main id="sn-main-content" role="main" aria-label="Payments Content" class="p-4 flex-grow-1">
@@ -70,22 +352,22 @@ $donations = [
             <div class="col-12 col-sm-6 col-xl-3">
                 <div class="card border-0 shadow-sm rounded-3 p-3 bg-white border-start border-4 border-success">
                     <span class="text-muted small fw-semibold text-uppercase" style="font-size: 0.75rem;">Total Donations</span>
-                    <h4 class="fw-bold mb-0 text-success">₹4,25,000</h4>
+                    <h4 class="fw-bold mb-0 text-success" id="card-total-donations">₹<?php echo number_format($total_donations_sum); ?></h4>
                     <small class="text-muted">This month</small>
                 </div>
             </div>
             <div class="col-12 col-sm-6 col-xl-3">
                 <div class="card border-0 shadow-sm rounded-3 p-3 bg-white border-start border-4 border-primary">
                     <span class="text-muted small fw-semibold text-uppercase" style="font-size: 0.75rem;">Fees Collected</span>
-                    <h4 class="fw-bold mb-0 text-primary">₹45,000</h4>
+                    <h4 class="fw-bold mb-0 text-primary" id="card-fees-collected">₹<?php echo number_format($fees_collected_sum); ?></h4>
                     <small class="text-muted">Total maintenance fees</small>
                 </div>
             </div>
             <div class="col-12 col-sm-6 col-xl-3">
                 <div class="card border-0 shadow-sm rounded-3 p-3 bg-white border-start border-4 border-danger">
                     <span class="text-muted small fw-semibold text-uppercase" style="font-size: 0.75rem;">Outstanding Dues</span>
-                    <h4 class="fw-bold mb-0 text-danger">₹23,500</h4>
-                    <small class="text-danger-emphasis">2 invoices unpaid</small>
+                    <h4 class="fw-bold mb-0 text-danger" id="card-outstanding-dues">₹<?php echo number_format($outstanding_dues_sum); ?></h4>
+                    <small class="text-danger-emphasis" id="card-outstanding-count"><?php echo $pending_invoices_count; ?> invoice<?php echo $pending_invoices_count == 1 ? '' : 's'; ?> unpaid</small>
                 </div>
             </div>
             <div class="col-12 col-sm-6 col-xl-3">
@@ -131,22 +413,8 @@ $donations = [
                                         <th class="pe-3 text-end">Invoice</th>
                                     </tr>
                                 </thead>
-                                <tbody>
-                                    <?php foreach ($payments as $p): ?>
-                                        <tr>
-                                            <td class="ps-3"><span class="font-monospace text-muted"><?php echo sn_e($p['invoice']); ?></span></td>
-                                            <td><span class="fw-semibold text-dark"><?php echo sn_e($p['payer']); ?></span></td>
-                                            <td><span class="text-dark"><?php echo sn_e($p['type']); ?></span></td>
-                                            <td><span class="text-dark fw-bold"><?php echo sn_e($p['amount']); ?></span></td>
-                                            <td><span class="text-dark"><?php echo sn_e($p['date']); ?></span></td>
-                                            <td><span class="badge bg-success-subtle text-success rounded-pill px-2.5 py-1"><?php echo sn_e($p['status']); ?></span></td>
-                                            <td class="pe-3 text-end">
-                                                <button class="btn btn-sm btn-light text-primary" data-bs-toggle="modal" data-bs-target="#invoiceModal_<?php echo sn_e($p['invoice']); ?>">
-                                                    <i class="bi bi-file-earmark-text-fill"></i> View
-                                                </button>
-                                            </td>
-                                        </tr>
-                                    <?php endforeach; ?>
+                                <tbody id="table-history-body">
+                                    <?php echo render_history_tab($payments); ?>
                                 </tbody>
                             </table>
                         </div>
@@ -166,22 +434,8 @@ $donations = [
                                         <th class="pe-3 text-end">Actions</th>
                                     </tr>
                                 </thead>
-                                <tbody>
-                                    <?php foreach ($pendingPayments as $pp): ?>
-                                        <?php $badge = ($pp['status'] === 'Overdue') ? 'danger' : 'warning'; ?>
-                                        <tr>
-                                            <td class="ps-3"><span class="font-monospace text-muted"><?php echo sn_e($pp['invoice']); ?></span></td>
-                                            <td><span class="fw-semibold text-dark"><?php echo sn_e($pp['payer']); ?></span></td>
-                                            <td><span class="text-dark fw-bold"><?php echo sn_e($pp['amount']); ?></span></td>
-                                            <td><span class="text-dark"><?php echo sn_e($pp['due_date']); ?></span></td>
-                                            <td><span class="badge bg-<?php echo $badge; ?>-subtle text-<?php echo $badge; ?> rounded-pill px-2.5 py-1"><?php echo sn_e($pp['status']); ?></span></td>
-                                            <td class="pe-3 text-end">
-                                                <form method="POST" action="payments.php" class="d-inline">
-                                                    <button type="submit" class="btn btn-sm btn-primary fw-semibold py-1">Record Payment</button>
-                                                </form>
-                                            </td>
-                                        </tr>
-                                    <?php endforeach; ?>
+                                <tbody id="table-pending-body">
+                                    <?php echo render_pending_tab($pendingPayments); ?>
                                 </tbody>
                             </table>
                         </div>
@@ -200,16 +454,8 @@ $donations = [
                                         <th class="pe-3">Date</th>
                                     </tr>
                                 </thead>
-                                <tbody>
-                                    <?php foreach ($donations as $don): ?>
-                                        <tr>
-                                            <td class="ps-3"><span class="font-monospace text-muted"><?php echo sn_e($don['receipt']); ?></span></td>
-                                            <td><span class="fw-semibold text-dark"><?php echo sn_e($don['donor']); ?></span></td>
-                                            <td><span class="text-dark"><?php echo sn_e($don['category']); ?></span></td>
-                                            <td><span class="text-success fw-bold"><?php echo sn_e($don['amount']); ?></span></td>
-                                            <td class="pe-3"><span class="text-dark"><?php echo sn_e($don['date']); ?></span></td>
-                                        </tr>
-                                    <?php endforeach; ?>
+                                <tbody id="table-donations-body">
+                                    <?php echo render_donations_tab($donations); ?>
                                 </tbody>
                             </table>
                         </div>
@@ -222,58 +468,101 @@ $donations = [
     </div>
 </main>
 
-<!-- Invoice Modals -->
-<?php foreach ($payments as $p): ?>
-    <div class="modal fade" id="invoiceModal_<?php echo sn_e($p['invoice']); ?>" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content border-0 shadow-lg rounded-3">
-                <div class="modal-header border-light">
-                    <h5 class="modal-title fw-bold text-dark">Invoice Summary</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body p-4 bg-light">
-                    <!-- Invoice Sheet -->
-                    <div class="card border-0 rounded-3 p-4 shadow-sm bg-white font-monospace" style="font-size: 0.85rem; color: #333;">
-                        <div class="text-center mb-3">
-                            <h5 class="fw-bold mb-0">SEVANEST OLD AGE HOME</h5>
-                            <small class="text-muted">Receipt / Tax Invoice</small>
-                        </div>
-                        <hr class="border-secondary my-2">
-                        <div class="d-flex justify-content-between mb-1">
-                            <span>Invoice ID:</span>
-                            <span class="fw-bold"><?php echo sn_e($p['invoice']); ?></span>
-                        </div>
-                        <div class="d-flex justify-content-between mb-1">
-                            <span>Resident Name:</span>
-                            <span class="fw-bold"><?php echo sn_e($p['payer']); ?></span>
-                        </div>
-                        <div class="d-flex justify-content-between mb-1">
-                            <span>Fee Head:</span>
-                            <span class="fw-bold"><?php echo sn_e($p['type']); ?></span>
-                        </div>
-                        <div class="d-flex justify-content-between mb-3">
-                            <span>Date Cleared:</span>
-                            <span class="fw-bold"><?php echo sn_e($p['date']); ?></span>
-                        </div>
-                        <hr class="border-secondary my-2">
-                        <div class="d-flex justify-content-between fs-6 fw-bold text-dark pt-2">
-                            <span>TOTAL AMOUNT CLEARED:</span>
-                            <span><?php echo sn_e($p['amount']); ?></span>
-                        </div>
-                        <hr class="border-secondary my-2">
-                        <div class="text-center mt-3 text-success">
-                            <strong>★★★ PAYMENT RECEIVED — THANK YOU ★★★</strong>
-                        </div>
-                    </div>
-                </div>
-                <div class="modal-footer border-light">
-                    <button type="button" class="btn btn-sm btn-secondary fw-semibold" data-bs-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-sm btn-primary fw-semibold" onclick="window.print()"><i class="bi bi-printer me-1"></i> Print Invoice</button>
-                </div>
-            </div>
-        </div>
-    </div>
-<?php endforeach; ?>
+<!-- Invoice Modals Wrapper -->
+<div id="invoice-modals-container">
+    <?php echo render_modals($payments); ?>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const tablePending = document.getElementById('table-pending-body');
+    const tableHistory = document.getElementById('table-history-body');
+    const tableDonations = document.getElementById('table-donations-body');
+    const modalsContainer = document.getElementById('invoice-modals-container');
+
+    const cardDonations = document.getElementById('card-total-donations');
+    const cardCollected = document.getElementById('card-fees-collected');
+    const cardOutstanding = document.getElementById('card-outstanding-dues');
+    const cardOutstandingCount = document.getElementById('card-outstanding-count');
+
+    function refreshDashboard() {
+        fetch('payments.php?action=fetch')
+        .then(res => res.json())
+        .then(data => {
+            if (tablePending) tablePending.innerHTML = data.html_pending;
+            if (tableHistory) tableHistory.innerHTML = data.html_history;
+            if (tableDonations) tableDonations.innerHTML = data.html_donations;
+            if (modalsContainer) modalsContainer.innerHTML = data.html_modals;
+
+            if (cardDonations) cardDonations.textContent = data.total_donations;
+            if (cardCollected) cardCollected.textContent = data.fees_collected;
+            if (cardOutstanding) cardOutstanding.textContent = data.outstanding_dues;
+            if (cardOutstandingCount) cardOutstandingCount.textContent = data.outstanding_count;
+        })
+        .catch(err => {
+            console.error('Error refreshing billing portal:', err);
+        });
+    }
+
+    // Intercept Record Payment form submissions using event delegation
+    document.addEventListener('submit', (e) => {
+        const form = e.target.closest('.record-payment-form');
+        if (form) {
+            e.preventDefault();
+            const formData = new FormData(form);
+            formData.append('ajax', '1');
+
+            fetch('payments.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    if (typeof Swal !== 'undefined') {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Success',
+                            text: data.message,
+                            confirmButtonColor: '#2b4c3f'
+                        });
+                    }
+                    refreshDashboard();
+                } else {
+                    if (typeof Swal !== 'undefined') {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: data.message,
+                            confirmButtonColor: '#2b4c3f'
+                        });
+                    }
+                }
+            })
+            .catch(err => {
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'An error occurred while recording payment.',
+                        confirmButtonColor: '#2b4c3f'
+                    });
+                }
+            });
+        }
+    });
+
+    // Delegate view invoice click
+    document.addEventListener('click', (e) => {
+        const btn = e.target.closest('.btn-view-invoice');
+        if (btn) {
+            const invoice = btn.getAttribute('data-invoice');
+            const myModal = new bootstrap.Modal(document.getElementById(`invoiceModal_${invoice}`));
+            myModal.show();
+        }
+    });
+});
+</script>
 
 <?php
 require_once __DIR__ . '/../../includes/footer.php';

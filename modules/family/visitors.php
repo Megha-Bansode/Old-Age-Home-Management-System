@@ -4,6 +4,99 @@ require_once __DIR__ . '/../../includes/session.php';
 require_once __DIR__ . '/../../config/database.php';
 
 require_login();
+require_role('Family Member');
+
+$pdo = get_db_connection();
+$user_id = $_SESSION['user_id'] ?? 5;
+
+// Fetch family user details
+$stmt = $pdo->prepare("SELECT * FROM users WHERE id = ?");
+$stmt->execute([$user_id]);
+$family_user = $stmt->fetch();
+$family_name = $family_user['full_name'] ?? 'Sunita Deshmukh';
+
+// Fetch associated resident
+$stmt = $pdo->prepare("SELECT * FROM residents WHERE family_member_id = ? AND status = 'Active' LIMIT 1");
+$stmt->execute([$user_id]);
+$resident = $stmt->fetch();
+$resident_id = $resident ? (int)$resident['resident_id'] : 0;
+
+// POST Handlers
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $action = $_POST['action'] ?? '';
+    
+    if ($action === 'request_visit') {
+        $visit_date = $_POST['date'] ?? '';
+        $visit_time = $_POST['time'] ?? '';
+        $purpose = $_POST['purpose'] ?? '';
+        $notes = $_POST['notes'] ?? '';
+        
+        if ($visit_date && $visit_time && $purpose) {
+            $datetime = $visit_date . ' ' . $visit_time . ':00';
+            
+            // Insert into visit_requests
+            $stmt = $pdo->prepare("INSERT INTO visit_requests (family_member_id, resident_id, visit_date, purpose, status) VALUES (?, ?, ?, ?, 'Pending')");
+            $stmt->execute([$user_id, $resident_id, $datetime, $purpose]);
+            
+            header('Content-Type: application/json');
+            echo json_encode(['success' => true]);
+            exit;
+        } else {
+            header('Content-Type: application/json');
+            echo json_encode(['success' => false, 'message' => 'Missing fields']);
+            exit;
+        }
+    } elseif ($action === 'cancel_visit') {
+        $visit_id = (int)($_POST['id'] ?? 0);
+        if ($visit_id > 0) {
+            // Update visit_requests status to 'Rejected'
+            $stmt = $pdo->prepare("UPDATE visit_requests SET status = 'Rejected' WHERE request_id = ? AND family_member_id = ?");
+            $stmt->execute([$visit_id, $user_id]);
+            
+            header('Content-Type: application/json');
+            echo json_encode(['success' => true]);
+            exit;
+        } else {
+            header('Content-Type: application/json');
+            echo json_encode(['success' => false, 'message' => 'Invalid ID']);
+            exit;
+        }
+    }
+}
+
+// Fetch all visit requests
+$stmt = $pdo->prepare("SELECT vr.*, r.full_name AS resident_name FROM visit_requests vr JOIN residents r ON vr.resident_id = r.resident_id WHERE vr.family_member_id = ? ORDER BY vr.visit_date DESC");
+$stmt->execute([$user_id]);
+$db_visits = $stmt->fetchAll();
+
+$js_visits = [];
+foreach ($db_visits as $v) {
+    $ts = strtotime($v['visit_date']);
+    $db_status = $v['status'];
+    
+    $js_status = 'Pending';
+    if ($db_status === 'Pending') {
+        $js_status = 'Requested';
+    } elseif ($db_status === 'Rejected') {
+        $js_status = 'Cancelled';
+    } elseif ($db_status === 'Approved') {
+        if ($ts < time()) {
+            $js_status = 'Completed';
+        } else {
+            $js_status = 'Scheduled';
+        }
+    }
+    
+    $js_visits[] = [
+        'id' => (int)$v['request_id'],
+        'date' => date('Y-m-d', $ts),
+        'time' => date('h:i A', $ts),
+        'visitor' => $family_name,
+        'purpose' => $v['purpose'] ?? 'Regular Visit',
+        'status' => $js_status,
+        'remarks' => $v['purpose'] ?? 'No notes'
+    ];
+}
 
 $base_path = '../../';
 $page_title = 'Visit Schedule | SevaNest';
@@ -355,6 +448,9 @@ include '../../includes/sidebar.php';
 <!-- ── End Main Content Area ──────────────────────────────────────────── -->
 
 <!-- Visit Schedule custom JS -->
+<script>
+window.dbVisits = <?php echo json_encode($js_visits); ?>;
+</script>
 <script src="../../assets/js/visitors.js" defer></script>
 
 <?php

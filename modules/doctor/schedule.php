@@ -1,16 +1,43 @@
 <?php
-/**
- * SevaNest – Doctor Schedule Page
- * File     : modules/doctor/schedule.php
- * Version  : 1.0
- */
-
 require_once __DIR__ . '/../../includes/functions.php';
 require_once __DIR__ . '/../../includes/session.php';
 require_once __DIR__ . '/../../config/database.php';
 
 // Require Doctor login
 require_login();
+require_role('Doctor');
+
+$pdo = get_db_connection();
+$user_id = $_SESSION['user_id'] ?? 3; // Default to Dr. Priya Nair
+
+// Query appointments
+$stmt = $pdo->prepare("SELECT a.*, r.full_name, r.room_number FROM appointments a JOIN residents r ON a.resident_id = r.resident_id WHERE a.doctor_id = ? AND a.status != 'Cancelled'");
+$stmt->execute([$user_id]);
+$appointments = $stmt->fetchAll();
+
+// Map appointments into day & hour structure
+$grid = [
+    '09:00 AM' => [1=>[], 2=>[], 3=>[], 4=>[], 5=>[], 6=>[], 7=>[]],
+    '11:00 AM' => [1=>[], 2=>[], 3=>[], 4=>[], 5=>[], 6=>[], 7=>[]],
+    '02:00 PM' => [1=>[], 2=>[], 3=>[], 4=>[], 5=>[], 6=>[], 7=>[]],
+    '04:00 PM' => [1=>[], 2=>[], 3=>[], 4=>[], 5=>[], 6=>[], 7=>[]]
+];
+
+foreach ($appointments as $appt) {
+    $time = strtotime($appt['appointment_date']);
+    $day_index = (int)date('N', $time); // 1 (Mon) - 7 (Sun)
+    $hour = (int)date('H', $time);
+    
+    $slot = '';
+    if ($hour >= 9 && $hour < 11) $slot = '09:00 AM';
+    elseif ($hour >= 11 && $hour < 14) $slot = '11:00 AM';
+    elseif ($hour >= 14 && $hour < 16) $slot = '02:00 PM';
+    elseif ($hour >= 16 && $hour < 18) $slot = '04:00 PM';
+    
+    if ($slot !== '') {
+        $grid[$slot][$day_index][] = $appt;
+    }
+}
 
 $base_path = '../../';
 $page_title = 'My Schedule | SevaNest';
@@ -24,6 +51,7 @@ require_once __DIR__ . '/../../includes/header.php';
 $userRole      = 'doctor';
 $currentPage   = 'schedule.php';
 $sn_asset_root = "../../assets";
+$base_path = '../../';
 include '../../includes/sidebar.php';
 ?>
 
@@ -70,43 +98,83 @@ include '../../includes/sidebar.php';
 
                 <!-- 09:00 AM Row -->
                 <div class="schedule-time-label">09:00 AM</div>
-                <div class="schedule-cell"><div class="schedule-event opd">OPD Duty</div></div>
-                <div class="schedule-cell"></div>
-                <div class="schedule-cell"><div class="schedule-event opd">OPD Duty</div></div>
-                <div class="schedule-cell"></div>
-                <div class="schedule-cell"><div class="schedule-event opd">OPD Duty</div></div>
-                <div class="schedule-cell"><span style="color: var(--color-text-muted-team); font-size: var(--font-size-xs); font-style: italic; padding: 10px; display: block;">Leave Day</span></div>
-                <div class="schedule-cell"></div>
+                <?php for ($d = 1; $d <= 7; $d++): ?>
+                    <div class="schedule-cell">
+                        <?php if (!empty($grid['09:00 AM'][$d])): ?>
+                            <?php foreach ($grid['09:00 AM'][$d] as $appt): ?>
+                                <div class="schedule-event opd">
+                                    <?php echo sn_e($appt['reason']); ?>: <?php echo sn_e($appt['full_name']); ?> (Rm <?php echo sn_e($appt['room_number']); ?>)
+                                </div>
+                            <?php endforeach; ?>
+                        <?php else: ?>
+                            <?php if ($d === 1 || $d === 3 || $d === 5): ?>
+                                <div class="schedule-event opd">OPD Duty</div>
+                            <?php elseif ($d === 6): ?>
+                                <span style="color: var(--color-text-muted-team); font-size: var(--font-size-xs); font-style: italic; padding: 10px; display: block;">Leave Day</span>
+                            <?php endif; ?>
+                        <?php endif; ?>
+                    </div>
+                <?php endfor; ?>
 
                 <!-- 11:00 AM Row -->
                 <div class="schedule-time-label">11:00 AM</div>
-                <div class="schedule-cell"></div>
-                <div class="schedule-cell"><div class="schedule-event">Home Visit: Rm 204</div></div>
-                <div class="schedule-cell"></div>
-                <div class="schedule-cell"><div class="schedule-event">Home Visit: Rm 118</div></div>
-                <div class="schedule-cell"></div>
-                <div class="schedule-cell" style="background-color: #fafbfb;"></div>
-                <div class="schedule-cell"></div>
+                <?php for ($d = 1; $d <= 7; $d++): ?>
+                    <div class="schedule-cell">
+                        <?php if (!empty($grid['11:00 AM'][$d])): ?>
+                            <?php foreach ($grid['11:00 AM'][$d] as $appt): ?>
+                                <div class="schedule-event">
+                                    <?php echo sn_e($appt['reason']); ?>: <?php echo sn_e($appt['full_name']); ?> (Rm <?php echo sn_e($appt['room_number']); ?>)
+                                </div>
+                            <?php endforeach; ?>
+                        <?php else: ?>
+                            <?php if ($d === 2): ?>
+                                <div class="schedule-event">Home Visit: Rm 204</div>
+                            <?php elseif ($d === 4): ?>
+                                <div class="schedule-event">Home Visit: Rm 118</div>
+                            <?php endif; ?>
+                        <?php endif; ?>
+                    </div>
+                <?php endfor; ?>
 
                 <!-- 02:00 PM Row -->
                 <div class="schedule-time-label">02:00 PM</div>
-                <div class="schedule-cell"><div class="schedule-event">BP Monitoring Check</div></div>
-                <div class="schedule-cell"></div>
-                <div class="schedule-cell"><div class="schedule-event emergency">Emergency Duty</div></div>
-                <div class="schedule-cell"></div>
-                <div class="schedule-cell"><div class="schedule-event">Home Visit: Rm 301</div></div>
-                <div class="schedule-cell" style="background-color: #fafbfb;"></div>
-                <div class="schedule-cell"></div>
+                <?php for ($d = 1; $d <= 7; $d++): ?>
+                    <div class="schedule-cell">
+                        <?php if (!empty($grid['02:00 PM'][$d])): ?>
+                            <?php foreach ($grid['02:00 PM'][$d] as $appt): ?>
+                                <div class="schedule-event">
+                                    <?php echo sn_e($appt['reason']); ?>: <?php echo sn_e($appt['full_name']); ?> (Rm <?php echo sn_e($appt['room_number']); ?>)
+                                </div>
+                            <?php endforeach; ?>
+                        <?php else: ?>
+                            <?php if ($d === 1): ?>
+                                <div class="schedule-event">BP Monitoring Check</div>
+                            <?php elseif ($d === 3): ?>
+                                <div class="schedule-event emergency">Emergency Duty</div>
+                            <?php elseif ($d === 5): ?>
+                                <div class="schedule-event">Home Visit: Rm 301</div>
+                            <?php endif; ?>
+                        <?php endif; ?>
+                    </div>
+                <?php endfor; ?>
 
                 <!-- 04:00 PM Row -->
                 <div class="schedule-time-label">04:00 PM</div>
-                <div class="schedule-cell"></div>
-                <div class="schedule-cell"><div class="schedule-event opd">OPD Consultations</div></div>
-                <div class="schedule-cell"></div>
-                <div class="schedule-cell"><div class="schedule-event opd">OPD Consultations</div></div>
-                <div class="schedule-cell"></div>
-                <div class="schedule-cell" style="background-color: #fafbfb;"></div>
-                <div class="schedule-cell"></div>
+                <?php for ($d = 1; $d <= 7; $d++): ?>
+                    <div class="schedule-cell">
+                        <?php if (!empty($grid['04:00 PM'][$d])): ?>
+                            <?php foreach ($grid['04:00 PM'][$d] as $appt): ?>
+                                <div class="schedule-event opd">
+                                    <?php echo sn_e($appt['reason']); ?>: <?php echo sn_e($appt['full_name']); ?> (Rm <?php echo sn_e($appt['room_number']); ?>)
+                                </div>
+                            <?php endforeach; ?>
+                        <?php else: ?>
+                            <?php if ($d === 2 || $d === 4): ?>
+                                <div class="schedule-event opd">OPD Consultations</div>
+                            <?php endif; ?>
+                        <?php endif; ?>
+                    </div>
+                <?php endfor; ?>
             </div>
         </div>
 

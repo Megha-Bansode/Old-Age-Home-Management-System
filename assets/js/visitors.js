@@ -16,7 +16,7 @@
 'use strict';
 
 // Mock DB for visits (can be updated dynamically on the frontend)
-const mockVisits = [
+let mockVisits = window.dbVisits || [
     { id: 1, date: '2026-07-10', time: '10:00 AM', visitor: 'Kirti Bansode', purpose: 'Regular Visit', status: 'Completed', remarks: 'Loved one was happy. Brought sweets.' },
     { id: 2, date: '2026-07-18', time: '02:30 PM', visitor: 'Kirti Bansode', purpose: 'Medical Check-in', status: 'Completed', remarks: 'Checked BP and sugar. Reports stable.' },
     { id: 3, date: '2026-07-24', time: '04:00 PM', visitor: 'Kirti Bansode', purpose: 'Regular Visit', status: 'Scheduled', remarks: 'Pending arrival. Bringing clothes.' },
@@ -35,6 +35,30 @@ document.addEventListener('DOMContentLoaded', function () {
     initFormRequest();
     initHistoryTable();
     initRippleEffect();
+
+    const cancelBtn = document.querySelector('.vs-btn--cancel');
+    if (cancelBtn) {
+        cancelBtn.addEventListener('click', function() {
+            const visitId = this.dataset.visitId;
+            if (!visitId) return;
+            
+            const formData = new FormData();
+            formData.append('action', 'cancel_visit');
+            formData.append('id', visitId);
+            
+            fetch('visitors.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    showToast('Visit Cancelled!', 'Your visit request has been successfully cancelled.');
+                    setTimeout(() => { location.reload(); }, 1500);
+                }
+            });
+        });
+    }
 });
 
 /* ─────────────────────────────────────────────────────────────────────────
@@ -281,6 +305,16 @@ function selectDate(dateStr) {
         } else {
             upcomingStatus.style.color = 'var(--vs-primary)';
             actionBtns.style.display = 'flex';
+            
+            const cancelBtn = document.querySelector('.vs-btn--cancel');
+            if (cancelBtn) {
+                if (visit.status === 'Scheduled' || visit.status === 'Requested') {
+                    cancelBtn.removeAttribute('disabled');
+                    cancelBtn.dataset.visitId = visit.id;
+                } else {
+                    cancelBtn.setAttribute('disabled', 'true');
+                }
+            }
         }
 
         // Update right tracker card
@@ -325,42 +359,29 @@ function initFormRequest() {
             return;
         }
 
-        // Format military time to AM/PM format
-        let formattedTime = timeInput;
-        try {
-            const [hours, minutes] = timeInput.split(':');
-            const hrs = parseInt(hours);
-            const ampm = hrs >= 12 ? 'PM' : 'AM';
-            const displayHrs = hrs % 12 || 12;
-            formattedTime = `${displayHrs}:${minutes} ${ampm}`;
-        } catch(err) {}
+        const formData = new FormData();
+        formData.append('action', 'request_visit');
+        formData.append('date', dateInput);
+        formData.append('time', timeInput);
+        formData.append('purpose', purposeInput);
+        formData.append('notes', notesInput);
 
-        // Create new visit object
-        const newVisit = {
-            id: mockVisits.length + 1,
-            date: dateInput,
-            time: formattedTime,
-            visitor: 'Kirti Bansode', // Assume logged-in member
-            purpose: purposeInput,
-            status: 'Requested',
-            remarks: notesInput || 'Pending approval'
-        };
-
-        // Add to array
-        mockVisits.push(newVisit);
-
-        // Success Feedback banner
-        showToast('Visit Request Submitted Successfully!', `Your visit request for ${dateInput} is pending approval.`);
-
-        // Re-render Calendar and table
-        initCalendar();
-        initHistoryTable();
-
-        // Focus selection on the new request
-        selectDate(dateInput);
-
-        // Reset form fields
-        form.reset();
+        fetch('visitors.php', {
+            method: 'POST',
+            body: formData
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                showToast('Visit Request Submitted Successfully!', `Your visit request for ${dateInput} is pending approval.`);
+                setTimeout(() => { location.reload(); }, 1500);
+            } else {
+                alert('Failed to request visit: ' + (data.message || 'unknown error'));
+            }
+        })
+        .catch(err => {
+            console.error('Error submitting visit request:', err);
+        });
     });
 }
 

@@ -17,71 +17,64 @@ require_once __DIR__ . '/../../config/database.php';
 
 // Require login
 require_login();
+$pdo = get_db_connection();
+$user_id = $_SESSION['user_id'] ?? 5;
 
-/* ── Role & Page Configuration ──────────────────────────────────────────── */
-$userRole    = 'family_member';
-$currentPage = 'notifications.php';
+// 1. Fetch notifications from the database
+$stmt = $pdo->prepare("SELECT * FROM notifications WHERE user_id = ? ORDER BY created_at DESC");
+$stmt->execute([$user_id]);
+$db_notifs = $stmt->fetchAll();
 
-/* ── Dynamic PHP Data (MySQL Database Ready) ────────────────────────────── */
-// This array represents database rows. To connect with a MySQL database,
-// replace this static array with database fetch results:
-// E.g., $stmt = $pdo->prepare("SELECT * FROM notifications ORDER BY id DESC");
-$familynotifications = [
-    [
-        'id'      => 1,
-        'type'    => 'health', // health | visit | medication | doctor | report | billing | emergency
-        'title'   => '❤️ Health Update',
-        'message' => 'Blood pressure is stable today (120/80 mmHg). Resident is feeling healthy.',
-        'time'    => 'Today • 9:45 AM',
-        'status'  => 'unread', // unread | read
-        'icon'    => 'bi-heart-pulse-fill'
-    ],
-    [
-        'id'      => 2,
-        'type'    => 'visit',
-        'title'   => '📅 Visit Approved',
-        'message' => 'Your visit request for 28 July 2026 has been approved.',
-        'time'    => 'Yesterday • 4:30 PM',
-        'status'  => 'unread',
-        'icon'    => 'bi-calendar-check-fill'
-    ],
-    [
-        'id'      => 3,
-        'type'    => 'medication',
-        'title'   => '💊 Medication Update',
-        'message' => 'Morning medication has been successfully administered.',
-        'time'    => 'Yesterday • 8:00 AM',
-        'status'  => 'read',
-        'icon'    => 'bi-capsule'
-    ],
-    [
-        'id'      => 4,
-        'type'    => 'doctor',
-        'title'   => '🩺 Doctor Update',
-        'message' => 'Routine health check-up completed. No health concerns observed.',
-        'time'    => '22 Jul • 2:15 PM',
-        'status'  => 'read',
-        'icon'    => 'bi-person-vcard-fill'
-    ],
-    [
-        'id'      => 5,
-        'type'    => 'report',
-        'title'   => '📄 Medical Report',
-        'message' => 'Blood test report has been uploaded.',
-        'time'    => '21 Jul • 11:30 AM',
-        'status'  => 'read',
-        'icon'    => 'bi-file-earmark-medical-fill'
-    ],
-    [
-        'id'      => 6,
-        'type'    => 'billing',
-        'title'   => '💳 Billing Reminder',
-        'message' => 'Monthly payment is due in 3 days.',
-        'time'    => '20 Jul • 10:00 AM',
-        'status'  => 'unread',
-        'icon'    => 'bi-credit-card-2-front-fill'
-    ]
-];
+// 2. Mark all as read in database for next time
+$stmt_read = $pdo->prepare("UPDATE notifications SET is_read = 1 WHERE user_id = ? AND is_read = 0");
+$stmt_read->execute([$user_id]);
+
+$familynotifications = [];
+foreach ($db_notifs as $n) {
+    $title = $n['title'] ?? 'Notification';
+    $msg = $n['message'] ?? '';
+    
+    $type = 'visit';
+    $icon = 'bi-bell-fill';
+    
+    if (stripos($title, 'health') !== false || stripos($title, 'pulse') !== false) {
+        $type = 'health';
+        $icon = 'bi-heart-pulse-fill';
+    } elseif (stripos($title, 'visit') !== false) {
+        $type = 'visit';
+        $icon = 'bi-calendar-check-fill';
+    } elseif (stripos($title, 'medication') !== false || stripos($title, 'medicine') !== false) {
+        $type = 'medication';
+        $icon = 'bi-capsule';
+    } elseif (stripos($title, 'doctor') !== false || stripos($title, 'check-up') !== false) {
+        $type = 'doctor';
+        $icon = 'bi-person-vcard-fill';
+    } elseif (stripos($title, 'report') !== false) {
+        $type = 'report';
+        $icon = 'bi-file-earmark-medical-fill';
+    } elseif (stripos($title, 'billing') !== false || stripos($title, 'payment') !== false || stripos($title, 'donation') !== false) {
+        $type = 'billing';
+        $icon = 'bi-credit-card-2-front-fill';
+    }
+    
+    $ts = strtotime($n['created_at']);
+    $time_str = date('j M • h:i A', $ts);
+    if (date('Y-m-d', $ts) === date('Y-m-d')) {
+        $time_str = 'Today • ' . date('h:i A', $ts);
+    } elseif (date('Y-m-d', $ts) === date('Y-m-d', strtotime('-1 day'))) {
+        $time_str = 'Yesterday • ' . date('h:i A', $ts);
+    }
+    
+    $familynotifications[] = [
+        'id'      => (int)$n['notification_id'],
+        'type'    => $type,
+        'title'   => $title,
+        'message' => $msg,
+        'time'    => $time_str,
+        'status'  => $n['is_read'] ? 'read' : 'unread',
+        'icon'    => $icon
+    ];
+}
 ?>
 <?php
 $base_path = '../../';

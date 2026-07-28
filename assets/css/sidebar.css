@@ -530,7 +530,7 @@ body {
 } */
  #sn-main-content{
     margin-left:280px;
-    margin-top:64px;
+    margin-top:73px !important;
     padding:24px;
     transition: margin-left var(--sn-transition) !important;
 }
@@ -570,6 +570,11 @@ body.sidebar-collapsed .sn-topbar{
 body.sidebar-collapsed .sn-logo-wrap {
     padding   : 14px 10px;
     min-height: 72px;
+    overflow  : hidden !important;
+}
+
+body.sidebar-collapsed .sn-brand {
+    display: none !important;
 }
 
 body.sidebar-collapsed .sn-logo-container {

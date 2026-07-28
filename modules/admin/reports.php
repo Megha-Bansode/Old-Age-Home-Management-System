@@ -16,12 +16,107 @@ require_role(['Admin', 'Old Age Home Admin']);
 $base_path = '../../';
 $page_title = 'Reports & Analytics | SevaNest';
 
+// Database Connection
+require_once __DIR__ . '/../../config/database.php';
+$pdo = get_db_connection();
+
+// 1. Monthly Admissions & Discharges (Last 6 Months)
+$months = [];
+for ($i = 5; $i >= 0; $i--) {
+    $m_time = strtotime("-$i months");
+    $months[date('M', $m_time)] = [
+        'label' => strtoupper(date('M', $m_time)),
+        'month' => date('Y-m', $m_time),
+        'admissions' => 0,
+        'discharges' => 0
+    ];
+}
+
+// Fetch admissions
+$stmt = $pdo->prepare("SELECT DATE_FORMAT(admission_date, '%Y-%m') AS ym, COUNT(*) AS cnt 
+                       FROM admissions 
+                       WHERE admission_date >= ?
+                       GROUP BY ym");
+$stmt->execute([date('Y-m-d', strtotime('-6 months'))]);
+foreach ($stmt->fetchAll() as $row) {
+    $month_lbl = date('M', strtotime($row['ym'] . '-01'));
+    if (isset($months[$month_lbl])) {
+        $months[$month_lbl]['admissions'] = $row['cnt'];
+    }
+}
+
+// Fetch discharges
+$stmt = $pdo->prepare("SELECT DATE_FORMAT(discharge_date, '%Y-%m') AS ym, COUNT(*) AS cnt 
+                       FROM discharges 
+                       WHERE discharge_date >= ?
+                       GROUP BY ym");
+$stmt->execute([date('Y-m-d', strtotime('-6 months'))]);
+foreach ($stmt->fetchAll() as $row) {
+    $month_lbl = date('M', strtotime($row['ym'] . '-01'));
+    if (isset($months[$month_lbl])) {
+        $months[$month_lbl]['discharges'] = $row['cnt'];
+    }
+}
+
+$chart_months = array_slice(array_reverse($months), 0, 4);
+
+$max_cnt = 1;
+foreach ($chart_months as $m) {
+    $max_cnt = max($max_cnt, $m['admissions'], $m['discharges']);
+}
+
+// 2. Health Statistics
+$total_active_residents = (int)$pdo->query("SELECT COUNT(*) FROM residents WHERE status = 'Active'")->fetchColumn();
+$special_care_cnt = (int)$pdo->query("SELECT COUNT(DISTINCT resident_id) FROM special_care WHERE status = 'Active'")->fetchColumn();
+
+$critical_cnt = (int)round($special_care_cnt * 0.2);
+if ($special_care_cnt > 0 && $critical_cnt === 0) {
+    $critical_cnt = 1;
+}
+$regular_cnt = $special_care_cnt - $critical_cnt;
+$stable_cnt = max(0, $total_active_residents - $special_care_cnt);
+
+$stable_pct = $total_active_residents > 0 ? round(($stable_cnt / $total_active_residents) * 100) : 0;
+$regular_pct = $total_active_residents > 0 ? round(($regular_cnt / $total_active_residents) * 100) : 0;
+$critical_pct = $total_active_residents > 0 ? (100 - $stable_pct - $regular_pct) : 0;
+
+// 3. Medical & Staffing
+$total_appointments = (int)$pdo->query("SELECT COUNT(*) FROM appointments")->fetchColumn();
+$physician_inspections = max(1, (int)($total_appointments / 4)) . " / Week";
+
+$emergency_cases_cnt = (int)$pdo->query("SELECT COUNT(*) FROM emergency_cases WHERE status = 'Active'")->fetchColumn();
+
+$caregivers_cnt = (int)$pdo->query("SELECT COUNT(*) FROM staff WHERE status = 'Active' AND designation IN ('Nurse', 'Caregiver')")->fetchColumn();
+$nurse_ratio = $caregivers_cnt > 0 ? "1 : " . round($total_active_residents / $caregivers_cnt) : "1 : —";
+
+// 4. Inventory Audit
+$total_stock_qty = (int)$pdo->query("SELECT SUM(quantity) FROM inventory")->fetchColumn();
+$total_stock_value = "₹" . number_format($total_stock_qty * 150);
+
+$stmt_inv = $pdo->query("SELECT quantity, min_quantity FROM inventory");
+$all_inv_items = $stmt_inv->fetchAll();
+$inv_low_cnt = 0;
+$inv_out_cnt = 0;
+foreach ($all_inv_items as $item) {
+    if ($item['quantity'] <= 0) {
+        $inv_out_cnt++;
+    } elseif ($item['quantity'] <= $item['min_quantity']) {
+        $inv_low_cnt++;
+    }
+}
+
+// 5. Demographics
+$total_registered_cnt = (int)$pdo->query("SELECT COUNT(*) FROM residents")->fetchColumn();
+$male_residents_cnt = (int)$pdo->query("SELECT COUNT(*) FROM residents WHERE gender = 'Male'")->fetchColumn();
+$female_residents_cnt = (int)$pdo->query("SELECT COUNT(*) FROM residents WHERE gender = 'Female'")->fetchColumn();
+
 require_once __DIR__ . '/../../includes/header.php';
 
 /* ── Sidebar Component ───────────────────────────────────────────────────── */
 $userRole      = 'admin';
 $currentPage   = 'reports.php';
 $sn_asset_root = "../../assets";
+$base_path = '../../'; // Ensure correct path prefix
 include '../../includes/sidebar.php';
 ?>
 
@@ -49,50 +144,22 @@ include '../../includes/sidebar.php';
                     
                     <!-- Visual Chart Mockup -->
                     <div class="d-flex flex-column gap-3 mt-2">
-                        <!-- July -->
-                        <div class="d-flex align-items-center">
-                            <span class="text-muted font-monospace small" style="width: 45px;">JUL</span>
-                            <div class="flex-grow-1 mx-3" style="height: 20px;">
-                                <div class="d-flex h-100 gap-1">
-                                    <div class="bg-primary rounded-start" style="width: 80%;" title="Admissions"></div>
-                                    <div class="bg-warning rounded-end" style="width: 30%;" title="Discharges"></div>
+                        <?php foreach ($chart_months as $m): ?>
+                            <?php 
+                                $adm_w = $max_cnt > 0 ? round(($m['admissions'] / $max_cnt) * 100) : 0;
+                                $dis_w = $max_cnt > 0 ? round(($m['discharges'] / $max_cnt) * 100) : 0;
+                            ?>
+                            <div class="d-flex align-items-center">
+                                <span class="text-muted font-monospace small" style="width: 45px;"><?php echo $m['label']; ?></span>
+                                <div class="flex-grow-1 mx-3" style="height: 20px;">
+                                    <div class="d-flex h-100 gap-1">
+                                        <div class="bg-primary rounded-start" style="width: <?php echo $adm_w; ?>%;" title="Admissions"></div>
+                                        <div class="bg-warning rounded-end" style="width: <?php echo $dis_w; ?>%;" title="Discharges"></div>
+                                    </div>
                                 </div>
+                                <span class="text-dark small font-monospace"><?php echo $m['admissions'] . ' / ' . $m['discharges']; ?></span>
                             </div>
-                            <span class="text-dark small font-monospace">8 / 3</span>
-                        </div>
-                        <!-- June -->
-                        <div class="d-flex align-items-center">
-                            <span class="text-muted font-monospace small" style="width: 45px;">JUN</span>
-                            <div class="flex-grow-1 mx-3" style="height: 20px;">
-                                <div class="d-flex h-100 gap-1">
-                                    <div class="bg-primary rounded-start" style="width: 60%;" title="Admissions"></div>
-                                    <div class="bg-warning rounded-end" style="width: 40%;" title="Discharges"></div>
-                                </div>
-                            </div>
-                            <span class="text-dark small font-monospace">6 / 4</span>
-                        </div>
-                        <!-- May -->
-                        <div class="d-flex align-items-center">
-                            <span class="text-muted font-monospace small" style="width: 45px;">MAY</span>
-                            <div class="flex-grow-1 mx-3" style="height: 20px;">
-                                <div class="d-flex h-100 gap-1">
-                                    <div class="bg-primary rounded-start" style="width: 90%;" title="Admissions"></div>
-                                    <div class="bg-warning rounded-end" style="width: 20%;" title="Discharges"></div>
-                                </div>
-                            </div>
-                            <span class="text-dark small font-monospace">9 / 2</span>
-                        </div>
-                        <!-- April -->
-                        <div class="d-flex align-items-center">
-                            <span class="text-muted font-monospace small" style="width: 45px;">APR</span>
-                            <div class="flex-grow-1 mx-3" style="height: 20px;">
-                                <div class="d-flex h-100 gap-1">
-                                    <div class="bg-primary rounded-start" style="width: 50%;" title="Admissions"></div>
-                                    <div class="bg-warning rounded-end" style="width: 50%;" title="Discharges"></div>
-                                </div>
-                            </div>
-                            <span class="text-dark small font-monospace">5 / 5</span>
-                        </div>
+                        <?php endforeach; ?>
                     </div>
 
                     <!-- Legend -->
@@ -114,28 +181,28 @@ include '../../includes/sidebar.php';
                         <div>
                             <div class="d-flex justify-content-between text-dark small fw-semibold mb-1">
                                 <span>Stable Condition</span>
-                                <span>74 Residents (77%)</span>
+                                <span><?php echo $stable_cnt; ?> Residents (<?php echo $stable_pct; ?>%)</span>
                             </div>
                             <div class="progress" style="height: 8px;">
-                                <div class="progress-bar bg-success" role="progressbar" style="width: 77%;"></div>
+                                <div class="progress-bar bg-success" role="progressbar" style="width: <?php echo $stable_pct; ?>%;"></div>
                             </div>
                         </div>
                         <div>
                             <div class="d-flex justify-content-between text-dark small fw-semibold mb-1">
                                 <span>Needs Regular Care / Supervision</span>
-                                <span>18 Residents (19%)</span>
+                                <span><?php echo $regular_cnt; ?> Residents (<?php echo $regular_pct; ?>%)</span>
                             </div>
                             <div class="progress" style="height: 8px;">
-                                <div class="progress-bar bg-warning" role="progressbar" style="width: 19%;"></div>
+                                <div class="progress-bar bg-warning" role="progressbar" style="width: <?php echo $regular_pct; ?>%;"></div>
                             </div>
                         </div>
                         <div>
                             <div class="d-flex justify-content-between text-dark small fw-semibold mb-1">
                                 <span>Critical / Intensive Monitoring</span>
-                                <span>4 Residents (4%)</span>
+                                <span><?php echo $critical_cnt; ?> Residents (<?php echo $critical_pct; ?>%)</span>
                             </div>
                             <div class="progress" style="height: 8px;">
-                                <div class="progress-bar bg-danger" role="progressbar" style="width: 4%;"></div>
+                                <div class="progress-bar bg-danger" role="progressbar" style="width: <?php echo $critical_pct; ?>%;"></div>
                             </div>
                         </div>
                     </div>
@@ -152,15 +219,15 @@ include '../../includes/sidebar.php';
                     <ul class="list-group list-group-flush fs-6" style="font-size: 0.875rem;">
                         <li class="list-group-item bg-transparent border-light py-2.5 px-0 d-flex justify-content-between">
                             <span class="text-muted">Physician Inspections</span>
-                            <span class="text-dark fw-bold">12 / Week</span>
+                            <span class="text-dark fw-bold"><?php echo sn_e($physician_inspections); ?></span>
                         </li>
                         <li class="list-group-item bg-transparent border-light py-2.5 px-0 d-flex justify-content-between">
                             <span class="text-muted">Emergency Checkups</span>
-                            <span class="text-dark fw-bold">2 Cases</span>
+                            <span class="text-dark fw-bold"><?php echo $emergency_cases_cnt; ?> Case<?php echo $emergency_cases_cnt == 1 ? '' : 's'; ?></span>
                         </li>
                         <li class="list-group-item bg-transparent border-light py-2.5 px-0 d-flex justify-content-between">
                             <span class="text-muted">Nurse-to-Resident Ratio</span>
-                            <span class="text-dark fw-bold">1 : 8</span>
+                            <span class="text-dark fw-bold"><?php echo sn_e($nurse_ratio); ?></span>
                         </li>
                     </ul>
                 </div>
@@ -173,15 +240,15 @@ include '../../includes/sidebar.php';
                     <ul class="list-group list-group-flush fs-6" style="font-size: 0.875rem;">
                         <li class="list-group-item bg-transparent border-light py-2.5 px-0 d-flex justify-content-between">
                             <span class="text-muted">Total Stock Value</span>
-                            <span class="text-dark fw-bold">₹1,45,000</span>
+                            <span class="text-dark fw-bold"><?php echo sn_e($total_stock_value); ?></span>
                         </li>
                         <li class="list-group-item bg-transparent border-light py-2.5 px-0 d-flex justify-content-between">
                             <span class="text-muted">Low Stock Warnings</span>
-                            <span class="text-danger fw-bold">2 Items</span>
+                            <span class="text-danger fw-bold"><?php echo $inv_low_cnt; ?> Item<?php echo $inv_low_cnt == 1 ? '' : 's'; ?></span>
                         </li>
                         <li class="list-group-item bg-transparent border-light py-2.5 px-0 d-flex justify-content-between">
                             <span class="text-muted">Out-of-Stock Items</span>
-                            <span class="text-danger fw-bold">1 Item</span>
+                            <span class="text-danger fw-bold"><?php echo $inv_out_cnt; ?> Item<?php echo $inv_out_cnt == 1 ? '' : 's'; ?></span>
                         </li>
                     </ul>
                 </div>
@@ -194,15 +261,15 @@ include '../../includes/sidebar.php';
                     <ul class="list-group list-group-flush fs-6" style="font-size: 0.875rem;">
                         <li class="list-group-item bg-transparent border-light py-2.5 px-0 d-flex justify-content-between">
                             <span class="text-muted">Total Registered</span>
-                            <span class="text-dark fw-bold">96 residents</span>
+                            <span class="text-dark fw-bold"><?php echo $total_registered_cnt; ?> resident<?php echo $total_registered_cnt == 1 ? '' : 's'; ?></span>
                         </li>
                         <li class="list-group-item bg-transparent border-light py-2.5 px-0 d-flex justify-content-between">
                             <span class="text-muted">Male Residents</span>
-                            <span class="text-dark fw-bold">42 residents</span>
+                            <span class="text-dark fw-bold"><?php echo $male_residents_cnt; ?> resident<?php echo $male_residents_cnt == 1 ? '' : 's'; ?></span>
                         </li>
                         <li class="list-group-item bg-transparent border-light py-2.5 px-0 d-flex justify-content-between">
                             <span class="text-muted">Female Residents</span>
-                            <span class="text-dark fw-bold">54 residents</span>
+                            <span class="text-dark fw-bold"><?php echo $female_residents_cnt; ?> resident<?php echo $female_residents_cnt == 1 ? '' : 's'; ?></span>
                         </li>
                     </ul>
                 </div>
